@@ -1,8 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git push*)",
-      "PowerShell(git push*)"
+      "Bash(git *)",
+      "PowerShell(git *)",
+      "PowerShell(& \"C:\\Program Files\\Microsoft Visual Studio*)",
+      "PowerShell(Start-Process*)",
+      "PowerShell(Stop-Process*)",
+      "PowerShell(Get-Process*)",
+      "PowerShell(Get-ChildItem*)"
     ]
   }
 }
