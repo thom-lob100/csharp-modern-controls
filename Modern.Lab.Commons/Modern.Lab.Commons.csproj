@@ -72,6 +72,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <!-- Data -->
+    <Page Include="Controls\Wpf\Data\ModernDataGridControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <!-- Input code-behind -->
@@ -91,12 +96,20 @@
     <Compile Include="Controls\Wpf\Display\ModernLabelControl.xaml.cs">
       <DependentUpon>ModernLabelControl.xaml</DependentUpon>
     </Compile>
+    <!-- Data code-behind -->
+    <Compile Include="Controls\Wpf\Data\GridTextAlignment.cs" />
+    <Compile Include="Controls\Wpf\Data\ModernDataGridColumn.cs" />
+    <Compile Include="Controls\Wpf\Data\ModernDataGridControl.xaml.cs">
+      <DependentUpon>ModernDataGridControl.xaml</DependentUpon>
+    </Compile>
     <!-- WinForms wrapper hosting base (ElementHost) and wrappers -->
     <Compile Include="WinForms\Hosting\WpfElementHostBase.cs" />
+    <Compile Include="WinForms\Hosting\DataSourceConverter.cs" />
     <Compile Include="WinForms\Input\ModernButton.cs" />
     <Compile Include="WinForms\Input\ModernTextBox.cs" />
     <Compile Include="WinForms\Selection\ModernComboBox.cs" />
     <Compile Include="WinForms\Display\ModernLabel.cs" />
+    <Compile Include="WinForms\Data\ModernDataGrid.cs" />
     <!-- Properties -->
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

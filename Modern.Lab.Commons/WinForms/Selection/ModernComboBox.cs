@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using Modern.Lab.WinForms.Controls.Hosting;
 
@@ -86,7 +85,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 try
                 {
                     this.Wpf.SelectedItem = null;
-                    this.Wpf.ItemsSource = ConvertToItemsSource(value) ?? this.manualItems;
+                    this.Wpf.ItemsSource = DataSourceConverter.ToItemsSource(value) ?? this.manualItems;
 
                     if (this.hasPendingSelectedValue)
                     {
@@ -274,40 +273,6 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 // SelectedIndex instead. The setter exists only for Control.Text
                 // compatibility and is intentionally a no-op.
             }
-        }
-
-        // Converts the accepted DataSource shapes into a WPF ItemsSource.
-        private static IEnumerable ConvertToItemsSource(object value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            DataTable table = value as DataTable;
-
-            if (table != null)
-            {
-                return table.DefaultView;
-            }
-
-            DataView view = value as DataView;
-
-            if (view != null)
-            {
-                return view;
-            }
-
-            IEnumerable enumerable = value as IEnumerable;
-
-            if (enumerable != null)
-            {
-                return enumerable;
-            }
-
-            throw new ArgumentException(
-                "DataSource must be a DataTable, DataView, IList or IEnumerable.",
-                "value");
         }
 
         private bool HasBoundItems()

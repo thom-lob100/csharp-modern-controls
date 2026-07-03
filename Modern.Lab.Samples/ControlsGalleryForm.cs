@@ -2,8 +2,10 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Controls.Wpf.Display;
 using Modern.Lab.Controls.Wpf.Input;
+using Modern.Lab.WinForms.Controls.Data;
 using Modern.Lab.WinForms.Controls.Display;
 using Modern.Lab.WinForms.Controls.Input;
 using Modern.Lab.WinForms.Controls.Selection;
@@ -21,6 +23,8 @@ namespace Modern.Lab.Samples
         private ModernLabel echoLabel;
         private ModernComboBox deptComboBox;
         private ModernLabel comboEchoLabel;
+        private ModernDataGrid employeeGrid;
+        private ModernLabel gridEchoLabel;
 
         public ControlsGalleryForm()
         {
@@ -51,6 +55,72 @@ namespace Modern.Lab.Samples
 
             this.AddTitle("ModernComboBox");
             this.AddComboBoxSamples();
+
+            this.AddTitle("ModernDataGrid");
+            this.AddDataGridSamples();
+        }
+
+        // Exercises the grid contract: explicit column definitions, DataTable
+        // binding, first-row auto selection with a single SelectionChanged, and
+        // RowCount exposure for the bottom status area.
+        private void AddDataGridSamples()
+        {
+            this.employeeGrid = new ModernDataGrid();
+            this.employeeGrid.Size = new Size(660, 240);
+            this.employeeGrid.Margin = new Padding(0, 0, 0, 4);
+            this.employeeGrid.ConfigureColumns(
+                new ModernDataGridColumn("EMP_NO", "사번", 90),
+                new ModernDataGridColumn("EMP_NAME", "이름", 110),
+                new ModernDataGridColumn("DEPT_NAME", "부서", 140),
+                new ModernDataGridColumn("POSITION", "직급", 90) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("HIRE_DATE", "입사일") { TextAlignment = GridTextAlignment.Center });
+            this.employeeGrid.SelectionChanged += this.OnEmployeeGridSelectionChanged;
+            this.employeeGrid.DataSource = CreateEmployeeTable();
+            this.flowPanel.Controls.Add(this.employeeGrid);
+
+            this.gridEchoLabel = new ModernLabel();
+            this.gridEchoLabel.Kind = LabelKind.Helper;
+            this.gridEchoLabel.Size = new Size(660, 28);
+            this.gridEchoLabel.Text = "(SelectionChanged echo)";
+            this.flowPanel.Controls.Add(this.gridEchoLabel);
+
+            this.OnEmployeeGridSelectionChanged(this.employeeGrid, EventArgs.Empty);
+        }
+
+        // Stand-in for a server request/reply result (rule 2).
+        private static DataTable CreateEmployeeTable()
+        {
+            DataTable table = new DataTable();
+            table.Columns.Add("EMP_NO", typeof(string));
+            table.Columns.Add("EMP_NAME", typeof(string));
+            table.Columns.Add("DEPT_NAME", typeof(string));
+            table.Columns.Add("POSITION", typeof(string));
+            table.Columns.Add("HIRE_DATE", typeof(string));
+            table.Rows.Add("E1001", "김민수", "경영지원팀", "부장", "2012-03-02");
+            table.Rows.Add("E1002", "이서연", "개발1팀", "과장", "2015-07-13");
+            table.Rows.Add("E1003", "박지훈", "개발1팀", "대리", "2018-01-22");
+            table.Rows.Add("E1004", "최유진", "개발2팀", "과장", "2014-11-03");
+            table.Rows.Add("E1005", "정다은", "개발2팀", "사원", "2021-05-17");
+            table.Rows.Add("E1006", "한상우", "품질보증팀", "대리", "2019-09-09");
+            table.Rows.Add("E1007", "오세라", "품질보증팀", "사원", "2022-02-28");
+            table.Rows.Add("E1008", "장현우", "개발2팀", "대리", "2017-06-01");
+            return table;
+        }
+
+        private void OnEmployeeGridSelectionChanged(object sender, EventArgs e)
+        {
+            if (this.gridEchoLabel == null)
+            {
+                return;
+            }
+
+            DataRowView rowView = this.employeeGrid.SelectedItem as DataRowView;
+            string selectionText = rowView == null
+                ? "(선택 없음)"
+                : rowView["EMP_NAME"] + " / " + rowView["DEPT_NAME"] + " / " + rowView["POSITION"];
+
+            this.gridEchoLabel.Text =
+                "RowCount = " + this.employeeGrid.RowCount + " · Selected = " + selectionText;
         }
 
         // Exercises the data contract: DisplayMember/ValueMember, SelectedValue
