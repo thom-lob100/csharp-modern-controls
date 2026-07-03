@@ -51,6 +51,12 @@
     <Compile Include="SampleShellForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="EmployeeManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EmployeeManagementForm.Designer.cs">
+      <DependentUpon>EmployeeManagementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
