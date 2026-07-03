@@ -1,0 +1,53 @@
+<UserControl x:Class="Modern.Lab.Controls.Wpf.Display.ModernLabelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             x:Name="RootControl"
+             FontFamily="{DynamicResource Font.Family}"
+             d:DesignWidth="120" d:DesignHeight="24">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Modern.Lab.Commons;component/Themes/Tokens.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- One TextBlock whose typography follows the Kind (token type ramp). -->
+    <TextBlock x:Name="InnerText"
+               Text="{Binding Text, ElementName=RootControl}"
+               VerticalAlignment="Center"
+               TextTrimming="CharacterEllipsis">
+        <TextBlock.Style>
+            <Style TargetType="TextBlock">
+                <!-- Defaults (Body): body size, regular weight, primary text color -->
+                <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+                <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Title">
+                        <Setter Property="FontSize" Value="{StaticResource Font.Size.Title}" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Label">
+                        <Setter Property="FontSize" Value="{StaticResource Font.Size.Label}" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.TextSecondary}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Helper">
+                        <Setter Property="FontSize" Value="{StaticResource Font.Size.Helper}" />
+                        <Setter Property="FontWeight" Value="Normal" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.TextSecondary}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </TextBlock.Style>
+    </TextBlock>
+</UserControl>

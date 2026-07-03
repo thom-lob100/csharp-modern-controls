@@ -52,10 +52,40 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <!-- Input -->
+    <Page Include="Controls\Wpf\Input\ModernButtonControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Wpf\Input\ModernTextBoxControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <!-- Display -->
+    <Page Include="Controls\Wpf\Display\ModernLabelControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <!-- WinForms wrapper hosting base (ElementHost). Controls are added per feature. -->
+    <!-- Input code-behind -->
+    <Compile Include="Controls\Wpf\Input\ButtonKind.cs" />
+    <Compile Include="Controls\Wpf\Input\ModernButtonControl.xaml.cs">
+      <DependentUpon>ModernButtonControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Wpf\Input\ModernTextBoxControl.xaml.cs">
+      <DependentUpon>ModernTextBoxControl.xaml</DependentUpon>
+    </Compile>
+    <!-- Display code-behind -->
+    <Compile Include="Controls\Wpf\Display\LabelKind.cs" />
+    <Compile Include="Controls\Wpf\Display\ModernLabelControl.xaml.cs">
+      <DependentUpon>ModernLabelControl.xaml</DependentUpon>
+    </Compile>
+    <!-- WinForms wrapper hosting base (ElementHost) and wrappers -->
     <Compile Include="WinForms\Hosting\WpfElementHostBase.cs" />
+    <Compile Include="WinForms\Input\ModernButton.cs" />
+    <Compile Include="WinForms\Input\ModernTextBox.cs" />
+    <Compile Include="WinForms\Display\ModernLabel.cs" />
     <!-- Properties -->
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
