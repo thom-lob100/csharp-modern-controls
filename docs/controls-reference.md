@@ -8,6 +8,12 @@
   컬럼 정의 등 공용 타입 `Modern.Lab.Controls.Wpf.*`
 - 모든 컨트롤 공통: `Enabled` 전파, 디자이너에서 스냅샷 미리보기 표시,
   높이 32(컨트롤) / 카드류는 자유
+- 텍스트 렌더링: 전 컨트롤이 부드러운 Ideal 포매팅 + ClearType (WPF 자체 렌더링이라
+  MacType 등 GDI 후킹 도구와 무관하게 동일하게 보임)
+- 입력 컨트롤 공통 (`ModernTextBox`/`ModernDatePicker`/`ModernComboBox`/`ModernCheckComboBox`):
+  `Required = true`면 **값이 비어 있는 동안만 필드 오른쪽에 작은 빨간 점(●)** 이 표시되고
+  입력/선택하면 사라짐 — "아직 안 채운 필수 항목"을 알려주는 상태 기반 표시
+  (라벨의 `Required` 별표와 세트)
 
 ## 목차
 
@@ -15,12 +21,13 @@
 2. [ModernLabel](#modernlabel) — 라벨
 3. [ModernButton](#modernbutton) — 버튼
 4. [ModernTextBox](#moderntextbox) — 텍스트 입력 + 자동완성
-5. [ModernComboBox](#moderncombobox) — 콤보(검색형·멀티컬럼)
-6. [ModernCheckComboBox](#moderncheckcombobox) — 체크 콤보(다중 선택)
-7. [ModernDataGrid](#moderndatagrid) — 데이터 그리드
-8. [ModernKpiCard / ModernSummaryList](#modernkpicard--modernsummarylist) — 통계 표시
-9. [ModernCardPanel](#moderncardpanel) — 카드 판넬
-10. [ModernDataGridColumn](#moderndatagridcolumn) — 컬럼 정의 (그리드/콤보 공용)
+5. [ModernDatePicker](#moderndatepicker) — 날짜 선택
+6. [ModernComboBox](#moderncombobox) — 콤보(검색형·멀티컬럼)
+7. [ModernCheckComboBox](#moderncheckcombobox) — 체크 콤보(다중 선택)
+8. [ModernDataGrid](#moderndatagrid) — 데이터 그리드
+9. [ModernKpiCard / ModernSummaryList](#modernkpicard--modernsummarylist) — 통계 표시
+10. [ModernCardPanel](#moderncardpanel) — 카드 판넬
+11. [ModernDataGridColumn](#moderndatagridcolumn) — 컬럼 정의 (그리드/콤보 공용)
 
 ---
 
@@ -59,6 +66,7 @@ private void OnSearchClick(object sender, EventArgs e)
 | `Text` | string | "레이블" | 표시 텍스트. `Control.Text` override라 기존 코드/리소스 그대로 동작 |
 | `Kind` | `LabelKind` | `Body` | 타이포그래피 역할 — 크기·굵기·색이 자동 결정 |
 | `Required` | bool | false | true면 텍스트 뒤에 빨간 별표(\*) 표시 (필수 입력 표시) |
+| `TitleBar` | bool | false | `Kind=Title`일 때 텍스트 왼쪽에 액센트색 세로 타이틀 바 표시. Title이 아니면 무시됨 |
 
 `Kind` 값:
 
@@ -75,6 +83,10 @@ private void OnSearchClick(object sender, EventArgs e)
 this.lblName.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
 this.lblName.Text = "이름";
 this.lblName.Required = true;   // "이름 *" 로 표시
+
+this.lblPageTitle.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Title;
+this.lblPageTitle.TitleBar = true;   // "▎직원관리" 처럼 왼쪽에 파란 세로 바
+this.lblPageTitle.Text = "직원관리";
 ```
 
 ---
@@ -149,6 +161,40 @@ this.txtName.AutoCompleteSource = AutoCompleteSource.CustomSource;
 this.txtName.AutoCompleteCustomSource = names;
 // → "ㄱ"만 쳐도 김민수/김하늘/강태민 제안 (초성 검색), ↓/↑ 탐색, Enter 선택
 ```
+
+---
+
+## ModernDatePicker
+
+날짜 선택 필드 (`DateTimePicker` 대체, 날짜 전용). 달력 팝업 또는 직접 타이핑으로 입력한다.
+직접 입력은 **마스크 방식**: 숫자만 치면 `yyyy-MM-dd`로 자동 형식화되고(구분자 입력 불필요),
+중간 위치를 수정해도 즉시 재형식화되며 무효 입력은 오류 없이 값 미반영으로 처리된다.
+
+### 속성 / 이벤트
+
+| 멤버 | 타입 | 설명 |
+|---|---|---|
+| `Value` | `DateTime?` | 선택 날짜. **`null` = 미선택(전체 조회)** — 초기화 시 `null` 할당 |
+| `MinDate` / `MaxDate` | `DateTime?` | 달력에서 선택 가능한 범위 (`null` = 제한 없음) |
+| `PlaceholderText` | string | 입력 전 회색으로 표시되는 형식 안내 (기본 `"yyyy-MM-dd"`) |
+| `Required` | bool | 필수 입력 표시 (값이 비어 있는 동안 필드 오른쪽 빨간 점) |
+| `ValueChanged` | event | 날짜가 바뀔 때 1회 발생 (달력·타이핑·코드 할당 공통) |
+
+### 예제 — 구간(범위) 조회 조건
+
+```csharp
+DateTime? from = this.dtHireFrom.Value;
+DateTime? to = this.dtHireTo.Value;
+
+if (from.HasValue) { conditions.Add("HIRE_DATE >= '" + from.Value.ToString("yyyy-MM-dd") + "'"); }
+if (to.HasValue) { conditions.Add("HIRE_DATE <= '" + to.Value.ToString("yyyy-MM-dd") + "'"); }
+
+// 초기화
+this.dtHireFrom.Value = null;
+this.dtHireTo.Value = null;
+```
+
+권장 크기: 130×32. 표시 형식은 문화권 Short 형식(ko-KR: yyyy-MM-dd) 고정.
 
 ---
 
@@ -318,6 +364,7 @@ this.cardCount.Value = this.gridEmployee.RowCount.ToString();
 |---|---|
 | `DataSource` | 구분 컬럼 + 건수 컬럼을 가진 행 목록 (서버 GROUP BY 결과) |
 | `DisplayMember` / `ValueMember` | 칩 라벨 컬럼 / 건수 컬럼 |
+| `ColorMember` | 칩 배경색 컬럼 (선택; hex/색 이름 문자열, 비우면 기본색). 글자색은 배경과 같은 색상 계열로 자동 산출 (연파랑 → 진파랑 글씨) |
 | `Title` | 칩 왼쪽 제목 (비우면 숨김) |
 | `Flat` | 카드 테두리 제거 |
 
@@ -325,8 +372,9 @@ this.cardCount.Value = this.gridEmployee.RowCount.ToString();
 this.listDeptCount.Title = "부서별";
 this.listDeptCount.DisplayMember = "DEPT_NAME";
 this.listDeptCount.ValueMember = "CNT";
+this.listDeptCount.ColorMember = "COLOR";         // 선택 — 행별 "#DBEAFE" 같은 값
 this.listDeptCount.DataSource = deptCountTable;   // 조회할 때마다 재할당
-// → [경영지원팀 4] [개발1팀 6] ... 칩으로 표시
+// → [경영지원팀 4] [개발1팀 6] ... 칩으로 표시 (COLOR 컬럼이 있으면 부서마다 다른 색)
 ```
 
 ---

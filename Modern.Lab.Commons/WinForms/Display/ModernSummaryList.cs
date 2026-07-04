@@ -22,6 +22,7 @@ namespace Modern.Lab.WinForms.Controls.Display
         private string fallbackTitle;
         private string fallbackDisplayMember;
         private string fallbackValueMember;
+        private string fallbackColorMember;
         private bool fallbackFlat;
 
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
@@ -31,6 +32,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             this.fallbackTitle = string.Empty;
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
+            this.fallbackColorMember = string.Empty;
             this.fallbackFlat = false;
         }
 
@@ -133,6 +135,35 @@ namespace Modern.Lab.WinForms.Controls.Display
                 if (this.Wpf != null)
                 {
                     this.Wpf.CountMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 칩 배경색으로 쓸 컬럼/속성 이름. 값은 "#DBEAFE" 같은 hex 또는
+        /// "SkyBlue" 같은 색 이름 문자열. 비어 있거나 파싱 불가면 기본색으로 폴백.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("칩 배경색으로 사용할 컬럼/속성 이름(hex 또는 색 이름 문자열; 비우면 기본색)")]
+        [DefaultValue("")]
+        public string ColorMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.ColorMemberPath;
+                }
+
+                return this.fallbackColorMember;
+            }
+            set
+            {
+                this.fallbackColorMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.ColorMemberPath = value;
                 }
             }
         }

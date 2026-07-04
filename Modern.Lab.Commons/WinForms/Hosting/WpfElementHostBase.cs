@@ -202,6 +202,13 @@ namespace Modern.Lab.WinForms.Controls.Hosting
                 this.Wpf.Arrange(new System.Windows.Rect(size));
                 this.Wpf.UpdateLayout();
 
+                // 화면 밖 인스턴스는 렌더 패스가 돌지 않으므로, 대기 중인
+                // 바인딩/DataTrigger/렌더 디스패처 작업을 여기서 소화시킨다.
+                // 이게 없으면 속성 변경(Kind 등)이 다음 페인트에야 스냅숏에 반영된다.
+                this.Wpf.Dispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Render,
+                    new Action(delegate { }));
+
                 RenderTargetBitmap target = new RenderTargetBitmap(
                     this.Width, this.Height, 96d, 96d, PixelFormats.Pbgra32);
                 target.Render(this.Wpf);

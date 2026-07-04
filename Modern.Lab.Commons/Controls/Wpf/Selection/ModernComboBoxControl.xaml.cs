@@ -84,6 +84,14 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(false, OnIsEditableChanged));
 
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        public static readonly DependencyProperty RequiredProperty =
+            DependencyProperty.Register(
+                "Required",
+                typeof(bool),
+                typeof(ModernComboBoxControl),
+                new PropertyMetadata(false));
+
         private readonly ObservableCollection<object> filteredItems;
         private TextBox editableTextBox;
         private bool isRebuildingItems;
@@ -109,6 +117,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
+        }
+
+        /// <summary>필수 입력 필드 표시(필드 왼쪽 빨간 세로 바).</summary>
+        public bool Required
+        {
+            get { return (bool)this.GetValue(RequiredProperty); }
+            set { this.SetValue(RequiredProperty, value); }
         }
 
         /// <summary>현재 선택된 항목.</summary>

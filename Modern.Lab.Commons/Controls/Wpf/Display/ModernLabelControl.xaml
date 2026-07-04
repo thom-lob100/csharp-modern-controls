@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              x:Name="RootControl"
@@ -21,6 +21,27 @@
     <!-- 타이포그래피가 Kind(토큰 타입 램프)를 따르는 텍스트와, 그 뒤에 붙는
          선택적 필수 필드 표시(빨간 별표). -->
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <!-- 세로 타이틀 바: Kind=Title이면서 TitleBar=True일 때만 표시되는
+             액센트색 막대. 높이는 텍스트를 따라간다. -->
+        <Border x:Name="TitleAccentBar"
+                Width="3"
+                Margin="0,1,8,1"
+                Background="{StaticResource Brush.Accent}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Title" />
+                                <Condition Binding="{Binding TitleBar, ElementName=RootControl}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+        </Border>
         <TextBlock x:Name="InnerText"
                    Text="{Binding Text, ElementName=RootControl}"
                    VerticalAlignment="Center"

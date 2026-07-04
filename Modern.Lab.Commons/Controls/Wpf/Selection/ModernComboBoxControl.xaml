@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              x:Name="RootControl"
@@ -52,7 +52,7 @@
                         BorderThickness="1">
                     <TextBlock Text="&#xE70D;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="10"
+                               FontSize="{StaticResource Font.Size.IconSm}"
                                HorizontalAlignment="Right"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"
@@ -183,5 +183,32 @@
                    FontSize="{StaticResource Font.Size.Body}"
                    Foreground="{StaticResource Brush.TextPlaceholder}"
                    IsHitTestVisible="False" />
+
+        <!-- 필수 미입력 점: Required이면서 값이 비어 있는 동안만 셰브런 왼쪽에 표시.
+             빈 값 판정은 placeholder 표시 로직(선택·입력·IME 반영)을 그대로 따른다. -->
+        <Border x:Name="RequiredDot"
+                Width="6"
+                Height="6"
+                CornerRadius="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="0,0,30,0"
+                Background="{StaticResource Brush.ErrorBorder}"
+                IsHitTestVisible="False">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Required, ElementName=RootControl}" Value="True" />
+                                <Condition Binding="{Binding Visibility, ElementName=PlaceholderOverlay}" Value="Visible" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+        </Border>
     </Grid>
 </UserControl>

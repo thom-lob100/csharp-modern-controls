@@ -43,6 +43,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         private string fallbackValueMember;
         private string fallbackPlaceholder;
         private ComboBoxStyle fallbackDropDownStyle;
+        private bool fallbackRequired;
 
         /// <summary>선택이 바뀔 때 발생한다(WinForms 호환 이름).</summary>
         public event EventHandler SelectedIndexChanged;
@@ -55,6 +56,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
             this.fallbackPlaceholder = string.Empty;
+            this.fallbackRequired = false;
 
             // 기본값은 System.Windows.Forms.ComboBox와 동일: DropDown(편집 가능).
             // 입력하면 목록이 필터링되고, 텍스트를 지우면 선택도 지워진다.
@@ -116,6 +118,34 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 }
 
                 this.RaiseSelectedIndexChanged();
+            }
+        }
+
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("필수 입력 표시(필드 왼쪽 빨간 세로 바)")]
+        [DefaultValue(false)]
+        public bool Required
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Required;
+                }
+
+                return this.fallbackRequired;
+            }
+            set
+            {
+                this.fallbackRequired = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Required = value;
+                }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 

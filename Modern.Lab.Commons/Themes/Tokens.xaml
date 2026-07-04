@@ -84,6 +84,7 @@
     <!-- ErrorBorder는 진한 빨강(Danger 버튼 / 필수 표시);
          ErrorBorderSoft는 오류 상태 면에 쓰는 옅은 테두리 색이다. -->
     <SolidColorBrush x:Key="Brush.ErrorBorder" Color="#FFDC2626" />
+    <!-- ErrorBorderSoft: 오류 상태 면의 옅은 테두리 + 필수 입력 필드의 테두리 표시 겸용 -->
     <SolidColorBrush x:Key="Brush.ErrorBorderSoft" Color="#FFFECACA" />
     <SolidColorBrush x:Key="Brush.ErrorBackground" Color="#FFFEF2F2" />
     <SolidColorBrush x:Key="Brush.ErrorText" Color="#FFB91C1C" />
@@ -105,7 +106,6 @@
     <!-- 타입 스케일 (장치 독립 단위; 12 DIU = 9pt, 16 DIU = 12pt).
          컨트롤은 FontSize를 하드코딩하지 않고 이 값을 참조한다. 본문/레이블은 밀도 높은
          데이터 화면을 위해 12(9pt); 제목은 16(12pt)부터 단계적으로 커진다. -->
-    <sys:Double x:Key="Font.Size.Micro">9</sys:Double>
     <sys:Double x:Key="Font.Size.Helper">12</sys:Double>
     <sys:Double x:Key="Font.Size.Label">12</sys:Double>
     <sys:Double x:Key="Font.Size.Body">12</sys:Double>
@@ -115,6 +115,11 @@
     <sys:Double x:Key="Font.Size.Heading">20</sys:Double>
     <sys:Double x:Key="Font.Size.PageTitle">22</sys:Double>
     <sys:Double x:Key="Font.Size.Display">28</sys:Double>
+
+    <!-- 아이콘 글리프 크기 (Segoe MDL2 Assets 등 폰트 아이콘 전용).
+         IconSm: 셰브런·정렬 화살표 같은 보조 장식, Icon: 체크 표시 같은 상태 글리프. -->
+    <sys:Double x:Key="Font.Size.IconSm">10</sys:Double>
+    <sys:Double x:Key="Font.Size.Icon">11</sys:Double>
 
     <!-- 굵기 규칙: 구조 요소(제목, 필드 레이블, 그리드 헤더)는 SemiBold;
          본문, 데이터, 배지는 Regular 유지. 이 두 가지 굵기만 사용한다. -->

@@ -63,6 +63,14 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernCheckComboBoxControl),
                 new PropertyMetadata(CheckItemStyle.CheckBox, OnItemStyleChanged));
 
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        public static readonly DependencyProperty RequiredProperty =
+            DependencyProperty.Register(
+                "Required",
+                typeof(bool),
+                typeof(ModernCheckComboBoxControl),
+                new PropertyMetadata(false));
+
         private readonly ObservableCollection<CheckComboItem> checkItems;
         private bool suppressCheckedChanged;
         private bool suppressReopen;
@@ -84,6 +92,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
+        }
+
+        /// <summary>필수 입력 필드 표시(필드 왼쪽 빨간 세로 바).</summary>
+        public bool Required
+        {
+            get { return (bool)this.GetValue(RequiredProperty); }
+            set { this.SetValue(RequiredProperty, value); }
         }
 
         /// <summary>각 항목의 표시 텍스트로 사용할 멤버 경로.</summary>

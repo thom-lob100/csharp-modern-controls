@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              x:Name="RootControl"
@@ -62,20 +62,22 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
+                    <!-- 항목별 색(ColorMemberPath)이 있으면 그 브러시를, 없으면(null)
+                         TargetNullValue로 기본 토큰 색을 쓴다. -->
                     <DataTemplate>
                         <Border CornerRadius="{StaticResource Radius.Pill}"
-                                Background="{StaticResource Brush.NeutralBackground}"
+                                Background="{Binding Background, TargetNullValue={StaticResource Brush.NeutralBackground}}"
                                 Padding="10,2"
                                 Margin="0,1,6,1">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Label}"
                                            FontSize="{StaticResource Font.Size.Helper}"
-                                           Foreground="{StaticResource Brush.NeutralText}"
+                                           Foreground="{Binding LabelForeground, TargetNullValue={StaticResource Brush.NeutralText}}"
                                            VerticalAlignment="Center" />
                                 <TextBlock Text="{Binding Count}"
                                            FontSize="{StaticResource Font.Size.Helper}"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource Brush.SelectedText}"
+                                           Foreground="{Binding CountForeground, TargetNullValue={StaticResource Brush.SelectedText}}"
                                            Margin="6,0,0,0"
                                            VerticalAlignment="Center" />
                             </StackPanel>

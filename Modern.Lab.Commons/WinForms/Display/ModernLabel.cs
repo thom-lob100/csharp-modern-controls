@@ -20,6 +20,7 @@ namespace Modern.Lab.WinForms.Controls.Display
         private string fallbackText;
         private Modern.Lab.Controls.Wpf.Display.LabelKind fallbackKind;
         private bool fallbackRequired;
+        private bool fallbackTitleBar;
 
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernLabel()
@@ -28,6 +29,35 @@ namespace Modern.Lab.WinForms.Controls.Display
             this.fallbackText = "레이블";
             this.fallbackKind = Modern.Lab.Controls.Wpf.Display.LabelKind.Body;
             this.fallbackRequired = false;
+            this.fallbackTitleBar = false;
+        }
+
+        /// <summary>Kind가 Title일 때 텍스트 왼쪽에 액센트색 세로 타이틀 바를 표시한다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("Kind가 Title일 때 왼쪽에 액센트색 세로 타이틀 바 표시")]
+        [DefaultValue(false)]
+        public bool TitleBar
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.TitleBar;
+                }
+
+                return this.fallbackTitleBar;
+            }
+            set
+            {
+                this.fallbackTitleBar = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.TitleBar = value;
+                }
+
+                this.InvalidateDesignTimePreview();
+            }
         }
 
         /// <summary>텍스트 뒤에 빨간 별표를 표시한다(필수 필드 표시).</summary>

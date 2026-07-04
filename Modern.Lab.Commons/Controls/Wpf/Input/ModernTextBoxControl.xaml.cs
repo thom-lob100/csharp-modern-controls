@@ -53,6 +53,14 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernTextBoxControl),
                 new PropertyMetadata(false));
 
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        public static readonly DependencyProperty RequiredProperty =
+            DependencyProperty.Register(
+                "Required",
+                typeof(bool),
+                typeof(ModernTextBoxControl),
+                new PropertyMetadata(false));
+
         /// <summary>
         /// 추천 드롭다운의 후보 항목. 임의의 IEnumerable; 각 항목의 ToString()이
         /// 입력한 텍스트와 매칭된다(contains, 대소문자 무시).
@@ -100,6 +108,13 @@ namespace Modern.Lab.Controls.Wpf.Input
         {
             get { return (bool)this.GetValue(IsReadOnlyProperty); }
             set { this.SetValue(IsReadOnlyProperty, value); }
+        }
+
+        /// <summary>필수 입력 필드 표시(필드 왼쪽 빨간 세로 바).</summary>
+        public bool Required
+        {
+            get { return (bool)this.GetValue(RequiredProperty); }
+            set { this.SetValue(RequiredProperty, value); }
         }
 
         /// <summary>추천 드롭다운의 후보 항목. null이면 자동완성이 비활성화된다.</summary>

@@ -10,13 +10,15 @@
 | `DataSource` | `DataTable`/`DataView`/`IList`/`IEnumerable`. 구분 컬럼 + 건수 컬럼을 가진 행 목록 (서버 GROUP BY 결과 등). null이면 칩 목록이 비워짐 |
 | `DisplayMember` | 칩 라벨로 사용할 컬럼/속성 이름 |
 | `ValueMember` | 칩 건수로 사용할 컬럼/속성 이름 |
+| `ColorMember` | 칩 배경색으로 사용할 컬럼/속성 이름 (선택). 값은 `"#DBEAFE"` 같은 hex 또는 `"SkyBlue"` 같은 색 이름 문자열. 비우거나 파싱 불가면 기본색 폴백 |
 | `Title` | 칩 목록 왼쪽 제목 (비우면 숨김). `[Localizable(true)]` |
 | `Flat` | 카드 테두리/배경 제거 — `ModernCardPanel` 위에 평면 배치할 때 사용 |
 | `Enabled` | 전파됨 |
 
 ## 계약 보장 동작 (docs/design-notes.md §6-1)
 
-- `DisplayMember`/`ValueMember`와 `DataSource`의 설정 순서는 무관 — 어느 쪽이 나중에 와도 칩이 다시 구성됨
+- `DisplayMember`/`ValueMember`/`ColorMember`와 `DataSource`의 설정 순서는 무관 — 어느 쪽이 나중에 와도 칩이 다시 구성됨
+- `ColorMember`로 배경을 지정하면 글자색은 배경과 같은 색상 계열로 자동 산출됨 — 밝은 배경은 진한 톤(연파랑 → 진파랑), 어두운 배경은 밝은 톤, 무채색 배경은 진회색/흰색
 - null/빈 데이터, 존재하지 않는 컬럼 이름은 빈 표시로 처리, 예외 없음
 - 백그라운드 조회 후 UI 스레드 `Invoke` 할당 패턴 지원
 
@@ -29,8 +31,10 @@ this.listDeptCount = new Modern.Lab.WinForms.Controls.Display.ModernSummaryList(
 this.listDeptCount.Title = "부서별 인원";
 this.listDeptCount.DisplayMember = "DEPT_NAME";
 this.listDeptCount.ValueMember = "CNT";
+this.listDeptCount.ColorMember = "COLOR";   // 선택 — 부서마다 다른 칩 색
 
 // 조회 완료 후 (서버 GROUP BY 응답 또는 로컬 집계 DataTable)
+// COLOR 컬럼 예: "#DBEAFE" (없거나 빈 행은 기본색으로 표시)
 this.listDeptCount.DataSource = deptCountTable;
 ```
 

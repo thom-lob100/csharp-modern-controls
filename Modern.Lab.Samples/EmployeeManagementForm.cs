@@ -94,8 +94,10 @@ namespace Modern.Lab.Samples
 
             this.listDeptCount.DisplayMember = "CATEGORY";
             this.listDeptCount.ValueMember = "CNT";
+            this.listDeptCount.ColorMember = "COLOR";
             this.listRankCount.DisplayMember = "CATEGORY";
             this.listRankCount.ValueMember = "CNT";
+            this.listRankCount.ColorMember = "COLOR";
 
             // 이름 필터의 검색창형 자동완성 — 기존 WinForms TextBox 멤버와
             // 완전히 동일한 배선.
@@ -145,6 +147,21 @@ namespace Modern.Lab.Samples
                 conditions.Add("POSITION_CODE IN (" + string.Join(", ", quoted.ToArray()) + ")");
             }
 
+            // 입사일 구간: 미선택(null)은 조건에서 제외. HIRE_DATE가 ISO 형식
+            // (yyyy-MM-dd) 문자열이라 문자열 비교가 곧 날짜 비교가 된다.
+            DateTime? hireFrom = this.dtHireFrom.Value;
+            DateTime? hireTo = this.dtHireTo.Value;
+
+            if (hireFrom.HasValue)
+            {
+                conditions.Add("HIRE_DATE >= '" + hireFrom.Value.ToString("yyyy-MM-dd") + "'");
+            }
+
+            if (hireTo.HasValue)
+            {
+                conditions.Add("HIRE_DATE <= '" + hireTo.Value.ToString("yyyy-MM-dd") + "'");
+            }
+
             DataView view = new DataView(this.employeeMaster);
             view.RowFilter = string.Join(" AND ", conditions.ToArray());
             view.Sort = "EMP_NO ASC";
@@ -153,16 +170,40 @@ namespace Modern.Lab.Samples
 
             this.gridEmployee.DataSource = result;
             this.cardCount.Value = result.Rows.Count.ToString();
-            this.listDeptCount.DataSource = GroupCount(result, "DEPT_NAME");
-            this.listRankCount.DataSource = GroupCount(result, "POSITION");
+            this.listDeptCount.DataSource = GroupCount(result, "DEPT_NAME", deptChipColors);
+            this.listRankCount.DataSource = GroupCount(result, "POSITION", rankChipColors);
         }
 
+        // 부서별/직급별 칩 배경색 — 서버 코드 테이블의 색 컬럼을 흉내 내는 로컬 매핑.
+        // 매핑에 없는 분류는 기본색으로 폴백된다.
+        private static readonly Dictionary<string, string> deptChipColors = new Dictionary<string, string>
+        {
+            { "경영지원팀", "#DBEAFE" },
+            { "개발1팀", "#DCFCE7" },
+            { "개발2팀", "#FEF3C7" },
+            { "품질보증팀", "#FCE7F3" }
+        };
+
+        private static readonly Dictionary<string, string> rankChipColors = new Dictionary<string, string>
+        {
+            { "부장", "#E0E7FF" },
+            { "과장", "#CCFBF1" },
+            { "대리", "#FFEDD5" },
+            { "사원", "#F3E8FF" }
+        };
+
         // 서버 측 GROUP BY를 대신하는 로컬 집계. 처음 나타난 순서를 유지한다.
-        private static DataTable GroupCount(DataTable source, string columnName)
+        // colorMap이 있으면 분류 → 색 문자열을 COLOR 컬럼으로 함께 내린다.
+        private static DataTable GroupCount(DataTable source, string columnName, IDictionary<string, string> colorMap)
         {
             DataTable table = new DataTable();
             table.Columns.Add("CATEGORY", typeof(string));
             table.Columns.Add("CNT", typeof(int));
+
+            if (colorMap != null)
+            {
+                table.Columns.Add("COLOR", typeof(string));
+            }
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             List<string> order = new List<string>();
@@ -182,7 +223,14 @@ namespace Modern.Lab.Samples
 
             foreach (string key in order)
             {
-                table.Rows.Add(key, counts[key]);
+                if (colorMap != null && colorMap.ContainsKey(key))
+                {
+                    table.Rows.Add(key, counts[key], colorMap[key]);
+                }
+                else
+                {
+                    table.Rows.Add(key, counts[key]);
+                }
             }
 
             return table;
@@ -198,6 +246,8 @@ namespace Modern.Lab.Samples
             this.txtName.Text = string.Empty;
             this.cboDept.SelectedIndex = -1;
             this.cboRank.CheckedValues = null;
+            this.dtHireFrom.Value = null;
+            this.dtHireTo.Value = null;
             this.ExecuteSearch();
         }
 

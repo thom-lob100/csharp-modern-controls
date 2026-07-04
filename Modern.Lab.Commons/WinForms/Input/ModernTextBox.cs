@@ -27,6 +27,7 @@ namespace Modern.Lab.WinForms.Controls.Input
         private string fallbackText;
         private string fallbackPlaceholder;
         private bool fallbackReadOnly;
+        private bool fallbackRequired;
 
         private AutoCompleteMode autoCompleteMode;
         private AutoCompleteSource autoCompleteSource;
@@ -42,6 +43,7 @@ namespace Modern.Lab.WinForms.Controls.Input
             this.fallbackText = string.Empty;
             this.fallbackPlaceholder = string.Empty;
             this.fallbackReadOnly = false;
+            this.fallbackRequired = false;
             this.autoCompleteMode = AutoCompleteMode.None;
             this.autoCompleteSource = AutoCompleteSource.None;
             this.autoCompleteCustomSource = null;
@@ -107,6 +109,34 @@ namespace Modern.Lab.WinForms.Controls.Input
                 if (this.Wpf != null)
                 {
                     this.Wpf.Placeholder = value;
+                }
+
+                this.InvalidateDesignTimePreview();
+            }
+        }
+
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("필수 입력 표시(필드 왼쪽 빨간 세로 바)")]
+        [DefaultValue(false)]
+        public bool Required
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Required;
+                }
+
+                return this.fallbackRequired;
+            }
+            set
+            {
+                this.fallbackRequired = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Required = value;
                 }
 
                 this.InvalidateDesignTimePreview();

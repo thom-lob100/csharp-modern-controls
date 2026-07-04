@@ -33,6 +33,7 @@ this.txtName.AutoCompleteCustomSource = names;   // 재할당 시 후보 갱신
 |---|---|
 | `PlaceholderText` | 입력이 비었을 때 표시할 힌트. 한글 조합 시작(자음 입력)과 동시에 숨겨짐 — 표시 여부가 IME 조합 중에도 발생하는 내부 `TextChanged` 기반이라 바인딩 지연의 영향을 받지 않음 |
 | `EnterPressed` | Enter 키 입력 시 발생. **주의: 기존 `KeyDown`으로 Enter를 잡던 코드는 이 이벤트로 옮겨야 함** — WPF 에디터 내부에서 처리된 키는 WinForms `KeyDown`으로 오지 않음 |
+| `Required` | 필수 입력 표시 — 값이 비어 있는 동안 필드 오른쪽에 빨간 점, 입력하면 사라짐 (입력 컨트롤 공통 속성) |
 
 ## 미지원 멤버와 대체 방법
 

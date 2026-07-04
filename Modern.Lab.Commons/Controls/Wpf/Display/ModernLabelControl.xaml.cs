@@ -34,6 +34,17 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernLabelControl),
                 new PropertyMetadata(false));
 
+        /// <summary>
+        /// Kind가 Title일 때 텍스트 왼쪽에 액센트색 세로 타이틀 바를 표시한다.
+        /// Title이 아닌 Kind에서는 값과 무관하게 표시되지 않는다.
+        /// </summary>
+        public static readonly DependencyProperty TitleBarProperty =
+            DependencyProperty.Register(
+                "TitleBar",
+                typeof(bool),
+                typeof(ModernLabelControl),
+                new PropertyMetadata(false));
+
         public ModernLabelControl()
         {
             this.InitializeComponent();
@@ -58,6 +69,13 @@ namespace Modern.Lab.Controls.Wpf.Display
         {
             get { return (bool)this.GetValue(RequiredProperty); }
             set { this.SetValue(RequiredProperty, value); }
+        }
+
+        /// <summary>Kind가 Title일 때 왼쪽에 액센트색 세로 타이틀 바를 표시한다.</summary>
+        public bool TitleBar
+        {
+            get { return (bool)this.GetValue(TitleBarProperty); }
+            set { this.SetValue(TitleBarProperty, value); }
         }
     }
 }

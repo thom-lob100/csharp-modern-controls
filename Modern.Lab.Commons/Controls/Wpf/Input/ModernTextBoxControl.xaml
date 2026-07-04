@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              x:Name="RootControl"
@@ -76,6 +76,33 @@
                      PreviewKeyDown="InnerTextBox_PreviewKeyDown"
                      TextChanged="InnerTextBox_TextChanged"
                      LostKeyboardFocus="InnerTextBox_LostKeyboardFocus" />
+
+            <!-- 필수 미입력 점: Required이면서 값이 비어 있는 동안만 오른쪽에 표시.
+                 빈 값 판정은 IME까지 고려하는 placeholder 표시 로직을 그대로 따른다. -->
+            <Border x:Name="RequiredDot"
+                    Width="6"
+                    Height="6"
+                    CornerRadius="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0"
+                    Background="{StaticResource Brush.ErrorBorder}"
+                    IsHitTestVisible="False">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Required, ElementName=RootControl}" Value="True" />
+                                    <Condition Binding="{Binding Visibility, ElementName=PlaceholderText}" Value="Visible" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
 
             <!-- 자동완성 드롭다운(검색창 스타일). 항목이 포커스를 받지 않으므로
                  탐색 중에도 키보드 포커스는 에디터에 남는다. -->

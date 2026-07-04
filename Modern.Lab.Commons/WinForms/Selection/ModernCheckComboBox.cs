@@ -31,6 +31,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         private string fallbackValueMember;
         private string fallbackPlaceholder;
         private Modern.Lab.Controls.Wpf.Selection.CheckItemStyle fallbackItemStyle;
+        private bool fallbackRequired;
 
         /// <summary>어느 항목이든 체크 상태가 바뀔 때 발생.</summary>
         public event EventHandler CheckedChanged;
@@ -43,6 +44,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.fallbackValueMember = string.Empty;
             this.fallbackPlaceholder = string.Empty;
             this.fallbackItemStyle = Modern.Lab.Controls.Wpf.Selection.CheckItemStyle.CheckBox;
+            this.fallbackRequired = false;
 
             if (this.Wpf != null)
             {
@@ -91,6 +93,34 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 }
 
                 this.RaiseCheckedChanged();
+            }
+        }
+
+        /// <summary>필수 입력 필드 표시 — 필드 왼쪽에 빨간 세로 바를 그린다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("필수 입력 표시(필드 왼쪽 빨간 세로 바)")]
+        [DefaultValue(false)]
+        public bool Required
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Required;
+                }
+
+                return this.fallbackRequired;
+            }
+            set
+            {
+                this.fallbackRequired = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Required = value;
+                }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 

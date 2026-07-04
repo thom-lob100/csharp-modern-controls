@@ -62,6 +62,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\Wpf\Input\ModernDatePickerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <!-- Selection -->
     <Page Include="Controls\Wpf\Selection\ModernComboBoxControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -102,6 +106,9 @@
     <Compile Include="Controls\Wpf\Input\ModernTextBoxControl.xaml.cs">
       <DependentUpon>ModernTextBoxControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Wpf\Input\ModernDatePickerControl.xaml.cs">
+      <DependentUpon>ModernDatePickerControl.xaml</DependentUpon>
+    </Compile>
     <!-- Selection code-behind -->
     <Compile Include="Controls\Wpf\Selection\ModernComboBoxControl.xaml.cs">
       <DependentUpon>ModernComboBoxControl.xaml</DependentUpon>
@@ -134,6 +141,7 @@
     <Compile Include="WinForms\Hosting\DataSourceConverter.cs" />
     <Compile Include="WinForms\Input\ModernButton.cs" />
     <Compile Include="WinForms\Input\ModernTextBox.cs" />
+    <Compile Include="WinForms\Input\ModernDatePicker.cs" />
     <Compile Include="WinForms\Selection\ModernComboBox.cs" />
     <Compile Include="WinForms\Selection\ModernCheckComboBox.cs" />
     <Compile Include="WinForms\Display\ModernLabel.cs" />
