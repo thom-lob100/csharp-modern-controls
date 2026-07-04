@@ -41,6 +41,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         // WPF construction failed (Wpf == null).
         private string fallbackDisplayMember;
         private string fallbackValueMember;
+        private string fallbackPlaceholder;
         private ComboBoxStyle fallbackDropDownStyle;
 
         /// <summary>Raised when the selection changes (WinForms-compatible name).</summary>
@@ -53,6 +54,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.manualItems = new ObservableCollection<object>();
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
+            this.fallbackPlaceholder = string.Empty;
             this.fallbackDropDownStyle = ComboBoxStyle.DropDownList;
 
             if (this.Wpf != null)
@@ -110,6 +112,38 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 }
 
                 this.RaiseSelectedIndexChanged();
+            }
+        }
+
+        /// <summary>
+        /// Hint text shown while nothing is selected/typed. Same property name
+        /// as ModernTextBox for a consistent API.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("미선택/미입력 상태에서 표시할 힌트 텍스트")]
+        [Localizable(true)]
+        [DefaultValue("")]
+        public string PlaceholderText
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Placeholder;
+                }
+
+                return this.fallbackPlaceholder;
+            }
+            set
+            {
+                this.fallbackPlaceholder = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Placeholder = value;
+                }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 

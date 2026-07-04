@@ -31,7 +31,7 @@
 
 | 멤버 | 설명 |
 |---|---|
-| `Placeholder` (WPF `Placeholder` DP) | 미선택 상태에서 표시할 힌트 텍스트 — 래퍼에서는 미노출, 필요 시 요청 |
+| `PlaceholderText` | 미선택/미입력 상태에서 표시할 힌트 텍스트 — **`ModernTextBox`와 동일한 속성명**. "전체" 더미 행 대신 미선택(`SelectedIndex = -1`) + 플레이스홀더 패턴 권장: `DataSource` 할당 후 `SelectedIndex = -1`로 초기화하면 미선택 상태가 유지되고, 폼 조회 코드에서 `SelectedValue == null`을 "전체"로 처리 |
 
 ## 미지원 멤버와 대체 방법
 

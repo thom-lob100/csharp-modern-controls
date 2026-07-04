@@ -13,6 +13,13 @@ namespace Modern.Lab.Controls.Wpf.Input
         Danger,
 
         /// <summary>Low-emphasis action (reset/export etc.). Borderless text button with hover background.</summary>
-        Subtle
+        Subtle,
+
+        /// <summary>
+        /// Important execute action (실행). Success-green fill, white text —
+        /// same emphasis weight as Primary but visually distinct from the query
+        /// action. One per screen alongside at most one Primary.
+        /// </summary>
+        Execute
     }
 }

@@ -287,26 +287,28 @@ namespace Modern.Lab.Controls.Wpf.Selection
         }
 
         // Grabs the editable text area from the template and hooks typing.
+        // Loaded fires after the host form has already bound data, so the
+        // placeholder is re-evaluated here against the real editor state.
         private void InnerComboBox_Loaded(object sender, RoutedEventArgs e)
         {
             TextBox editor = this.InnerComboBox.Template.FindName("PART_EditableTextBox", this.InnerComboBox) as TextBox;
 
-            if (object.ReferenceEquals(editor, this.editableTextBox))
+            if (!object.ReferenceEquals(editor, this.editableTextBox))
             {
-                return;
+                if (this.editableTextBox != null)
+                {
+                    this.editableTextBox.TextChanged -= this.OnEditableTextChanged;
+                }
+
+                this.editableTextBox = editor;
+
+                if (this.editableTextBox != null)
+                {
+                    this.editableTextBox.TextChanged += this.OnEditableTextChanged;
+                }
             }
 
-            if (this.editableTextBox != null)
-            {
-                this.editableTextBox.TextChanged -= this.OnEditableTextChanged;
-            }
-
-            this.editableTextBox = editor;
-
-            if (this.editableTextBox != null)
-            {
-                this.editableTextBox.TextChanged += this.OnEditableTextChanged;
-            }
+            this.UpdatePlaceholderVisibility();
         }
 
         // Fires during IME composition too, so the first consonant already

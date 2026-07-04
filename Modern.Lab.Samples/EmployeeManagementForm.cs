@@ -46,10 +46,11 @@ namespace Modern.Lab.Samples
         // a server request/reply; the control contract keeps this code identical.
         private void LoadSearchCodes()
         {
+            // No "전체" row: an unselected combo (SelectedIndex = -1) means "all"
+            // and shows the placeholder instead.
             DataTable deptTable = new DataTable();
             deptTable.Columns.Add("DEPT_CODE", typeof(string));
             deptTable.Columns.Add("DEPT_NAME", typeof(string));
-            deptTable.Rows.Add("", "전체");
             deptTable.Rows.Add("D1", "경영지원팀");
             deptTable.Rows.Add("D2", "개발1팀");
             deptTable.Rows.Add("D3", "개발2팀");
@@ -58,11 +59,11 @@ namespace Modern.Lab.Samples
             this.cboDept.DisplayMember = "DEPT_NAME";
             this.cboDept.ValueMember = "DEPT_CODE";
             this.cboDept.DataSource = deptTable;
+            this.cboDept.SelectedIndex = -1;
 
             DataTable rankTable = new DataTable();
             rankTable.Columns.Add("RANK_CODE", typeof(string));
             rankTable.Columns.Add("RANK_NAME", typeof(string));
-            rankTable.Rows.Add("", "전체");
             rankTable.Rows.Add("부장", "부장");
             rankTable.Rows.Add("과장", "과장");
             rankTable.Rows.Add("대리", "대리");
@@ -71,6 +72,7 @@ namespace Modern.Lab.Samples
             this.cboRank.DisplayMember = "RANK_NAME";
             this.cboRank.ValueMember = "RANK_CODE";
             this.cboRank.DataSource = rankTable;
+            this.cboRank.SelectedIndex = -1;
 
             this.gridEmployee.ConfigureColumns(
                 new ModernDataGridColumn("EMP_NO", "사번", 90),
@@ -175,9 +177,27 @@ namespace Modern.Lab.Samples
         private void OnResetClick(object sender, EventArgs e)
         {
             this.txtName.Text = string.Empty;
-            this.cboDept.SelectedIndex = 0;
-            this.cboRank.SelectedIndex = 0;
+            this.cboDept.SelectedIndex = -1;
+            this.cboRank.SelectedIndex = -1;
             this.ExecuteSearch();
+        }
+
+        private void OnExecuteClick(object sender, EventArgs e)
+        {
+            DataRowView selected = this.gridEmployee.SelectedItem as DataRowView;
+
+            if (selected == null)
+            {
+                MessageBox.Show(this, "실행할 직원을 먼저 선택하세요.", "직원관리");
+                return;
+            }
+
+            // Integration point: run the business action for the selected
+            // employee here (e.g. batch job, approval request).
+            MessageBox.Show(
+                this,
+                selected["EMP_NAME"] + " (" + selected["EMP_NO"] + ") 대상 작업을 실행합니다. (샘플: 실행 지점)",
+                "직원관리");
         }
 
         private void OnNewClick(object sender, EventArgs e)

@@ -39,6 +39,7 @@ namespace Modern.Lab.Samples
             this.cardCount = new Modern.Lab.WinForms.Controls.Display.ModernKpiCard();
             this.listDeptCount = new Modern.Lab.WinForms.Controls.Display.ModernSummaryList();
             this.listRankCount = new Modern.Lab.WinForms.Controls.Display.ModernSummaryList();
+            this.btnExecute = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.btnNew = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.btnSave = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.btnDelete = new Modern.Lab.WinForms.Controls.Input.ModernButton();
@@ -96,6 +97,7 @@ namespace Modern.Lab.Samples
             this.cboDept.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.cboDept.Location = new System.Drawing.Point(276, 12);
             this.cboDept.Name = "cboDept";
+            this.cboDept.PlaceholderText = "부서 전체";
             this.cboDept.Size = new System.Drawing.Size(140, 32);
             this.cboDept.TabIndex = 3;
             //
@@ -112,6 +114,7 @@ namespace Modern.Lab.Samples
             //
             this.cboRank.Location = new System.Drawing.Point(476, 12);
             this.cboRank.Name = "cboRank";
+            this.cboRank.PlaceholderText = "직급 전체";
             this.cboRank.Size = new System.Drawing.Size(120, 32);
             this.cboRank.TabIndex = 5;
             //
@@ -153,6 +156,7 @@ namespace Modern.Lab.Samples
             this.bottomCard.Controls.Add(this.cardCount);
             this.bottomCard.Controls.Add(this.listDeptCount);
             this.bottomCard.Controls.Add(this.listRankCount);
+            this.bottomCard.Controls.Add(this.btnExecute);
             this.bottomCard.Controls.Add(this.btnNew);
             this.bottomCard.Controls.Add(this.btnSave);
             this.bottomCard.Controls.Add(this.btnDelete);
@@ -179,7 +183,7 @@ namespace Modern.Lab.Samples
             this.listDeptCount.Flat = true;
             this.listDeptCount.Location = new System.Drawing.Point(130, 8);
             this.listDeptCount.Name = "listDeptCount";
-            this.listDeptCount.Size = new System.Drawing.Size(442, 38);
+            this.listDeptCount.Size = new System.Drawing.Size(354, 38);
             this.listDeptCount.TabIndex = 1;
             this.listDeptCount.Title = "부서별";
             //
@@ -190,9 +194,20 @@ namespace Modern.Lab.Samples
             this.listRankCount.Flat = true;
             this.listRankCount.Location = new System.Drawing.Point(130, 46);
             this.listRankCount.Name = "listRankCount";
-            this.listRankCount.Size = new System.Drawing.Size(442, 38);
+            this.listRankCount.Size = new System.Drawing.Size(354, 38);
             this.listRankCount.TabIndex = 2;
             this.listRankCount.Title = "직급별";
+            //
+            // btnExecute
+            //
+            this.btnExecute.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExecute.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Execute;
+            this.btnExecute.Location = new System.Drawing.Point(492, 30);
+            this.btnExecute.Name = "btnExecute";
+            this.btnExecute.Size = new System.Drawing.Size(80, 32);
+            this.btnExecute.TabIndex = 3;
+            this.btnExecute.Text = "실행";
+            this.btnExecute.Click += new System.EventHandler(this.OnExecuteClick);
             //
             // btnNew
             //
@@ -201,7 +216,7 @@ namespace Modern.Lab.Samples
             this.btnNew.Location = new System.Drawing.Point(580, 30);
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(80, 32);
-            this.btnNew.TabIndex = 3;
+            this.btnNew.TabIndex = 4;
             this.btnNew.Text = "신규";
             this.btnNew.Click += new System.EventHandler(this.OnNewClick);
             //
@@ -212,7 +227,7 @@ namespace Modern.Lab.Samples
             this.btnSave.Location = new System.Drawing.Point(668, 30);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(80, 32);
-            this.btnSave.TabIndex = 4;
+            this.btnSave.TabIndex = 5;
             this.btnSave.Text = "저장";
             this.btnSave.Click += new System.EventHandler(this.OnSaveClick);
             //
@@ -223,7 +238,7 @@ namespace Modern.Lab.Samples
             this.btnDelete.Location = new System.Drawing.Point(756, 30);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(80, 32);
-            this.btnDelete.TabIndex = 5;
+            this.btnDelete.TabIndex = 6;
             this.btnDelete.Text = "삭제";
             this.btnDelete.Click += new System.EventHandler(this.OnDeleteClick);
             //
@@ -234,7 +249,7 @@ namespace Modern.Lab.Samples
             this.btnExcel.Location = new System.Drawing.Point(844, 30);
             this.btnExcel.Name = "btnExcel";
             this.btnExcel.Size = new System.Drawing.Size(80, 32);
-            this.btnExcel.TabIndex = 6;
+            this.btnExcel.TabIndex = 7;
             this.btnExcel.Text = "엑셀";
             this.btnExcel.Click += new System.EventHandler(this.OnExcelClick);
             //
@@ -274,6 +289,7 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Display.ModernKpiCard cardCount;
         private Modern.Lab.WinForms.Controls.Display.ModernSummaryList listDeptCount;
         private Modern.Lab.WinForms.Controls.Display.ModernSummaryList listRankCount;
+        private Modern.Lab.WinForms.Controls.Input.ModernButton btnExecute;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnNew;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnSave;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnDelete;

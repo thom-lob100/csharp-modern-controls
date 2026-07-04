@@ -71,6 +71,12 @@
                         <Setter Property="Foreground" Value="{StaticResource Brush.TextSecondary}" />
                         <Setter Property="BorderBrush" Value="Transparent" />
                     </DataTrigger>
+                    <!-- Execute: success-green fill for the important execute action -->
+                    <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Execute">
+                        <Setter Property="Background" Value="{StaticResource Brush.Success}" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.OnAccent}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.Success}" />
+                    </DataTrigger>
 
                     <!-- Primary: hover = darker blue, pressed = darkest blue -->
                     <MultiDataTrigger>
@@ -146,6 +152,24 @@
                         </MultiDataTrigger.Conditions>
                         <Setter Property="Background" Value="{StaticResource Brush.BorderSubtle}" />
                         <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+                    </MultiDataTrigger>
+
+                    <!-- Execute: hover/pressed = deeper greens -->
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Execute" />
+                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background" Value="{StaticResource Brush.SuccessHover}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.SuccessHover}" />
+                    </MultiDataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Execute" />
+                            <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Self}}" Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background" Value="{StaticResource Brush.SuccessPressed}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.SuccessPressed}" />
                     </MultiDataTrigger>
 
                     <!-- Disabled: uniform gray regardless of kind. Placed last so it
