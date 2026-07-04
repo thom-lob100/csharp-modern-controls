@@ -5,13 +5,13 @@ using System.Data;
 namespace Modern.Lab.WinForms.Controls.Hosting
 {
     /// <summary>
-    /// Converts the WinForms-style DataSource shapes accepted by the contract
-    /// (DataTable / DataView / IList / IEnumerable) into a WPF ItemsSource.
-    /// Shared by every data-bound wrapper so the accepted shapes stay identical.
+    /// 계약이 허용하는 WinForms식 DataSource 형태
+    /// (DataTable / DataView / IList / IEnumerable)를 WPF ItemsSource로 변환한다.
+    /// 허용 형태가 동일하게 유지되도록 모든 데이터 바인딩 래퍼가 공유한다.
     /// </summary>
     internal static class DataSourceConverter
     {
-        /// <summary>Returns null for null input; throws for unsupported shapes.</summary>
+        /// <summary>null 입력에는 null을 반환하고, 지원하지 않는 형태에는 예외를 던진다.</summary>
         internal static IEnumerable ToItemsSource(object value)
         {
             if (value == null)

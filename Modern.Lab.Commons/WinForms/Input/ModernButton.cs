@@ -6,25 +6,25 @@ using Modern.Lab.WinForms.Controls.Hosting;
 namespace Modern.Lab.WinForms.Controls.Input
 {
     /// <summary>
-    /// Drop-in replacement for System.Windows.Forms.Button
-    /// (WPF ModernButtonControl hosted through ElementHost).
+    /// System.Windows.Forms.Button의 드롭인 대체 컨트롤
+    /// (WPF ModernButtonControl을 ElementHost로 호스팅).
     ///
-    /// Compatible members: Text (override, localizable), Click, Enabled.
-    /// Text overrides Control.Text instead of hiding it with `new` — hiding
-    /// breaks ComponentResourceManager.ApplyResources on Localizable forms and
-    /// any host code that assigns Text through a Control reference
-    /// (docs/design-notes.md section 3).
+    /// 호환 멤버: Text(override, localizable), Click, Enabled.
+    /// Text는 `new`로 숨기지 않고 Control.Text를 override한다 — 숨기면
+    /// Localizable 폼에서 ComponentResourceManager.ApplyResources가 깨지고,
+    /// Control 참조로 Text를 할당하는 호스트 코드도 깨진다
+    /// (docs/design-notes.md 3절).
     /// </summary>
     [ToolboxItem(true)]
     public class ModernButton : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernButtonControl>
     {
-        // Fallback storage so the property grid still works when design-time
-        // WPF construction failed (Wpf == null).
+        // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
+        // 동작하도록 하는 폴백 저장소.
         private string fallbackText;
         private Modern.Lab.Controls.Wpf.Input.ButtonKind fallbackKind;
         private string fallbackIconGlyph;
 
-        /// <summary>Creates the control with a sensible default size.</summary>
+        /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernButton()
         {
             this.Size = new Size(120, 32);
@@ -34,12 +34,12 @@ namespace Modern.Lab.WinForms.Controls.Input
 
             if (this.Wpf != null)
             {
-                // Forward the WPF click as the standard WinForms Click event.
+                // WPF 클릭을 표준 WinForms Click 이벤트로 전달한다.
                 this.Wpf.Click += this.OnWpfButtonClick;
             }
         }
 
-        /// <summary>Caption shown on the button.</summary>
+        /// <summary>버튼에 표시되는 캡션.</summary>
         [Category("모던 컨트롤")]
         [Description("버튼에 표시할 텍스트")]
         [Browsable(true)]
@@ -70,7 +70,7 @@ namespace Modern.Lab.WinForms.Controls.Input
             }
         }
 
-        /// <summary>Visual kind (Primary/Secondary/Danger).</summary>
+        /// <summary>시각적 종류 (Primary/Secondary/Danger).</summary>
         [Category("모던 컨트롤")]
         [Description("버튼 종류(Primary/Secondary/Danger)")]
         [DefaultValue(Modern.Lab.Controls.Wpf.Input.ButtonKind.Primary)]
@@ -98,7 +98,7 @@ namespace Modern.Lab.WinForms.Controls.Input
             }
         }
 
-        /// <summary>Icon glyph (Segoe MDL2 Assets) shown before the caption.</summary>
+        /// <summary>캡션 앞에 표시되는 아이콘 글리프(Segoe MDL2 Assets).</summary>
         [Category("모던 컨트롤")]
         [Description("버튼 글자 앞 아이콘 글리프(Segoe MDL2 Assets)")]
         [DefaultValue("")]

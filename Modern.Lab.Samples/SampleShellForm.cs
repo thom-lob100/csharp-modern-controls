@@ -6,9 +6,9 @@ using System.Windows.Forms;
 namespace Modern.Lab.Samples
 {
     /// <summary>
-    /// Shell form of the sample gallery: a left navigation strip plus a content
-    /// panel. Each sample screen is an ordinary Form embedded as a non-top-level
-    /// child. Register new samples with one AddSample call in RegisterSamples.
+    /// 샘플 갤러리의 셸 폼: 왼쪽 내비게이션 스트립과 콘텐츠 패널로 구성된다.
+    /// 각 샘플 화면은 최상위가 아닌 자식으로 임베드되는 평범한 Form이다.
+    /// 새 샘플은 RegisterSamples에서 AddSample 호출 하나로 등록한다.
     /// </summary>
     public class SampleShellForm : Form
     {
@@ -50,7 +50,7 @@ namespace Modern.Lab.Samples
 
         private void RegisterSamples()
         {
-            // Register each sample screen here with one AddSample call.
+            // 각 샘플 화면을 여기서 AddSample 호출 하나로 등록한다.
             this.AddSample("직원관리", () => new EmployeeManagementForm());
         }
 

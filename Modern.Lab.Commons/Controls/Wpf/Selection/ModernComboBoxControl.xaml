@@ -16,7 +16,7 @@
                 <ResourceDictionary Source="/Modern.Lab.Commons;component/Themes/Tokens.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Dropdown item: hover and selected states from tokens -->
+            <!-- 드롭다운 항목: hover/선택 상태는 토큰에서 가져온다 -->
             <Style x:Key="ModernComboBoxItemStyle" TargetType="ComboBoxItem">
                 <Setter Property="Padding" Value="{StaticResource Pad.Item}" />
                 <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
@@ -43,7 +43,7 @@
                 </Setter>
             </Style>
 
-            <!-- Field surface + chevron. IsChecked drives the dropdown. -->
+            <!-- 필드 표면 + 셰브런. IsChecked가 드롭다운을 제어한다. -->
             <ControlTemplate x:Key="ModernComboBoxToggleTemplate" TargetType="ToggleButton">
                 <Border x:Name="FieldBorder"
                         CornerRadius="{StaticResource Radius.Sm}"
@@ -75,9 +75,9 @@
     </UserControl.Resources>
 
     <Grid>
-        <!-- The actual ComboBox with a token-styled template. ItemsSource is
-             assigned in code (an internally filtered collection) so the
-             editable mode can filter while typing. -->
+        <!-- 토큰 스타일 템플릿이 적용된 실제 ComboBox. ItemsSource는 코드에서
+             할당된다(내부적으로 필터링된 컬렉션). 이렇게 해야 편집 가능 모드가
+             입력 중에 필터링할 수 있다. -->
         <ComboBox x:Name="InnerComboBox"
                   Height="{StaticResource Size.ControlHeight}"
                   FontSize="{StaticResource Font.Size.Body}"
@@ -99,7 +99,7 @@
                                       ClickMode="Press"
                                       Template="{StaticResource ModernComboBoxToggleTemplate}"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <!-- Selected item display (not hit-testable; the toggle handles clicks) -->
+                        <!-- 선택 항목 표시 (히트 테스트 대상 아님; 클릭은 토글이 처리) -->
                         <ContentPresenter x:Name="ContentSite"
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
@@ -107,9 +107,9 @@
                                           Margin="12,0,32,0"
                                           VerticalAlignment="Center"
                                           IsHitTestVisible="False" />
-                        <!-- Editable text area (search-style combo). Shown instead of
-                             ContentSite when IsEditable; the right 32px stays with the
-                             chevron toggle. -->
+                        <!-- 편집 가능 텍스트 영역(검색형 콤보). IsEditable일 때
+                             ContentSite 대신 표시된다; 오른쪽 32px는 셰브런 토글
+                             몫으로 남긴다. -->
                         <TextBox x:Name="PART_EditableTextBox"
                                  Visibility="Collapsed"
                                  Style="{x:Null}"
@@ -154,9 +154,9 @@
             </ComboBox.Template>
         </ComboBox>
 
-        <!-- Placeholder overlay while nothing is selected/typed.
-             Visibility is managed in code (selection, typed text and IME
-             composition all affect it). -->
+        <!-- 아무것도 선택/입력되지 않은 동안의 placeholder 오버레이.
+             표시 여부는 코드에서 관리한다(선택, 입력 텍스트, IME 조합이
+             모두 영향을 준다). -->
         <TextBlock x:Name="PlaceholderOverlay"
                    Text="{Binding Placeholder, ElementName=RootControl}"
                    Margin="13,0,32,0"

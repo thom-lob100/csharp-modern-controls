@@ -11,22 +11,21 @@ using Modern.Lab.Controls.Wpf.Input;
 namespace Modern.Lab.Controls.Wpf.Selection
 {
     /// <summary>
-    /// Modern dropdown selector.
-    /// - ItemsSource / DisplayMemberPath / SelectedValuePath: binding surface
-    /// - SelectedItem / SelectedValue: current selection (two-way)
-    /// - IsEditable: search-style combo — typing filters the list
-    ///   (Korean initial-consonant matching included)
-    /// - Placeholder: hint shown while nothing is selected/typed
-    /// - SelectionChanged: raised when the selection changes
+    /// 모던 드롭다운 선택기.
+    /// - ItemsSource / DisplayMemberPath / SelectedValuePath: 바인딩 표면
+    /// - SelectedItem / SelectedValue: 현재 선택 (양방향)
+    /// - IsEditable: 검색형 콤보 — 입력하면 목록이 필터링된다
+    ///   (한국어 초성 매칭 포함)
+    /// - Placeholder: 아무것도 선택/입력되지 않은 동안 표시되는 힌트
+    /// - SelectionChanged: 선택이 바뀔 때 발생
     ///
-    /// The inner ComboBox is bound to an internally filtered snapshot of
-    /// ItemsSource so the editable mode can filter while typing; source
-    /// collection changes (ObservableCollection / IBindingList) are observed
-    /// and re-applied.
+    /// 내부 ComboBox는 ItemsSource의 내부 필터링 스냅숏에 바인딩되어 편집 가능
+    /// 모드가 입력 중에 필터링할 수 있다. 소스 컬렉션 변경
+    /// (ObservableCollection / IBindingList)은 감시되어 다시 반영된다.
     /// </summary>
     public partial class ModernComboBoxControl : UserControl
     {
-        /// <summary>Items to display. Any IEnumerable (DataView, IList, ...).</summary>
+        /// <summary>표시할 항목 목록. 임의의 IEnumerable (DataView, IList, ...).</summary>
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(
                 "ItemsSource",
@@ -34,7 +33,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(null, OnItemsSourceChanged));
 
-        /// <summary>Currently selected item. Two-way by default.</summary>
+        /// <summary>현재 선택된 항목. 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(
                 "SelectedItem",
@@ -42,7 +41,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        /// <summary>Value of the selected item (via SelectedValuePath). Two-way by default.</summary>
+        /// <summary>선택된 항목의 값(SelectedValuePath 기준). 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty SelectedValueProperty =
             DependencyProperty.Register(
                 "SelectedValue",
@@ -50,7 +49,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        /// <summary>Member path used for the display text of each item.</summary>
+        /// <summary>각 항목의 표시 텍스트에 사용되는 멤버 경로.</summary>
         public static readonly DependencyProperty DisplayMemberPathProperty =
             DependencyProperty.Register(
                 "DisplayMemberPath",
@@ -58,7 +57,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(string.Empty));
 
-        /// <summary>Member path used for SelectedValue.</summary>
+        /// <summary>SelectedValue에 사용되는 멤버 경로.</summary>
         public static readonly DependencyProperty SelectedValuePathProperty =
             DependencyProperty.Register(
                 "SelectedValuePath",
@@ -66,7 +65,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(string.Empty));
 
-        /// <summary>Hint text shown while nothing is selected.</summary>
+        /// <summary>아무것도 선택되지 않은 동안 표시되는 힌트 텍스트.</summary>
         public static readonly DependencyProperty PlaceholderProperty =
             DependencyProperty.Register(
                 "Placeholder",
@@ -74,7 +73,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(string.Empty));
 
-        /// <summary>Search-style combo: typing filters the list.</summary>
+        /// <summary>검색형 콤보: 입력하면 목록이 필터링된다.</summary>
         public static readonly DependencyProperty IsEditableProperty =
             DependencyProperty.Register(
                 "IsEditable",
@@ -87,7 +86,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
         private bool isRebuildingItems;
         private bool suppressFilter;
 
-        /// <summary>Raised when the selection changes.</summary>
+        /// <summary>선택이 바뀔 때 발생한다.</summary>
         public event EventHandler SelectionChanged;
 
         public ModernComboBoxControl()
@@ -99,69 +98,69 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.UpdatePlaceholderVisibility();
         }
 
-        /// <summary>Items to display.</summary>
+        /// <summary>표시할 항목 목록.</summary>
         public IEnumerable ItemsSource
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
         }
 
-        /// <summary>Currently selected item.</summary>
+        /// <summary>현재 선택된 항목.</summary>
         public object SelectedItem
         {
             get { return this.GetValue(SelectedItemProperty); }
             set { this.SetValue(SelectedItemProperty, value); }
         }
 
-        /// <summary>Value of the selected item (via SelectedValuePath).</summary>
+        /// <summary>선택된 항목의 값(SelectedValuePath 기준).</summary>
         public object SelectedValue
         {
             get { return this.GetValue(SelectedValueProperty); }
             set { this.SetValue(SelectedValueProperty, value); }
         }
 
-        /// <summary>Member path used for the display text of each item.</summary>
+        /// <summary>각 항목의 표시 텍스트에 사용되는 멤버 경로.</summary>
         public string DisplayMemberPath
         {
             get { return (string)this.GetValue(DisplayMemberPathProperty); }
             set { this.SetValue(DisplayMemberPathProperty, value); }
         }
 
-        /// <summary>Member path used for SelectedValue.</summary>
+        /// <summary>SelectedValue에 사용되는 멤버 경로.</summary>
         public string SelectedValuePath
         {
             get { return (string)this.GetValue(SelectedValuePathProperty); }
             set { this.SetValue(SelectedValuePathProperty, value); }
         }
 
-        /// <summary>Hint text shown while nothing is selected.</summary>
+        /// <summary>아무것도 선택되지 않은 동안 표시되는 힌트 텍스트.</summary>
         public string Placeholder
         {
             get { return (string)this.GetValue(PlaceholderProperty); }
             set { this.SetValue(PlaceholderProperty, value); }
         }
 
-        /// <summary>Search-style combo: typing filters the list.</summary>
+        /// <summary>검색형 콤보: 입력하면 목록이 필터링된다.</summary>
         public bool IsEditable
         {
             get { return (bool)this.GetValue(IsEditableProperty); }
             set { this.SetValue(IsEditableProperty, value); }
         }
 
-        /// <summary>Index of the selected item (-1 when nothing is selected).</summary>
+        /// <summary>선택된 항목의 인덱스(아무것도 선택되지 않았으면 -1).</summary>
         public int SelectedIndex
         {
             get { return this.InnerComboBox.SelectedIndex; }
             set { this.InnerComboBox.SelectedIndex = value; }
         }
 
-        /// <summary>Display text of the current selection (inner ComboBox text).</summary>
+        /// <summary>현재 선택의 표시 텍스트(내부 ComboBox 텍스트).</summary>
         public string SelectionText
         {
             get { return this.InnerComboBox.Text; }
         }
 
-        /// <summary>Sets the editable text (search-style combo only).</summary>
+        /// <summary>편집 가능 텍스트를 설정한다(검색형 콤보 전용).</summary>
         public void SetEditableText(string value)
         {
             if (this.IsEditable)
@@ -184,9 +183,9 @@ namespace Modern.Lab.Controls.Wpf.Selection
             ((ModernComboBoxControl)d).UpdatePlaceholderVisibility();
         }
 
-        // Observes source collection changes (ObservableCollection for the
-        // manual Items collection, IBindingList for DataView) so late adds show
-        // up like they did with a direct ItemsSource binding.
+        // 소스 컬렉션 변경을 감시하여(수동 Items 컬렉션은 ObservableCollection,
+        // DataView는 IBindingList) 뒤늦게 추가된 항목도 직접 ItemsSource에
+        // 바인딩했을 때처럼 나타나게 한다.
         private void AttachSourceListeners(object source)
         {
             INotifyCollectionChanged observable = source as INotifyCollectionChanged;
@@ -233,9 +232,9 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.RebuildFilteredItems(null);
         }
 
-        // Rebuilds the inner list from ItemsSource, keeping only entries whose
-        // display text matches the filter (Korean-aware). Preserves selection
-        // and typed text; suppresses SelectionChanged noise while rebuilding.
+        // ItemsSource로부터 내부 목록을 다시 만들며, 표시 텍스트가 필터와 매칭되는
+        // 항목만 남긴다(한국어 인식). 선택과 입력 텍스트를 보존하고, 재구성 중에는
+        // SelectionChanged 잡음을 억제한다.
         private void RebuildFilteredItems(string filterText)
         {
             this.isRebuildingItems = true;
@@ -268,9 +267,9 @@ namespace Modern.Lab.Controls.Wpf.Selection
                     this.InnerComboBox.SelectedItem = previousSelection;
                 }
 
-                // Clearing/restoring the selection rewrites the editable text;
-                // put the user's typed text (and caret) back. The synchronous
-                // TextChanged this raises is ignored via isRebuildingItems.
+                // 선택을 비우거나 복원하면 편집 가능 텍스트가 다시 쓰이므로,
+                // 사용자가 입력한 텍스트(와 캐럿)를 되돌려 놓는다. 이때 동기적으로
+                // 발생하는 TextChanged는 isRebuildingItems로 무시된다.
                 if (this.editableTextBox != null && previousEditorText != null &&
                     !string.Equals(this.editableTextBox.Text, previousEditorText, StringComparison.Ordinal))
                 {
@@ -286,9 +285,9 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.UpdatePlaceholderVisibility();
         }
 
-        // Grabs the editable text area from the template and hooks typing.
-        // Loaded fires after the host form has already bound data, so the
-        // placeholder is re-evaluated here against the real editor state.
+        // 템플릿에서 편집 가능 텍스트 영역을 얻어 입력을 후킹한다.
+        // Loaded는 호스트 폼이 데이터를 이미 바인딩한 뒤 발생하므로,
+        // 여기서 실제 에디터 상태를 기준으로 placeholder를 다시 평가한다.
         private void InnerComboBox_Loaded(object sender, RoutedEventArgs e)
         {
             TextBox editor = this.InnerComboBox.Template.FindName("PART_EditableTextBox", this.InnerComboBox) as TextBox;
@@ -311,8 +310,8 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.UpdatePlaceholderVisibility();
         }
 
-        // Fires during IME composition too, so the first consonant already
-        // filters the list and hides the placeholder.
+        // IME 조합 중에도 발생하므로, 첫 자음 입력부터 목록이 필터링되고
+        // placeholder가 숨겨진다.
         private void OnEditableTextChanged(object sender, TextChangedEventArgs e)
         {
             this.UpdatePlaceholderVisibility();
@@ -337,12 +336,12 @@ namespace Modern.Lab.Controls.Wpf.Selection
 
             if (string.IsNullOrEmpty(typed))
             {
-                // Clearing the text clears the selection (empty means "all").
+                // 텍스트를 지우면 선택도 지워진다(빈 값은 "전체"를 의미).
                 if (this.InnerComboBox.SelectedItem != null)
                 {
                     this.InnerComboBox.SelectedItem = null;
-                    // The selection change sets suppressFilter expecting a text
-                    // rewrite, but the text is already empty — clear the flag.
+                    // 선택 변경은 텍스트 재작성을 예상하고 suppressFilter를
+                    // 설정하지만, 텍스트가 이미 비어 있으므로 플래그를 지운다.
                     this.suppressFilter = false;
                 }
 
@@ -355,9 +354,9 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.InnerComboBox.IsDropDownOpen = this.filteredItems.Count > 0;
         }
 
-        // Reopening the dropdown from the chevron should show the full list.
-        // Also clears a stale suppress flag (a selection that did not change
-        // the text would otherwise eat the next keystroke's filtering).
+        // 셰브런으로 드롭다운을 다시 열 때는 전체 목록이 보여야 한다.
+        // 또한 오래된 suppress 플래그를 지운다(텍스트를 바꾸지 않은 선택이
+        // 다음 키 입력의 필터링을 삼켜버릴 수 있기 때문).
         private void OnDropDownClosed(object sender, EventArgs e)
         {
             if (this.IsEditable)
@@ -391,8 +390,8 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 return;
             }
 
-            // Committing a selection rewrites the editable text with the item's
-            // display text; that change must not re-trigger filtering.
+            // 선택을 확정하면 편집 가능 텍스트가 항목의 표시 텍스트로 다시 쓰인다;
+            // 이 변경이 필터링을 다시 트리거해서는 안 된다.
             if (this.IsEditable)
             {
                 this.suppressFilter = true;

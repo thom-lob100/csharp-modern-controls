@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Modern.Lab.Controls.Wpf.Display
 {
-    /// <summary>UI item model for one chip in ModernSummaryListControl.</summary>
+    /// <summary>ModernSummaryListControl의 칩 하나를 나타내는 UI 항목 모델.</summary>
     public class SummaryItem : INotifyPropertyChanged
     {
         private string label;
@@ -16,7 +16,7 @@ namespace Modern.Lab.Controls.Wpf.Display
             this.count = string.Empty;
         }
 
-        /// <summary>Category text (e.g. department or rank name).</summary>
+        /// <summary>분류 텍스트 (예: 부서명 또는 직급명).</summary>
         public string Label
         {
             get
@@ -30,7 +30,7 @@ namespace Modern.Lab.Controls.Wpf.Display
             }
         }
 
-        /// <summary>Count text shown next to the label.</summary>
+        /// <summary>레이블 옆에 표시되는 건수 텍스트.</summary>
         public string Count
         {
             get

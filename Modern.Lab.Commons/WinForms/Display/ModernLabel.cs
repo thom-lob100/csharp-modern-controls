@@ -5,23 +5,23 @@ using Modern.Lab.WinForms.Controls.Hosting;
 namespace Modern.Lab.WinForms.Controls.Display
 {
     /// <summary>
-    /// Drop-in replacement for System.Windows.Forms.Label
-    /// (WPF ModernLabelControl hosted through ElementHost).
+    /// System.Windows.Forms.Label의 드롭인 대체 컨트롤
+    /// (WPF ModernLabelControl을 ElementHost로 호스팅).
     ///
-    /// Compatible members: Text (override, localizable), Enabled.
-    /// Unlike Label there is no AutoSize; give the control an explicit size
-    /// (long text is trimmed with an ellipsis).
+    /// 호환 멤버: Text(override, localizable), Enabled.
+    /// Label과 달리 AutoSize가 없으므로 컨트롤에 명시적 크기를 지정한다
+    /// (긴 텍스트는 말줄임표로 잘린다).
     /// </summary>
     [ToolboxItem(true)]
     public class ModernLabel : WpfElementHostBase<Modern.Lab.Controls.Wpf.Display.ModernLabelControl>
     {
-        // Fallback storage so the property grid still works when design-time
-        // WPF construction failed (Wpf == null).
+        // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
+        // 동작하도록 하는 폴백 저장소.
         private string fallbackText;
         private Modern.Lab.Controls.Wpf.Display.LabelKind fallbackKind;
         private bool fallbackRequired;
 
-        /// <summary>Creates the control with a sensible default size.</summary>
+        /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernLabel()
         {
             this.Size = new Size(120, 24);
@@ -30,7 +30,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             this.fallbackRequired = false;
         }
 
-        /// <summary>Shows a red asterisk after the text (required-field mark).</summary>
+        /// <summary>텍스트 뒤에 빨간 별표를 표시한다(필수 필드 표시).</summary>
         [Category("모던 컨트롤")]
         [Description("필수 입력 표시(빨간 별표)를 텍스트 뒤에 붙일지 여부")]
         [DefaultValue(false)]
@@ -58,7 +58,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             }
         }
 
-        /// <summary>Text to display.</summary>
+        /// <summary>표시할 텍스트.</summary>
         [Category("모던 컨트롤")]
         [Description("표시할 텍스트")]
         [Browsable(true)]
@@ -89,7 +89,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             }
         }
 
-        /// <summary>Typography role (Body/Title/Label/Helper).</summary>
+        /// <summary>타이포그래피 역할 (Body/Title/Label/Helper).</summary>
         [Category("모던 컨트롤")]
         [Description("타이포그래피 역할(Body/Title/Label/Helper)")]
         [DefaultValue(Modern.Lab.Controls.Wpf.Display.LabelKind.Body)]

@@ -3,43 +3,43 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ============================================================= -->
-    <!-- Design tokens — modern, conservative enterprise desktop theme. -->
-    <!-- Controls must consume these and never hardcode hex/px/weights.  -->
+    <!-- 디자인 토큰 — 모던하고 보수적인 엔터프라이즈 데스크톱 테마.      -->
+    <!-- 컨트롤은 반드시 이 토큰을 사용하고 hex/px/굵기를 하드코딩하지 않는다. -->
     <!--                                                                 -->
-    <!-- Palette is reduced to three families:                          -->
-    <!--   Primary  — one Fluent accent ramp (actions, selection, focus) -->
-    <!--   Neutral  — one cool-gray ramp (text, surface, border, state)  -->
-    <!--   Semantic — Success / Warning / Error / Info status pairs      -->
+    <!-- 팔레트는 세 가지 계열로 축소되어 있다:                           -->
+    <!--   Primary  — Fluent 액센트 램프 하나 (액션, 선택, 포커스)         -->
+    <!--   Neutral  — 쿨 그레이 램프 하나 (텍스트, 서피스, 테두리, 상태)   -->
+    <!--   Semantic — Success / Warning / Error / Info 상태 색상 쌍       -->
     <!-- ============================================================= -->
 
-    <!-- 1. Spacing scale (4px grid). Layout gaps/padding use these; never off-grid. -->
+    <!-- 1. 간격 스케일(4px 그리드). 레이아웃 간격/패딩은 이 값을 사용하며, 그리드를 벗어나지 않는다. -->
     <sys:Double x:Key="Space.Xs">4</sys:Double>
     <sys:Double x:Key="Space.Sm">8</sys:Double>
     <sys:Double x:Key="Space.Md">12</sys:Double>
     <sys:Double x:Key="Space.Lg">16</sys:Double>
     <sys:Double x:Key="Space.Xl">24</sys:Double>
 
-    <!-- 2. Sizing — one density: Compact (32). Inputs, buttons and grid rows share
-         the same control height so a row of fields/buttons aligns to the grid. -->
+    <!-- 2. 크기 — 단일 밀도: Compact(32). 입력, 버튼, 그리드 행이 동일한 컨트롤 높이를
+         공유하므로 필드/버튼이 한 줄로 그리드에 정렬된다. -->
     <sys:Double x:Key="Size.ControlHeight">32</sys:Double>
     <sys:Double x:Key="Size.RowHeight">32</sys:Double>
     <sys:Double x:Key="Size.GridHeaderHeight">36</sys:Double>
     <sys:Double x:Key="Size.FocusThickness">1.5</sys:Double>
 
-    <!-- Derived layout tokens -->
+    <!-- 파생 레이아웃 토큰 -->
     <Thickness x:Key="Pad.Field">12,0</Thickness>
     <Thickness x:Key="Pad.Item">12,6</Thickness>
     <Thickness x:Key="Pad.Button">16,0</Thickness>
     <Thickness x:Key="Gap.Label">0,0,0,8</Thickness>
     <Thickness x:Key="Gap.Helper">0,4,0,0</Thickness>
 
-    <!-- 3. Corner radius (Fluent). Sm/Md intentionally share 4 (controls); cards 8. -->
+    <!-- 3. 모서리 반경(Fluent). Sm/Md는 의도적으로 4를 공유(컨트롤); 카드는 8. -->
     <CornerRadius x:Key="Radius.Sm">4</CornerRadius>
     <CornerRadius x:Key="Radius.Md">4</CornerRadius>
     <CornerRadius x:Key="Radius.Lg">8</CornerRadius>
     <CornerRadius x:Key="Radius.Pill">10</CornerRadius>
 
-    <!-- 4. Color — Primary (accent) -->
+    <!-- 4. 색상 — Primary (액센트) -->
     <SolidColorBrush x:Key="Brush.Accent" Color="#FF0078D4" />
     <SolidColorBrush x:Key="Brush.AccentHover" Color="#FF106EBE" />
     <SolidColorBrush x:Key="Brush.AccentPressed" Color="#FF005A9E" />
@@ -49,7 +49,7 @@
     <SolidColorBrush x:Key="Brush.FocusBorder" Color="#FF0078D4" />
     <SolidColorBrush x:Key="Brush.FocusRing" Color="#330078D4" />
 
-    <!-- Color — Neutral (surface / border / text / interaction state) -->
+    <!-- 색상 — Neutral (서피스 / 테두리 / 텍스트 / 상호작용 상태) -->
     <SolidColorBrush x:Key="Brush.Background" Color="#FFF7F8FA" />
     <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FFF9FAFB" />
@@ -65,9 +65,9 @@
     <SolidColorBrush x:Key="Brush.DisabledBackground" Color="#FFF3F4F6" />
     <SolidColorBrush x:Key="Brush.DisabledText" Color="#FF9CA3AF" />
 
-    <!-- Color — Semantic. Each role is a (background, border, text) set so status
-         surfaces stay legible without controls re-deriving their own hex.
-         ErrorBorder is the strong red used for Danger buttons / required marks. -->
+    <!-- 색상 — Semantic. 각 역할은 (배경, 테두리, 텍스트) 세트로 구성되어, 컨트롤이
+         자체적으로 hex를 다시 도출하지 않아도 상태 표시 면의 가독성이 유지된다.
+         ErrorBorder는 Danger 버튼 / 필수 표시에 쓰이는 진한 빨강이다. -->
     <SolidColorBrush x:Key="Brush.InfoBackground" Color="#FFEFF6FF" />
     <SolidColorBrush x:Key="Brush.InfoBorder" Color="#FFBFDBFE" />
     <SolidColorBrush x:Key="Brush.InfoText" Color="#FF1D4ED8" />
@@ -81,8 +81,8 @@
     <SolidColorBrush x:Key="Brush.WarningBackground" Color="#FFFFFBEB" />
     <SolidColorBrush x:Key="Brush.WarningBorder" Color="#FFFDE68A" />
     <SolidColorBrush x:Key="Brush.WarningText" Color="#FFB45309" />
-    <!-- ErrorBorder is the strong red (Danger buttons / required marks);
-         ErrorBorderSoft is the pale border for error status surfaces. -->
+    <!-- ErrorBorder는 진한 빨강(Danger 버튼 / 필수 표시);
+         ErrorBorderSoft는 오류 상태 면에 쓰는 옅은 테두리 색이다. -->
     <SolidColorBrush x:Key="Brush.ErrorBorder" Color="#FFDC2626" />
     <SolidColorBrush x:Key="Brush.ErrorBorderSoft" Color="#FFFECACA" />
     <SolidColorBrush x:Key="Brush.ErrorBackground" Color="#FFFEF2F2" />
@@ -91,20 +91,20 @@
     <SolidColorBrush x:Key="Brush.NeutralBackground" Color="#FFF3F4F6" />
     <SolidColorBrush x:Key="Brush.NeutralText" Color="#FF374151" />
 
-    <!-- Overlay scrim for modal/loading backdrops (dark, semi-transparent). -->
+    <!-- 모달/로딩 배경용 오버레이 스크림(어둡고 반투명). -->
     <SolidColorBrush x:Key="Brush.Scrim" Color="#66101828" />
 
-    <!-- Raw colors for ColorAnimation targets (animations need Color, not Brush) -->
+    <!-- ColorAnimation 대상용 원시 색상 (애니메이션은 Brush가 아닌 Color가 필요) -->
     <Color x:Key="Color.Accent">#FF0078D4</Color>
     <Color x:Key="Color.TrackOff">#FFD1D5DB</Color>
 
-    <!-- 5. Typography. Font: Segoe UI (Fluent's system face), Malgun Gothic fallback
-         for Korean. Hierarchy comes from size + weight only. -->
+    <!-- 5. 타이포그래피. 폰트: Segoe UI(Fluent 시스템 서체), 한글은 Malgun Gothic
+         폴백. 위계는 크기 + 굵기로만 표현한다. -->
     <FontFamily x:Key="Font.Family">Segoe UI, Malgun Gothic</FontFamily>
 
-    <!-- Type scale (device-independent units; 12 DIU = 9pt, 16 DIU = 12pt).
-         Controls reference these instead of hardcoding FontSize. Body/labels are 12
-         (9pt) for dense data screens; titles step up from 16 (12pt). -->
+    <!-- 타입 스케일 (장치 독립 단위; 12 DIU = 9pt, 16 DIU = 12pt).
+         컨트롤은 FontSize를 하드코딩하지 않고 이 값을 참조한다. 본문/레이블은 밀도 높은
+         데이터 화면을 위해 12(9pt); 제목은 16(12pt)부터 단계적으로 커진다. -->
     <sys:Double x:Key="Font.Size.Micro">9</sys:Double>
     <sys:Double x:Key="Font.Size.Helper">12</sys:Double>
     <sys:Double x:Key="Font.Size.Label">12</sys:Double>
@@ -116,8 +116,8 @@
     <sys:Double x:Key="Font.Size.PageTitle">22</sys:Double>
     <sys:Double x:Key="Font.Size.Display">28</sys:Double>
 
-    <!-- Weight rule: structural elements (titles, field labels, grid headers) are
-         SemiBold; body, data and badges stay Regular. Only these two weights. -->
+    <!-- 굵기 규칙: 구조 요소(제목, 필드 레이블, 그리드 헤더)는 SemiBold;
+         본문, 데이터, 배지는 Regular 유지. 이 두 가지 굵기만 사용한다. -->
     <Style x:Key="Text.Title" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource Font.Family}" />
         <Setter Property="FontSize" Value="{StaticResource Font.Size.Title}" />
@@ -144,7 +144,7 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <!-- 6. Depth — the only shadows in the system, for cards and overlays/popups. -->
+    <!-- 6. 깊이 — 시스템에서 유일하게 허용되는 그림자로, 카드와 오버레이/팝업용. -->
     <DropShadowEffect x:Key="Shadow.Card"
                       Color="#FF000000"
                       Opacity="0.10"

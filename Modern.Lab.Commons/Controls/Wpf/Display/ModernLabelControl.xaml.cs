@@ -4,13 +4,13 @@ using System.Windows.Controls;
 namespace Modern.Lab.Controls.Wpf.Display
 {
     /// <summary>
-    /// Modern text label.
-    /// - Text: text to display
-    /// - Kind: typography role (Body/Title/Label/Helper) from the token type ramp
+    /// 모던 텍스트 레이블.
+    /// - Text: 표시할 텍스트
+    /// - Kind: 토큰 타입 램프 기반 타이포그래피 역할 (Body/Title/Label/Helper)
     /// </summary>
     public partial class ModernLabelControl : UserControl
     {
-        /// <summary>Text to display.</summary>
+        /// <summary>표시할 텍스트.</summary>
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register(
                 "Text",
@@ -18,7 +18,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernLabelControl),
                 new PropertyMetadata("레이블"));
 
-        /// <summary>Typography role. Defaults to Body.</summary>
+        /// <summary>타이포그래피 역할. 기본값은 Body.</summary>
         public static readonly DependencyProperty KindProperty =
             DependencyProperty.Register(
                 "Kind",
@@ -26,7 +26,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernLabelControl),
                 new PropertyMetadata(LabelKind.Body));
 
-        /// <summary>Shows a red asterisk after the text (required-field mark).</summary>
+        /// <summary>텍스트 뒤에 빨간 별표를 표시한다(필수 필드 표시).</summary>
         public static readonly DependencyProperty RequiredProperty =
             DependencyProperty.Register(
                 "Required",
@@ -39,21 +39,21 @@ namespace Modern.Lab.Controls.Wpf.Display
             this.InitializeComponent();
         }
 
-        /// <summary>Text to display.</summary>
+        /// <summary>표시할 텍스트.</summary>
         public string Text
         {
             get { return (string)this.GetValue(TextProperty); }
             set { this.SetValue(TextProperty, value); }
         }
 
-        /// <summary>Typography role (Body/Title/Label/Helper).</summary>
+        /// <summary>타이포그래피 역할 (Body/Title/Label/Helper).</summary>
         public LabelKind Kind
         {
             get { return (LabelKind)this.GetValue(KindProperty); }
             set { this.SetValue(KindProperty, value); }
         }
 
-        /// <summary>Shows a red asterisk after the text (required-field mark).</summary>
+        /// <summary>텍스트 뒤에 빨간 별표를 표시한다(필수 필드 표시).</summary>
         public bool Required
         {
             get { return (bool)this.GetValue(RequiredProperty); }

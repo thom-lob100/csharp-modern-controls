@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Modern.Lab.Controls.Wpf.Selection
 {
-    /// <summary>UI item model for one checkbox row in ModernCheckComboBoxControl.</summary>
+    /// <summary>ModernCheckComboBoxControl의 체크 행 하나를 나타내는 UI 항목 모델.</summary>
     public class CheckComboItem : INotifyPropertyChanged
     {
         private readonly object item;
@@ -18,13 +18,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.isChecked = false;
         }
 
-        /// <summary>The bound source row (DataRowView, object, ...).</summary>
+        /// <summary>바인딩된 원본 행 (DataRowView, 객체 등).</summary>
         public object Item
         {
             get { return this.item; }
         }
 
-        /// <summary>Text shown next to the checkbox.</summary>
+        /// <summary>체크 표시 옆에 보여줄 텍스트.</summary>
         public string DisplayText
         {
             get
@@ -38,7 +38,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
             }
         }
 
-        /// <summary>Check state (two-way bound to the checkbox).</summary>
+        /// <summary>체크 상태 (체크 표시와 양방향 바인딩).</summary>
         public bool IsChecked
         {
             get

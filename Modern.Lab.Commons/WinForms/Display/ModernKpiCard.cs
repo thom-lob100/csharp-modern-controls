@@ -5,22 +5,22 @@ using Modern.Lab.WinForms.Controls.Hosting;
 namespace Modern.Lab.WinForms.Controls.Display
 {
     /// <summary>
-    /// Small statistic card (replaces a hand-built Label pair; WPF
-    /// ModernKpiCardControl hosted through ElementHost).
+    /// 소형 통계 카드(수작업 Label 한 쌍을 대체; WPF ModernKpiCardControl을
+    /// ElementHost로 호스팅).
     ///
-    /// Set Title once and update Value after each query
-    /// (e.g. Value = grid.RowCount.ToString()).
+    /// Title은 한 번 설정하고, 매 조회 후 Value를 갱신한다
+    /// (예: Value = grid.RowCount.ToString()).
     /// </summary>
     [ToolboxItem(true)]
     public class ModernKpiCard : WpfElementHostBase<Modern.Lab.Controls.Wpf.Display.ModernKpiCardControl>
     {
-        // Fallback storage so the property grid still works when design-time
-        // WPF construction failed (Wpf == null).
+        // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
+        // 동작하도록 하는 폴백 저장소.
         private string fallbackTitle;
         private string fallbackValue;
         private bool fallbackFlat;
 
-        /// <summary>Creates the control with a sensible default size.</summary>
+        /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernKpiCard()
         {
             this.Size = new Size(160, 72);
@@ -29,7 +29,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             this.fallbackFlat = false;
         }
 
-        /// <summary>Drops the card chrome for use on a shared card panel (e.g. ModernCardPanel).</summary>
+        /// <summary>공용 카드 패널(예: ModernCardPanel) 위에서 쓰도록 카드 크롬을 제거한다.</summary>
         [Category("모던 컨트롤")]
         [Description("카드 테두리/배경 제거 — 카드 판넬 위에 평면 배치할 때 사용")]
         [DefaultValue(false)]
@@ -57,7 +57,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             }
         }
 
-        /// <summary>Caption above the value.</summary>
+        /// <summary>값 위에 표시되는 캡션.</summary>
         [Category("모던 컨트롤")]
         [Description("값 위에 표시할 제목")]
         [Localizable(true)]
@@ -86,7 +86,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             }
         }
 
-        /// <summary>Highlighted value text.</summary>
+        /// <summary>강조 표시되는 값 텍스트.</summary>
         [Category("모던 컨트롤")]
         [Description("강조 표시할 값 텍스트")]
         [DefaultValue("0")]

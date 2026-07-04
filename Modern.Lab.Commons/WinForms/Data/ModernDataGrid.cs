@@ -7,17 +7,17 @@ using Modern.Lab.WinForms.Controls.Hosting;
 namespace Modern.Lab.WinForms.Controls.Data
 {
     /// <summary>
-    /// Drop-in replacement for System.Windows.Forms.DataGridView (read-only list
-    /// scenarios; WPF ModernDataGridControl hosted through ElementHost).
+    /// System.Windows.Forms.DataGridView의 드롭인 대체 컨트롤(읽기 전용 목록
+    /// 시나리오; WPF ModernDataGridControl을 ElementHost로 호스팅).
     ///
-    /// Compatible members: DataSource (DataTable/DataView/IList/IEnumerable),
+    /// 호환 멤버: DataSource(DataTable/DataView/IList/IEnumerable),
     /// AutoGenerateColumns, RowCount, SelectionChanged, Enabled.
     ///
-    /// Contract behaviors (docs/design-notes.md section 6-1):
-    /// - Assigning DataSource resets the selection, selects the first row when
-    ///   data is present (matching DataGridView's initial current row), and
-    ///   raises SelectionChanged exactly once per assignment.
-    /// - Null/empty data renders as an empty grid, never throws.
+    /// 계약 동작 (docs/design-notes.md 6-1절):
+    /// - DataSource를 할당하면 선택이 초기화되고, 데이터가 있으면 첫 행이
+    ///   선택되며(DataGridView의 초기 현재 행과 동일), 할당 한 번당
+    ///   SelectionChanged가 정확히 한 번 발생한다.
+    /// - null/빈 데이터는 빈 그리드로 렌더링되며 절대 예외를 던지지 않는다.
     /// </summary>
     [ToolboxItem(true)]
     public class ModernDataGrid : WpfElementHostBase<ModernDataGridControl>
@@ -25,14 +25,14 @@ namespace Modern.Lab.WinForms.Controls.Data
         private object dataSource;
         private bool suppressSelectionChanged;
 
-        // Fallback storage so the property grid still works when design-time
-        // WPF construction failed (Wpf == null).
+        // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
+        // 동작하도록 하는 폴백 저장소.
         private bool fallbackAutoGenerateColumns;
 
-        /// <summary>Raised when the row selection changes (WinForms-compatible name).</summary>
+        /// <summary>행 선택이 바뀔 때 발생한다(WinForms 호환 이름).</summary>
         public event EventHandler SelectionChanged;
 
-        /// <summary>Creates the control with a sensible default size.</summary>
+        /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernDataGrid()
         {
             this.Size = new Size(480, 240);
@@ -45,9 +45,9 @@ namespace Modern.Lab.WinForms.Controls.Data
         }
 
         /// <summary>
-        /// Data source: DataTable, DataView, IList or any IEnumerable. Assigning
-        /// resets the selection, selects the first row when data is present, and
-        /// raises SelectionChanged once. Assigning null clears the grid.
+        /// 데이터 소스: DataTable, DataView, IList 또는 임의의 IEnumerable.
+        /// 할당하면 선택이 초기화되고, 데이터가 있으면 첫 행이 선택되며,
+        /// SelectionChanged가 한 번 발생한다. null을 할당하면 그리드를 비운다.
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -75,7 +75,7 @@ namespace Modern.Lab.WinForms.Controls.Data
 
                     if (this.Wpf.RowCount > 0)
                     {
-                        // Match DataGridView: the first row becomes current on bind.
+                        // DataGridView와 동일: 바인딩 시 첫 행이 현재 행이 된다.
                         this.Wpf.SelectedIndex = 0;
                     }
                 }
@@ -88,7 +88,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             }
         }
 
-        /// <summary>Whether columns are generated from the data source (WinForms-compatible).</summary>
+        /// <summary>데이터 소스로부터 컬럼을 자동 생성할지 여부(WinForms 호환).</summary>
         [Category("모던 컨트롤")]
         [Description("데이터 원본에서 컬럼을 자동 생성할지 여부")]
         [DefaultValue(true)]
@@ -114,7 +114,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             }
         }
 
-        /// <summary>Number of rows currently shown (WinForms-compatible name).</summary>
+        /// <summary>현재 표시 중인 행 수(WinForms 호환 이름).</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int RowCount
@@ -130,7 +130,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             }
         }
 
-        /// <summary>Currently selected row item (DataRowView for DataTable sources).</summary>
+        /// <summary>현재 선택된 행 항목(DataTable 소스의 경우 DataRowView).</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object SelectedItem
@@ -153,7 +153,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             }
         }
 
-        /// <summary>Index of the selected row (-1 when nothing is selected).</summary>
+        /// <summary>선택된 행의 인덱스(아무것도 선택되지 않았으면 -1).</summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int SelectedIndex
@@ -177,8 +177,8 @@ namespace Modern.Lab.WinForms.Controls.Data
         }
 
         /// <summary>
-        /// Replaces the columns with explicit definitions and turns off
-        /// auto-generation. Call before assigning DataSource.
+        /// 컬럼을 명시적 정의로 교체하고 자동 생성을 끈다.
+        /// DataSource 할당 전에 호출한다.
         /// </summary>
         public void ConfigureColumns(params ModernDataGridColumn[] columns)
         {

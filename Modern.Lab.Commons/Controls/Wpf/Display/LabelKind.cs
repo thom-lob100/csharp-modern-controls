@@ -1,18 +1,18 @@
 namespace Modern.Lab.Controls.Wpf.Display
 {
-    /// <summary>Typography role of a label, mapped to the token type ramp.</summary>
+    /// <summary>레이블의 타이포그래피 역할로, 토큰 타입 램프에 매핑된다.</summary>
     public enum LabelKind
     {
-        /// <summary>Body text. Regular weight, primary text color.</summary>
+        /// <summary>본문 텍스트. Regular 굵기, 기본 텍스트 색.</summary>
         Body,
 
-        /// <summary>Section title. Title size, SemiBold, primary text color.</summary>
+        /// <summary>섹션 제목. Title 크기, SemiBold, 기본 텍스트 색.</summary>
         Title,
 
-        /// <summary>Field label. Label size, SemiBold, secondary text color.</summary>
+        /// <summary>필드 레이블. Label 크기, SemiBold, 보조 텍스트 색.</summary>
         Label,
 
-        /// <summary>Helper/caption text. Helper size, Regular, secondary text color.</summary>
+        /// <summary>도움말/캡션 텍스트. Helper 크기, Regular, 보조 텍스트 색.</summary>
         Helper
     }
 }

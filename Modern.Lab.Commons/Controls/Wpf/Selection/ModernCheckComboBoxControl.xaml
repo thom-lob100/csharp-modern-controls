@@ -16,7 +16,7 @@
                 <ResourceDictionary Source="/Modern.Lab.Commons;component/Themes/Tokens.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Field surface + chevron, same look as ModernComboBox -->
+            <!-- 필드 표면 + 화살표. ModernComboBox와 동일한 외형 -->
             <ControlTemplate x:Key="CheckComboToggleTemplate" TargetType="ToggleButton">
                 <Border x:Name="FieldBorder"
                         CornerRadius="{StaticResource Radius.Sm}"
@@ -44,14 +44,127 @@
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
+
+            <!-- 모던 체크박스: 둥근 사각(4px) + 액센트 채움 + 흰 체크 글리프.
+                 IsChecked=null(부분 선택)은 대시 글리프로 표시 -->
+            <Style x:Key="ModernCheckBoxStyle" TargetType="CheckBox">
+                <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+                <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <Border x:Name="Box"
+                                        Width="18" Height="18"
+                                        CornerRadius="4"
+                                        Background="{StaticResource Brush.Surface}"
+                                        BorderBrush="{StaticResource Brush.Border}"
+                                        BorderThickness="1"
+                                        VerticalAlignment="Center">
+                                    <TextBlock x:Name="Glyph"
+                                               Text="&#xE73E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               Foreground="{StaticResource Brush.OnAccent}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Visibility="Collapsed" />
+                                </Border>
+                                <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.BorderHover}" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Box" Property="Background" Value="{StaticResource Brush.Accent}" />
+                                    <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
+                                    <Setter TargetName="Glyph" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <!-- 부분 선택(전체 선택 헤더 전용) -->
+                                <Trigger Property="IsChecked" Value="{x:Null}">
+                                    <Setter TargetName="Box" Property="Background" Value="{StaticResource Brush.Accent}" />
+                                    <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.Accent}" />
+                                    <Setter TargetName="Glyph" Property="Text" Value="&#xE738;" />
+                                    <Setter TargetName="Glyph" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Box" Property="Background" Value="{StaticResource Brush.DisabledBackground}" />
+                                    <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Brush.BorderSubtle}" />
+                                    <Setter Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 온/오프 토글 스위치: 알약형 트랙 + 원형 썸.
+                 켬 = 액센트 트랙 + 오른쪽 썸, 끔 = 회색 트랙 + 왼쪽 썸 -->
+            <Style x:Key="ModernSwitchStyle" TargetType="CheckBox">
+                <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+                <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CheckBox">
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <Border x:Name="Track"
+                                        Width="34" Height="18"
+                                        CornerRadius="9"
+                                        Background="{StaticResource Brush.Border}"
+                                        VerticalAlignment="Center">
+                                    <Ellipse x:Name="Thumb"
+                                             Width="12" Height="12"
+                                             Fill="{StaticResource Brush.OnAccent}"
+                                             HorizontalAlignment="Left"
+                                             Margin="3,0,3,0" />
+                                </Border>
+                                <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Track" Property="Background" Value="{StaticResource Brush.BorderHover}" />
+                                </Trigger>
+                                <!-- 켬 상태가 hover보다 우선하도록 뒤에 선언 -->
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Track" Property="Background" Value="{StaticResource Brush.Accent}" />
+                                    <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Track" Property="Background" Value="{StaticResource Brush.DisabledBackground}" />
+                                    <Setter Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 항목 템플릿 두 종류 — ItemStyle 속성에 따라 코드에서 선택 -->
+            <DataTemplate x:Key="CheckBoxItemTemplate">
+                <CheckBox Style="{StaticResource ModernCheckBoxStyle}"
+                          Content="{Binding DisplayText}"
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                          Margin="12,6" />
+            </DataTemplate>
+            <DataTemplate x:Key="SwitchItemTemplate">
+                <CheckBox Style="{StaticResource ModernSwitchStyle}"
+                          Content="{Binding DisplayText}"
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                          Margin="12,6" />
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
-        <!-- Field surface; checking the toggle opens the popup (two-way).
-             ClickMode=Release: with Press, the popup opens on mouse-down and
-             the following mouse-up lands outside the popup, dismissing it
-             immediately (StaysOpen=False capture behavior). -->
+        <!-- 필드 표면; 토글 체크가 팝업 열림과 양방향 연결.
+             ClickMode=Release: Press면 마우스 다운에 팝업이 열리고 이어지는
+             마우스 업이 팝업 밖 입력으로 처리되어 즉시 닫힌다(StaysOpen=False
+             캡처 동작). -->
         <ToggleButton x:Name="DropToggle"
                       Height="{StaticResource Size.ControlHeight}"
                       Focusable="False"
@@ -59,7 +172,7 @@
                       Template="{StaticResource CheckComboToggleTemplate}"
                       PreviewMouseLeftButtonDown="DropToggle_PreviewMouseLeftButtonDown" />
 
-        <!-- Joined display text of the checked items -->
+        <!-- 체크된 항목들의 표시 텍스트를 ", "로 연결해 표시 -->
         <TextBlock x:Name="DisplayText"
                    Margin="12,0,32,0"
                    VerticalAlignment="Center"
@@ -68,7 +181,7 @@
                    TextTrimming="CharacterEllipsis"
                    IsHitTestVisible="False" />
 
-        <!-- Placeholder while nothing is checked -->
+        <!-- 체크된 항목이 없을 때의 플레이스홀더 -->
         <TextBlock x:Name="PlaceholderOverlay"
                    Text="{Binding Placeholder, ElementName=RootControl}"
                    Margin="13,0,32,0"
@@ -92,22 +205,23 @@
                     CornerRadius="{StaticResource Radius.Sm}"
                     Margin="0,2,0,0"
                     MinWidth="{Binding ActualWidth, ElementName=DropToggle}"
-                    MaxHeight="240">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="CheckItemsControl">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox Content="{Binding DisplayText}"
-                                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                          Margin="12,6"
-                                          FontFamily="{DynamicResource Font.Family}"
-                                          FontSize="{StaticResource Font.Size.Body}"
-                                          Foreground="{StaticResource Brush.TextPrimary}"
-                                          VerticalContentAlignment="Center" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                    MaxHeight="280">
+                <DockPanel>
+                    <!-- 전체 선택 헤더: 전부 체크 = 체크, 전부 해제 = 해제,
+                         일부만 체크 = 부분 선택(대시) 표시 -->
+                    <Border DockPanel.Dock="Top"
+                            BorderBrush="{StaticResource Brush.BorderSubtle}"
+                            BorderThickness="0,0,0,1"
+                            Padding="12,8">
+                        <CheckBox x:Name="SelectAllCheck"
+                                  Style="{StaticResource ModernCheckBoxStyle}"
+                                  Content="전체 선택"
+                                  Click="SelectAllCheck_Click" />
+                    </Border>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="CheckItemsControl" />
+                    </ScrollViewer>
+                </DockPanel>
             </Border>
         </Popup>
     </Grid>

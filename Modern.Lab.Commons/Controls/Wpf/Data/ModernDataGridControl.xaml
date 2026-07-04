@@ -16,8 +16,8 @@
                 <ResourceDictionary Source="/Modern.Lab.Commons;component/Themes/Tokens.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Column header: SemiBold caption, subtle divider, sort chevron.
-                 PART_RightHeaderGripper keeps mouse column resizing working. -->
+            <!-- 컬럼 헤더: SemiBold 캡션, 은은한 구분선, 정렬 셰브런.
+                 PART_RightHeaderGripper가 마우스로 컬럼 너비 조절이 계속 동작하게 한다. -->
             <Style x:Key="ModernGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="{StaticResource Brush.GridHeaderBackground}" />
                 <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
@@ -70,8 +70,8 @@
                 </Setter>
             </Style>
 
-            <!-- Row: hover and selected backgrounds only; the base background
-                 comes from RowBackground/AlternatingRowBackground. -->
+            <!-- 행: hover/선택 배경만 지정; 기본 배경은
+                 RowBackground/AlternatingRowBackground에서 온다. -->
             <Style x:Key="ModernGridRowStyle" TargetType="DataGridRow">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -83,8 +83,8 @@
                 </Style.Triggers>
             </Style>
 
-            <!-- Cell: vertically centered content, no per-cell focus border.
-                 Transparent background lets the row background show through. -->
+            <!-- 셀: 내용 세로 중앙 정렬, 셀 단위 포커스 테두리 없음.
+                 투명 배경이라 행 배경이 그대로 비쳐 보인다. -->
             <Style x:Key="ModernGridCellStyle" TargetType="DataGridCell">
                 <Setter Property="Padding" Value="{StaticResource Pad.Field}" />
                 <Setter Property="Background" Value="Transparent" />

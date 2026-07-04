@@ -4,14 +4,14 @@ using System.Windows.Controls;
 namespace Modern.Lab.Controls.Wpf.Input
 {
     /// <summary>
-    /// Modern rounded button control.
-    /// - Text: caption shown on the button
-    /// - Kind: visual kind (Primary/Secondary/Danger) that switches the color set
-    /// - Click: raised when the button is pressed
+    /// 모던 둥근 버튼 컨트롤.
+    /// - Text: 버튼에 표시되는 캡션
+    /// - Kind: 색상 세트를 전환하는 시각적 종류 (Primary/Secondary/Danger)
+    /// - Click: 버튼이 눌릴 때 발생
     /// </summary>
     public partial class ModernButtonControl : UserControl
     {
-        /// <summary>Caption shown on the button.</summary>
+        /// <summary>버튼에 표시되는 캡션.</summary>
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register(
                 "Text",
@@ -19,7 +19,7 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernButtonControl),
                 new PropertyMetadata("버튼"));
 
-        /// <summary>Visual kind (color / emphasis level). Defaults to Primary.</summary>
+        /// <summary>시각적 종류(색상 / 강조 수준). 기본값은 Primary.</summary>
         public static readonly DependencyProperty KindProperty =
             DependencyProperty.Register(
                 "Kind",
@@ -27,7 +27,7 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernButtonControl),
                 new PropertyMetadata(ButtonKind.Primary));
 
-        /// <summary>Icon glyph (Segoe MDL2 Assets) shown before the caption. Empty hides it.</summary>
+        /// <summary>캡션 앞에 표시되는 아이콘 글리프(Segoe MDL2 Assets). 비어 있으면 숨긴다.</summary>
         public static readonly DependencyProperty IconGlyphProperty =
             DependencyProperty.Register(
                 "IconGlyph",
@@ -36,7 +36,7 @@ namespace Modern.Lab.Controls.Wpf.Input
                 new PropertyMetadata(string.Empty));
 
         /// <summary>
-        /// Raised when the button is clicked. Forwards the inner button's Click.
+        /// 버튼이 클릭될 때 발생한다. 내부 버튼의 Click을 전달한다.
         /// </summary>
         public event RoutedEventHandler Click;
 
@@ -45,28 +45,28 @@ namespace Modern.Lab.Controls.Wpf.Input
             this.InitializeComponent();
         }
 
-        /// <summary>Caption shown on the button.</summary>
+        /// <summary>버튼에 표시되는 캡션.</summary>
         public string Text
         {
             get { return (string)this.GetValue(TextProperty); }
             set { this.SetValue(TextProperty, value); }
         }
 
-        /// <summary>Visual kind (Primary/Secondary/Danger).</summary>
+        /// <summary>시각적 종류 (Primary/Secondary/Danger).</summary>
         public ButtonKind Kind
         {
             get { return (ButtonKind)this.GetValue(KindProperty); }
             set { this.SetValue(KindProperty, value); }
         }
 
-        /// <summary>Icon glyph (Segoe MDL2 Assets) shown before the caption.</summary>
+        /// <summary>캡션 앞에 표시되는 아이콘 글리프(Segoe MDL2 Assets).</summary>
         public string IconGlyph
         {
             get { return (string)this.GetValue(IconGlyphProperty); }
             set { this.SetValue(IconGlyphProperty, value); }
         }
 
-        // Re-raises the inner button's Click as this control's Click.
+        // 내부 버튼의 Click을 이 컨트롤의 Click으로 다시 발생시킨다.
         private void InnerButton_Click(object sender, RoutedEventArgs e)
         {
             if (this.Click != null)

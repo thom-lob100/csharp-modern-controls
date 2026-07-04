@@ -18,8 +18,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- Text whose typography follows the Kind (token type ramp), plus an
-         optional required-field mark (red asterisk) after it. -->
+    <!-- 타이포그래피가 Kind(토큰 타입 램프)를 따르는 텍스트와, 그 뒤에 붙는
+         선택적 필수 필드 표시(빨간 별표). -->
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
         <TextBlock x:Name="InnerText"
                    Text="{Binding Text, ElementName=RootControl}"
@@ -27,7 +27,7 @@
                    TextTrimming="CharacterEllipsis">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
-                    <!-- Defaults (Body): body size, regular weight, primary text color -->
+                    <!-- 기본값(Body): 본문 크기, Regular 굵기, 기본 텍스트 색 -->
                     <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
                     <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
                     <Setter Property="FontWeight" Value="Normal" />
@@ -52,7 +52,7 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-        <!-- Required-field mark: strong red per token comment (ErrorBorder) -->
+        <!-- 필수 필드 표시: 토큰 주석에 따라 진한 빨강(ErrorBorder) 사용 -->
         <TextBlock Text="*"
                    Margin="3,0,0,0"
                    VerticalAlignment="Center"

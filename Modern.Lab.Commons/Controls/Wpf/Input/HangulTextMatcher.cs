@@ -3,16 +3,16 @@ using System;
 namespace Modern.Lab.Controls.Wpf.Input
 {
     /// <summary>
-    /// Korean-aware text matching for autocomplete (search-box behavior).
+    /// 자동완성(검색창 동작)을 위한 한국어 인식 텍스트 매칭.
     ///
-    /// Pattern characters are interpreted as follows:
-    /// - Consonant jamo (ㄱ~ㅎ): matches any syllable whose initial consonant
-    ///   (초성) is that jamo — enables 초성 검색 ("ㄱㅁㅅ" → "김민수").
-    /// - Complete syllable: exact match; the LAST pattern character may also
-    ///   match on initial+medial only when it has no final consonant, so IME
-    ///   intermediate states keep matching while composing ("기" → "김민수").
-    /// - Everything else: ordinal, case-insensitive comparison.
-    /// Matching uses contains semantics over the candidate.
+    /// 패턴 문자는 다음과 같이 해석된다:
+    /// - 자음 자모(ㄱ~ㅎ): 초성이 그 자모인 모든 음절과 매칭 —
+    ///   초성 검색을 가능하게 한다 ("ㄱㅁㅅ" → "김민수").
+    /// - 완성형 음절: 정확히 일치; 다만 패턴의 마지막 문자는 종성이 없으면
+    ///   초성+중성만으로도 매칭될 수 있어, IME 조합 중간 상태에서도 매칭이
+    ///   유지된다 ("기" → "김민수").
+    /// - 그 외: 서수(ordinal), 대소문자 무시 비교.
+    /// 매칭은 후보 문자열에 대해 contains 의미론을 사용한다.
     /// </summary>
     internal static class HangulTextMatcher
     {
@@ -21,10 +21,10 @@ namespace Modern.Lab.Controls.Wpf.Input
         private const int MedialCount = 21;
         private const int FinalCount = 28;
 
-        // Initial consonants (초성) in syllable order, as compatibility jamo.
+        // 음절 순서대로 나열한 초성 목록(호환 자모).
         private const string InitialJamoTable = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
 
-        /// <summary>Returns true when the pattern occurs anywhere in the candidate.</summary>
+        /// <summary>패턴이 후보 문자열 어디에든 나타나면 true를 반환한다.</summary>
         internal static bool Contains(string candidate, string pattern)
         {
             if (string.IsNullOrEmpty(pattern))
@@ -74,15 +74,15 @@ namespace Modern.Lab.Controls.Wpf.Input
 
             if (initialIndex >= 0)
             {
-                // Consonant-jamo pattern: compare against the syllable's 초성.
+                // 자음 자모 패턴: 음절의 초성과 비교한다.
                 return IsSyllable(candidateChar) &&
                        (candidateChar - SyllableFirst) / (MedialCount * FinalCount) == initialIndex;
             }
 
             if (IsSyllable(patternChar))
             {
-                // A final-less syllable at the end of the pattern is an IME
-                // intermediate state; match on initial+medial only.
+                // 패턴 끝의 종성 없는 음절은 IME 조합 중간 상태이므로
+                // 초성+중성만으로 매칭한다.
                 if (isLastPatternChar && IsSyllable(candidateChar))
                 {
                     int patternOffset = patternChar - SyllableFirst;

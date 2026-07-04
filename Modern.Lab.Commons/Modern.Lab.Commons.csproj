@@ -107,6 +107,7 @@
       <DependentUpon>ModernComboBoxControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Wpf\Selection\CheckComboItem.cs" />
+    <Compile Include="Controls\Wpf\Selection\CheckItemStyle.cs" />
     <Compile Include="Controls\Wpf\Selection\ModernCheckComboBoxControl.xaml.cs">
       <DependentUpon>ModernCheckComboBoxControl.xaml</DependentUpon>
     </Compile>

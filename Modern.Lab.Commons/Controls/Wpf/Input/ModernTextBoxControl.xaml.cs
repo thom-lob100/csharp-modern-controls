@@ -8,25 +8,25 @@ using System.Windows.Input;
 namespace Modern.Lab.Controls.Wpf.Input
 {
     /// <summary>
-    /// Modern single-line text input.
-    /// - Text: input text (two-way)
-    /// - Placeholder: hint shown while the text is empty
-    /// - IsReadOnly: read-only state
-    /// - AutoCompleteItemsSource: candidate items for the suggestion dropdown
-    /// - TextChanged: raised whenever Text changes
-    /// - EnterPressed: raised when the Enter key is pressed (search-on-enter)
+    /// 모던 한 줄 텍스트 입력.
+    /// - Text: 입력 텍스트 (양방향)
+    /// - Placeholder: 텍스트가 비어 있는 동안 표시되는 힌트
+    /// - IsReadOnly: 읽기 전용 상태
+    /// - AutoCompleteItemsSource: 추천 드롭다운의 후보 항목
+    /// - TextChanged: Text가 바뀔 때마다 발생
+    /// - EnterPressed: Enter 키를 눌렀을 때 발생 (엔터로 검색)
     ///
-    /// IME note: placeholder visibility and suggestion filtering run off the
-    /// inner TextBox.TextChanged, which fires during Hangul composition, so a
-    /// single consonant already hides the placeholder and filters suggestions.
-    /// (The Text DP itself updates when the composition commits — WPF defers
-    /// binding source updates while a composition is active.)
+    /// IME 참고: placeholder 표시와 추천 필터링은 내부 TextBox.TextChanged에서
+    /// 동작하는데, 이 이벤트는 한글 조합 중에도 발생하므로 자음 하나만 입력해도
+    /// placeholder가 숨겨지고 추천이 필터링된다.
+    /// (Text DP 자체는 조합이 확정될 때 갱신된다 — WPF는 조합이 진행 중인 동안
+    /// 바인딩 소스 업데이트를 미룬다.)
     /// </summary>
     public partial class ModernTextBoxControl : UserControl
     {
         private const int MaxSuggestionCount = 8;
 
-        /// <summary>Input text. Two-way by default.</summary>
+        /// <summary>입력 텍스트. 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register(
                 "Text",
@@ -37,7 +37,7 @@ namespace Modern.Lab.Controls.Wpf.Input
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     OnTextPropertyChanged));
 
-        /// <summary>Hint text shown while the input is empty.</summary>
+        /// <summary>입력이 비어 있는 동안 표시되는 힌트 텍스트.</summary>
         public static readonly DependencyProperty PlaceholderProperty =
             DependencyProperty.Register(
                 "Placeholder",
@@ -45,7 +45,7 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernTextBoxControl),
                 new PropertyMetadata(string.Empty));
 
-        /// <summary>Read-only state of the editor.</summary>
+        /// <summary>에디터의 읽기 전용 상태.</summary>
         public static readonly DependencyProperty IsReadOnlyProperty =
             DependencyProperty.Register(
                 "IsReadOnly",
@@ -54,9 +54,9 @@ namespace Modern.Lab.Controls.Wpf.Input
                 new PropertyMetadata(false));
 
         /// <summary>
-        /// Candidate items for the suggestion dropdown. Any IEnumerable; each
-        /// item's ToString() is matched (contains, case-insensitive) against the
-        /// typed text. Null disables autocomplete.
+        /// 추천 드롭다운의 후보 항목. 임의의 IEnumerable; 각 항목의 ToString()이
+        /// 입력한 텍스트와 매칭된다(contains, 대소문자 무시).
+        /// null이면 자동완성이 비활성화된다.
         /// </summary>
         public static readonly DependencyProperty AutoCompleteItemsSourceProperty =
             DependencyProperty.Register(
@@ -68,10 +68,10 @@ namespace Modern.Lab.Controls.Wpf.Input
         private readonly ObservableCollection<string> suggestionItems;
         private bool suppressSuggestions;
 
-        /// <summary>Raised whenever <see cref="Text"/> changes.</summary>
+        /// <summary><see cref="Text"/>가 바뀔 때마다 발생한다.</summary>
         public event EventHandler TextChanged;
 
-        /// <summary>Raised when the Enter key is pressed inside the editor.</summary>
+        /// <summary>에디터 안에서 Enter 키를 눌렀을 때 발생한다.</summary>
         public event EventHandler EnterPressed;
 
         public ModernTextBoxControl()
@@ -81,35 +81,35 @@ namespace Modern.Lab.Controls.Wpf.Input
             this.SuggestionList.ItemsSource = this.suggestionItems;
         }
 
-        /// <summary>Input text.</summary>
+        /// <summary>입력 텍스트.</summary>
         public string Text
         {
             get { return (string)this.GetValue(TextProperty); }
             set { this.SetValue(TextProperty, value); }
         }
 
-        /// <summary>Hint text shown while the input is empty.</summary>
+        /// <summary>입력이 비어 있는 동안 표시되는 힌트 텍스트.</summary>
         public string Placeholder
         {
             get { return (string)this.GetValue(PlaceholderProperty); }
             set { this.SetValue(PlaceholderProperty, value); }
         }
 
-        /// <summary>Read-only state of the editor.</summary>
+        /// <summary>에디터의 읽기 전용 상태.</summary>
         public bool IsReadOnly
         {
             get { return (bool)this.GetValue(IsReadOnlyProperty); }
             set { this.SetValue(IsReadOnlyProperty, value); }
         }
 
-        /// <summary>Candidate items for the suggestion dropdown. Null disables autocomplete.</summary>
+        /// <summary>추천 드롭다운의 후보 항목. null이면 자동완성이 비활성화된다.</summary>
         public IEnumerable AutoCompleteItemsSource
         {
             get { return (IEnumerable)this.GetValue(AutoCompleteItemsSourceProperty); }
             set { this.SetValue(AutoCompleteItemsSourceProperty, value); }
         }
 
-        /// <summary>Moves keyboard focus into the editor.</summary>
+        /// <summary>키보드 포커스를 에디터로 이동한다.</summary>
         public void FocusEditor()
         {
             this.InnerTextBox.Focus();
@@ -125,8 +125,8 @@ namespace Modern.Lab.Controls.Wpf.Input
             }
         }
 
-        // Fires during IME composition too — drives the placeholder and the
-        // suggestion dropdown so both react to the very first consonant.
+        // IME 조합 중에도 발생한다 — placeholder와 추천 드롭다운을 구동하여
+        // 둘 다 첫 자음 입력부터 반응하게 한다.
         private void InnerTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.PlaceholderText.Visibility = string.IsNullOrEmpty(this.InnerTextBox.Text)
@@ -164,8 +164,8 @@ namespace Modern.Lab.Controls.Wpf.Input
 
                 string candidateText = candidate.ToString();
 
-                // Korean-aware matching: consonant jamo match syllable initials
-                // (초성 검색) and IME intermediate syllables keep matching.
+                // 한국어 인식 매칭: 자음 자모는 음절의 초성과 매칭되고(초성 검색)
+                // IME 조합 중간 음절도 계속 매칭된다.
                 if (HangulTextMatcher.Contains(candidateText, typed) &&
                     !string.Equals(candidateText, typed, StringComparison.Ordinal))
                 {
@@ -195,7 +195,7 @@ namespace Modern.Lab.Controls.Wpf.Input
             this.SuggestionList.SelectedIndex = -1;
         }
 
-        // Applies a suggestion to the editor without re-opening the dropdown.
+        // 드롭다운을 다시 열지 않고 추천 항목을 에디터에 적용한다.
         private void CommitSuggestion(string value)
         {
             this.suppressSuggestions = true;
@@ -204,7 +204,7 @@ namespace Modern.Lab.Controls.Wpf.Input
             this.CloseSuggestions();
         }
 
-        // Arrow keys navigate the open dropdown while focus stays in the editor.
+        // 방향키로 열린 드롭다운을 탐색하는 동안 포커스는 에디터에 남는다.
         private void InnerTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!this.SuggestionPopup.IsOpen)
@@ -242,8 +242,8 @@ namespace Modern.Lab.Controls.Wpf.Input
 
                 if (selected != null)
                 {
-                    // Commit, then let KeyDown raise EnterPressed with the
-                    // completed text (search-box behavior).
+                    // 먼저 확정한 뒤, KeyDown이 완성된 텍스트로 EnterPressed를
+                    // 발생시키게 한다(검색창 동작).
                     this.CommitSuggestion(selected);
                 }
                 else

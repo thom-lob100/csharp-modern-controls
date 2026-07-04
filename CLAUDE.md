@@ -59,8 +59,8 @@ Wrappers derive from a common `WpfElementHostBase<TWpf>` marked `[Designer(Contr
 
 ## C# style
 
-- **All source comments are English only** — including XML doc comments, inline comments, and XAML comments. Korean is fine for user-facing strings and for conversation with the user, but never in comments.
-- **README.md and docs/ are written in Korean**; source comments stay English (rule above).
+- **All source comments are Korean** (rule changed 2026-07-04) — including XML doc comments, inline comments, and XAML comments. Exception: VS designer-generated boilerplate in `.Designer.cs` (`Required designer variable.` etc.) stays as generated.
+- **README.md and docs/ are written in Korean** as well.
 - Explicit access modifier on every type and member.
 - PascalCase for types/methods/properties/public members; camelCase for locals/parameters/private fields.
 - Braces on every control block — no brace-less one-liners.

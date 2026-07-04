@@ -8,15 +8,15 @@ using System.Windows.Data;
 namespace Modern.Lab.Controls.Wpf.Data
 {
     /// <summary>
-    /// Modern read-only data grid.
-    /// - ItemsSource: any IEnumerable (DataView, IList, ...)
-    /// - SelectedItem: current row (two-way)
-    /// - AutoGenerateColumns: true by default; ApplyColumns switches to explicit columns
-    /// - SelectionChanged: raised when the row selection changes
+    /// 모던 읽기 전용 데이터 그리드.
+    /// - ItemsSource: 임의의 IEnumerable (DataView, IList, ...)
+    /// - SelectedItem: 현재 행 (양방향)
+    /// - AutoGenerateColumns: 기본값 true; ApplyColumns 호출 시 명시적 컬럼으로 전환
+    /// - SelectionChanged: 행 선택이 바뀔 때 발생
     /// </summary>
     public partial class ModernDataGridControl : UserControl
     {
-        /// <summary>Rows to display. Any IEnumerable (DataView, IList, ...).</summary>
+        /// <summary>표시할 행 목록. 임의의 IEnumerable (DataView, IList, ...).</summary>
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(
                 "ItemsSource",
@@ -24,7 +24,7 @@ namespace Modern.Lab.Controls.Wpf.Data
                 typeof(ModernDataGridControl),
                 new PropertyMetadata(null));
 
-        /// <summary>Currently selected row item. Two-way by default.</summary>
+        /// <summary>현재 선택된 행 항목. 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(
                 "SelectedItem",
@@ -32,7 +32,7 @@ namespace Modern.Lab.Controls.Wpf.Data
                 typeof(ModernDataGridControl),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        /// <summary>Whether columns are generated from the data source.</summary>
+        /// <summary>데이터 소스로부터 컬럼을 자동 생성할지 여부.</summary>
         public static readonly DependencyProperty AutoGenerateColumnsProperty =
             DependencyProperty.Register(
                 "AutoGenerateColumns",
@@ -40,7 +40,7 @@ namespace Modern.Lab.Controls.Wpf.Data
                 typeof(ModernDataGridControl),
                 new PropertyMetadata(true));
 
-        /// <summary>Raised when the row selection changes.</summary>
+        /// <summary>행 선택이 바뀔 때 발생한다.</summary>
         public event EventHandler SelectionChanged;
 
         public ModernDataGridControl()
@@ -48,34 +48,34 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.InitializeComponent();
         }
 
-        /// <summary>Rows to display.</summary>
+        /// <summary>표시할 행 목록.</summary>
         public IEnumerable ItemsSource
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
         }
 
-        /// <summary>Currently selected row item.</summary>
+        /// <summary>현재 선택된 행 항목.</summary>
         public object SelectedItem
         {
             get { return this.GetValue(SelectedItemProperty); }
             set { this.SetValue(SelectedItemProperty, value); }
         }
 
-        /// <summary>Whether columns are generated from the data source.</summary>
+        /// <summary>데이터 소스로부터 컬럼을 자동 생성할지 여부.</summary>
         public bool AutoGenerateColumns
         {
             get { return (bool)this.GetValue(AutoGenerateColumnsProperty); }
             set { this.SetValue(AutoGenerateColumnsProperty, value); }
         }
 
-        /// <summary>Number of rows currently shown.</summary>
+        /// <summary>현재 표시 중인 행 수.</summary>
         public int RowCount
         {
             get { return this.InnerDataGrid.Items.Count; }
         }
 
-        /// <summary>Index of the selected row (-1 when nothing is selected).</summary>
+        /// <summary>선택된 행의 인덱스(아무것도 선택되지 않았으면 -1).</summary>
         public int SelectedIndex
         {
             get { return this.InnerDataGrid.SelectedIndex; }
@@ -83,8 +83,8 @@ namespace Modern.Lab.Controls.Wpf.Data
         }
 
         /// <summary>
-        /// Replaces the columns with explicit definitions and turns off
-        /// auto-generation. Passing null or an empty list just clears the columns.
+        /// 컬럼을 명시적 정의로 교체하고 자동 생성을 끈다.
+        /// null이나 빈 목록을 넘기면 컬럼만 비운다.
         /// </summary>
         public void ApplyColumns(IList<ModernDataGridColumn> columns)
         {

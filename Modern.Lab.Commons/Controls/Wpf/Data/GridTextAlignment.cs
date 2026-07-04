@@ -1,6 +1,6 @@
 namespace Modern.Lab.Controls.Wpf.Data
 {
-    /// <summary>Horizontal text alignment of a grid column.</summary>
+    /// <summary>그리드 컬럼 텍스트의 가로 정렬.</summary>
     public enum GridTextAlignment
     {
         Left,

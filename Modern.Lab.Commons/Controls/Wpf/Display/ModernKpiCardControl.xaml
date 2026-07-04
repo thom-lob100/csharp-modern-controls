@@ -18,8 +18,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- Card surface: large radius per token rule (controls 4 / cards 8).
-         Flat=True drops the chrome for use on a shared card panel. -->
+    <!-- 카드 표면: 토큰 규칙(컨트롤 4 / 카드 8)에 따른 큰 반경.
+         Flat=True이면 공용 카드 패널 위에서 쓰도록 크롬을 제거한다. -->
     <Border>
         <Border.Style>
             <Style TargetType="Border">

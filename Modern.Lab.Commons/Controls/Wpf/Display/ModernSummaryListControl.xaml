@@ -18,9 +18,9 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- Card surface holding a title and a wrapping chip list laid out in one
-         row (title left, chips right). Flat=True drops the chrome for use on a
-         shared card panel. -->
+    <!-- 제목과 줄바꿈되는 칩 목록을 한 행(제목 왼쪽, 칩 오른쪽)으로 배치한
+         카드 표면. Flat=True이면 공용 카드 패널 위에서 쓰도록 크롬을
+         제거한다. -->
     <Border>
         <Border.Style>
             <Style TargetType="Border">
@@ -46,7 +46,7 @@
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Label}">
                         <Style.Triggers>
-                            <!-- Hide the caption entirely when no title is set -->
+                            <!-- 제목이 설정되지 않으면 캡션을 완전히 숨긴다 -->
                             <DataTrigger Binding="{Binding Title, ElementName=RootControl}" Value="">
                                 <Setter Property="Visibility" Value="Collapsed" />
                             </DataTrigger>

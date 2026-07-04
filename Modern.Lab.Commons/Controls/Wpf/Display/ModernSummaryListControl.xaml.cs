@@ -7,18 +7,18 @@ using Modern.Lab.Controls.Wpf.Common;
 namespace Modern.Lab.Controls.Wpf.Display
 {
     /// <summary>
-    /// Category/count summary rendered as a wrapping chip list
-    /// (e.g. per-department or per-rank head counts).
-    /// - ItemsSource: any IEnumerable (DataView, IList, ...)
-    /// - LabelMemberPath / CountMemberPath: column/property names to read
-    /// - Title: optional caption above the chips
+    /// 줄바꿈되는 칩 목록으로 렌더링되는 분류/건수 요약
+    /// (예: 부서별 또는 직급별 인원 수).
+    /// - ItemsSource: 임의의 IEnumerable (DataView, IList, ...)
+    /// - LabelMemberPath / CountMemberPath: 읽어올 컬럼/속성 이름
+    /// - Title: 칩 위에 표시되는 선택적 캡션
     ///
-    /// The chip list is rebuilt whenever the source or a member path changes,
-    /// so assignment order does not matter (contract rule 3).
+    /// 칩 목록은 소스나 멤버 경로가 바뀔 때마다 다시 만들어지므로
+    /// 할당 순서는 상관없다(계약 규칙 3).
     /// </summary>
     public partial class ModernSummaryListControl : UserControl
     {
-        /// <summary>Rows to summarize. Any IEnumerable (DataView, IList, ...).</summary>
+        /// <summary>요약할 행 목록. 임의의 IEnumerable (DataView, IList, ...).</summary>
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(
                 "ItemsSource",
@@ -26,7 +26,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernSummaryListControl),
                 new PropertyMetadata(null, OnDataShapeChanged));
 
-        /// <summary>Column/property name for the chip label.</summary>
+        /// <summary>칩 레이블로 쓸 컬럼/속성 이름.</summary>
         public static readonly DependencyProperty LabelMemberPathProperty =
             DependencyProperty.Register(
                 "LabelMemberPath",
@@ -34,7 +34,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernSummaryListControl),
                 new PropertyMetadata(string.Empty, OnDataShapeChanged));
 
-        /// <summary>Column/property name for the chip count.</summary>
+        /// <summary>칩 건수로 쓸 컬럼/속성 이름.</summary>
         public static readonly DependencyProperty CountMemberPathProperty =
             DependencyProperty.Register(
                 "CountMemberPath",
@@ -42,7 +42,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernSummaryListControl),
                 new PropertyMetadata(string.Empty, OnDataShapeChanged));
 
-        /// <summary>Optional caption left of the chips. Empty hides the caption.</summary>
+        /// <summary>칩 왼쪽의 선택적 캡션. 비어 있으면 캡션을 숨긴다.</summary>
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register(
                 "Title",
@@ -50,7 +50,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernSummaryListControl),
                 new PropertyMetadata(string.Empty));
 
-        /// <summary>Drops the card chrome (border/background/padding) for use on a shared card panel.</summary>
+        /// <summary>공용 카드 패널 위에서 쓰도록 카드 크롬(테두리/배경/패딩)을 제거한다.</summary>
         public static readonly DependencyProperty FlatProperty =
             DependencyProperty.Register(
                 "Flat",
@@ -67,35 +67,35 @@ namespace Modern.Lab.Controls.Wpf.Display
             this.ChipItems.ItemsSource = this.chipItemModels;
         }
 
-        /// <summary>Rows to summarize.</summary>
+        /// <summary>요약할 행 목록.</summary>
         public IEnumerable ItemsSource
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
         }
 
-        /// <summary>Column/property name for the chip label.</summary>
+        /// <summary>칩 레이블로 쓸 컬럼/속성 이름.</summary>
         public string LabelMemberPath
         {
             get { return (string)this.GetValue(LabelMemberPathProperty); }
             set { this.SetValue(LabelMemberPathProperty, value); }
         }
 
-        /// <summary>Column/property name for the chip count.</summary>
+        /// <summary>칩 건수로 쓸 컬럼/속성 이름.</summary>
         public string CountMemberPath
         {
             get { return (string)this.GetValue(CountMemberPathProperty); }
             set { this.SetValue(CountMemberPathProperty, value); }
         }
 
-        /// <summary>Optional caption left of the chips.</summary>
+        /// <summary>칩 왼쪽의 선택적 캡션.</summary>
         public string Title
         {
             get { return (string)this.GetValue(TitleProperty); }
             set { this.SetValue(TitleProperty, value); }
         }
 
-        /// <summary>Drops the card chrome for use on a shared card panel.</summary>
+        /// <summary>공용 카드 패널 위에서 쓰도록 카드 크롬을 제거한다.</summary>
         public bool Flat
         {
             get { return (bool)this.GetValue(FlatProperty); }
@@ -107,8 +107,8 @@ namespace Modern.Lab.Controls.Wpf.Display
             ((ModernSummaryListControl)d).RebuildChips();
         }
 
-        // Converts source rows into chip item models. Null/empty sources and
-        // missing columns render as empty output, never throw (contract rule 3).
+        // 소스 행을 칩 항목 모델로 변환한다. null/빈 소스와 존재하지 않는
+        // 컬럼은 빈 출력으로 렌더링되며 절대 예외를 던지지 않는다(계약 규칙 3).
         private void RebuildChips()
         {
             this.chipItemModels.Clear();
