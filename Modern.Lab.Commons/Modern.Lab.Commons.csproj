@@ -87,6 +87,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <!-- Shared WPF-side helpers -->
+    <Compile Include="Controls\Wpf\Common\MemberPathReader.cs" />
     <!-- Input code-behind -->
     <Compile Include="Controls\Wpf\Input\ButtonKind.cs" />
     <Compile Include="Controls\Wpf\Input\HangulTextMatcher.cs" />

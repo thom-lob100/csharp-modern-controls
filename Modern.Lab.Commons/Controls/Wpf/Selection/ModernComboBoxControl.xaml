@@ -75,18 +75,22 @@
     </UserControl.Resources>
 
     <Grid>
-        <!-- The actual ComboBox with a token-styled template -->
+        <!-- The actual ComboBox with a token-styled template. ItemsSource is
+             assigned in code (an internally filtered collection) so the
+             editable mode can filter while typing. -->
         <ComboBox x:Name="InnerComboBox"
                   Height="{StaticResource Size.ControlHeight}"
                   FontSize="{StaticResource Font.Size.Body}"
                   Foreground="{StaticResource Brush.TextPrimary}"
                   ItemContainerStyle="{StaticResource ModernComboBoxItemStyle}"
-                  ItemsSource="{Binding ItemsSource, ElementName=RootControl}"
+                  IsEditable="{Binding IsEditable, ElementName=RootControl}"
+                  IsTextSearchEnabled="False"
                   DisplayMemberPath="{Binding DisplayMemberPath, ElementName=RootControl}"
                   SelectedValuePath="{Binding SelectedValuePath, ElementName=RootControl}"
                   SelectedItem="{Binding SelectedItem, ElementName=RootControl, Mode=TwoWay}"
                   SelectedValue="{Binding SelectedValue, ElementName=RootControl, Mode=TwoWay}"
-                  SelectionChanged="InnerComboBox_SelectionChanged">
+                  SelectionChanged="InnerComboBox_SelectionChanged"
+                  Loaded="InnerComboBox_Loaded">
             <ComboBox.Template>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
@@ -103,6 +107,21 @@
                                           Margin="12,0,32,0"
                                           VerticalAlignment="Center"
                                           IsHitTestVisible="False" />
+                        <!-- Editable text area (search-style combo). Shown instead of
+                             ContentSite when IsEditable; the right 32px stays with the
+                             chevron toggle. -->
+                        <TextBox x:Name="PART_EditableTextBox"
+                                 Visibility="Collapsed"
+                                 Style="{x:Null}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Margin="12,0,32,0"
+                                 Padding="0"
+                                 VerticalAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 FontSize="{StaticResource Font.Size.Body}"
+                                 Foreground="{StaticResource Brush.TextPrimary}"
+                                 IsReadOnly="{TemplateBinding IsReadOnly}" />
                         <Popup x:Name="PART_Popup"
                                Placement="Bottom"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
@@ -126,28 +145,24 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource Brush.DisabledText}" />
                         </Trigger>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </ComboBox.Template>
         </ComboBox>
 
-        <!-- Placeholder overlay while nothing is selected -->
-        <TextBlock Text="{Binding Placeholder, ElementName=RootControl}"
+        <!-- Placeholder overlay while nothing is selected/typed.
+             Visibility is managed in code (selection, typed text and IME
+             composition all affect it). -->
+        <TextBlock x:Name="PlaceholderOverlay"
+                   Text="{Binding Placeholder, ElementName=RootControl}"
                    Margin="13,0,32,0"
                    VerticalAlignment="Center"
                    FontSize="{StaticResource Font.Size.Body}"
                    Foreground="{StaticResource Brush.TextPlaceholder}"
-                   IsHitTestVisible="False">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding SelectedItem, ElementName=InnerComboBox}" Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
+                   IsHitTestVisible="False" />
     </Grid>
 </UserControl>

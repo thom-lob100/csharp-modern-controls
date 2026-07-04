@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
 using System.Windows;
 using System.Windows.Controls;
+using Modern.Lab.Controls.Wpf.Common;
 
 namespace Modern.Lab.Controls.Wpf.Display
 {
@@ -124,39 +123,10 @@ namespace Modern.Lab.Controls.Wpf.Display
             foreach (object row in source)
             {
                 SummaryItem item = new SummaryItem();
-                item.Label = ToDisplayString(ReadMember(row, this.LabelMemberPath));
-                item.Count = ToDisplayString(ReadMember(row, this.CountMemberPath));
+                item.Label = ToDisplayString(MemberPathReader.Read(row, this.LabelMemberPath));
+                item.Count = ToDisplayString(MemberPathReader.Read(row, this.CountMemberPath));
                 this.chipItemModels.Add(item);
             }
-        }
-
-        private static object ReadMember(object row, string memberPath)
-        {
-            if (row == null || string.IsNullOrEmpty(memberPath))
-            {
-                return null;
-            }
-
-            DataRowView rowView = row as DataRowView;
-
-            if (rowView != null)
-            {
-                if (rowView.Row.Table.Columns.Contains(memberPath))
-                {
-                    return rowView[memberPath];
-                }
-
-                return null;
-            }
-
-            PropertyDescriptor property = TypeDescriptor.GetProperties(row).Find(memberPath, true);
-
-            if (property != null)
-            {
-                return property.GetValue(row);
-            }
-
-            return null;
         }
 
         private static string ToDisplayString(object value)

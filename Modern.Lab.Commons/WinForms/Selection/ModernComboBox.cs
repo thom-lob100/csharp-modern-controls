@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows.Forms;
 using Modern.Lab.WinForms.Controls.Hosting;
 
 namespace Modern.Lab.WinForms.Controls.Selection
@@ -13,7 +14,9 @@ namespace Modern.Lab.WinForms.Controls.Selection
     ///
     /// Compatible members: DataSource (DataTable/DataView/IList/IEnumerable),
     /// DisplayMember, ValueMember, SelectedValue, SelectedItem, SelectedIndex,
-    /// Items, SelectedIndexChanged, Enabled.
+    /// Items, SelectedIndexChanged, Enabled, DropDownStyle (DropDownList =
+    /// select-only; DropDown/Simple = search-style combo where typing filters
+    /// the list with Korean initial-consonant matching).
     ///
     /// Contract behaviors (docs/design-notes.md section 6-1):
     /// - SelectedValue may be assigned before DataSource; the value is pended
@@ -38,6 +41,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         // WPF construction failed (Wpf == null).
         private string fallbackDisplayMember;
         private string fallbackValueMember;
+        private ComboBoxStyle fallbackDropDownStyle;
 
         /// <summary>Raised when the selection changes (WinForms-compatible name).</summary>
         public event EventHandler SelectedIndexChanged;
@@ -49,6 +53,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.manualItems = new ObservableCollection<object>();
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
+            this.fallbackDropDownStyle = ComboBoxStyle.DropDownList;
 
             if (this.Wpf != null)
             {
@@ -105,6 +110,33 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 }
 
                 this.RaiseSelectedIndexChanged();
+            }
+        }
+
+        /// <summary>
+        /// Selection style (WinForms-compatible name). DropDownList (default) is
+        /// select-only; DropDown and Simple both behave as a search-style combo
+        /// where typing filters the bound list (초성 검색 included).
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("DropDownList=선택 전용, DropDown/Simple=입력으로 목록 필터링(검색형)")]
+        [DefaultValue(ComboBoxStyle.DropDownList)]
+        public ComboBoxStyle DropDownStyle
+        {
+            get
+            {
+                return this.fallbackDropDownStyle;
+            }
+            set
+            {
+                this.fallbackDropDownStyle = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.IsEditable = value != ComboBoxStyle.DropDownList;
+                }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 
@@ -253,7 +285,11 @@ namespace Modern.Lab.WinForms.Controls.Selection
             get { return this.manualItems; }
         }
 
-        /// <summary>Display text of the current selection (WinForms ComboBox.Text).</summary>
+        /// <summary>
+        /// Display text of the current selection (WinForms ComboBox.Text). The
+        /// setter writes the editable text in DropDown/Simple style; in
+        /// DropDownList it is a no-op — select via SelectedValue/SelectedIndex.
+        /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override string Text
@@ -269,9 +305,10 @@ namespace Modern.Lab.WinForms.Controls.Selection
             }
             set
             {
-                // Selection-by-text is not supported; select via SelectedValue or
-                // SelectedIndex instead. The setter exists only for Control.Text
-                // compatibility and is intentionally a no-op.
+                if (this.Wpf != null)
+                {
+                    this.Wpf.SetEditableText(value);
+                }
             }
         }
 

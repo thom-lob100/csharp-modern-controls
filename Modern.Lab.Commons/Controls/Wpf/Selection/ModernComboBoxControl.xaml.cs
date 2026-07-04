@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using Modern.Lab.Controls.Wpf.Common;
+using Modern.Lab.Controls.Wpf.Input;
 
 namespace Modern.Lab.Controls.Wpf.Selection
 {
@@ -9,8 +14,15 @@ namespace Modern.Lab.Controls.Wpf.Selection
     /// Modern dropdown selector.
     /// - ItemsSource / DisplayMemberPath / SelectedValuePath: binding surface
     /// - SelectedItem / SelectedValue: current selection (two-way)
-    /// - Placeholder: hint shown while nothing is selected
+    /// - IsEditable: search-style combo — typing filters the list
+    ///   (Korean initial-consonant matching included)
+    /// - Placeholder: hint shown while nothing is selected/typed
     /// - SelectionChanged: raised when the selection changes
+    ///
+    /// The inner ComboBox is bound to an internally filtered snapshot of
+    /// ItemsSource so the editable mode can filter while typing; source
+    /// collection changes (ObservableCollection / IBindingList) are observed
+    /// and re-applied.
     /// </summary>
     public partial class ModernComboBoxControl : UserControl
     {
@@ -20,7 +32,7 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 "ItemsSource",
                 typeof(IEnumerable),
                 typeof(ModernComboBoxControl),
-                new PropertyMetadata(null));
+                new PropertyMetadata(null, OnItemsSourceChanged));
 
         /// <summary>Currently selected item. Two-way by default.</summary>
         public static readonly DependencyProperty SelectedItemProperty =
@@ -62,12 +74,29 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(string.Empty));
 
+        /// <summary>Search-style combo: typing filters the list.</summary>
+        public static readonly DependencyProperty IsEditableProperty =
+            DependencyProperty.Register(
+                "IsEditable",
+                typeof(bool),
+                typeof(ModernComboBoxControl),
+                new PropertyMetadata(false, OnIsEditableChanged));
+
+        private readonly ObservableCollection<object> filteredItems;
+        private TextBox editableTextBox;
+        private bool isRebuildingItems;
+        private bool suppressFilter;
+
         /// <summary>Raised when the selection changes.</summary>
         public event EventHandler SelectionChanged;
 
         public ModernComboBoxControl()
         {
+            this.filteredItems = new ObservableCollection<object>();
             this.InitializeComponent();
+            this.InnerComboBox.ItemsSource = this.filteredItems;
+            this.InnerComboBox.DropDownClosed += this.OnDropDownClosed;
+            this.UpdatePlaceholderVisibility();
         }
 
         /// <summary>Items to display.</summary>
@@ -112,6 +141,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
             set { this.SetValue(PlaceholderProperty, value); }
         }
 
+        /// <summary>Search-style combo: typing filters the list.</summary>
+        public bool IsEditable
+        {
+            get { return (bool)this.GetValue(IsEditableProperty); }
+            set { this.SetValue(IsEditableProperty, value); }
+        }
+
         /// <summary>Index of the selected item (-1 when nothing is selected).</summary>
         public int SelectedIndex
         {
@@ -125,8 +161,227 @@ namespace Modern.Lab.Controls.Wpf.Selection
             get { return this.InnerComboBox.Text; }
         }
 
+        /// <summary>Sets the editable text (search-style combo only).</summary>
+        public void SetEditableText(string value)
+        {
+            if (this.IsEditable)
+            {
+                this.InnerComboBox.Text = value ?? string.Empty;
+            }
+        }
+
+        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ModernComboBoxControl control = (ModernComboBoxControl)d;
+
+            control.DetachSourceListeners(e.OldValue);
+            control.AttachSourceListeners(e.NewValue);
+            control.RebuildFilteredItems(null);
+        }
+
+        private static void OnIsEditableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernComboBoxControl)d).UpdatePlaceholderVisibility();
+        }
+
+        // Observes source collection changes (ObservableCollection for the
+        // manual Items collection, IBindingList for DataView) so late adds show
+        // up like they did with a direct ItemsSource binding.
+        private void AttachSourceListeners(object source)
+        {
+            INotifyCollectionChanged observable = source as INotifyCollectionChanged;
+
+            if (observable != null)
+            {
+                observable.CollectionChanged += this.OnSourceCollectionChanged;
+                return;
+            }
+
+            IBindingList bindingList = source as IBindingList;
+
+            if (bindingList != null)
+            {
+                bindingList.ListChanged += this.OnSourceListChanged;
+            }
+        }
+
+        private void DetachSourceListeners(object source)
+        {
+            INotifyCollectionChanged observable = source as INotifyCollectionChanged;
+
+            if (observable != null)
+            {
+                observable.CollectionChanged -= this.OnSourceCollectionChanged;
+                return;
+            }
+
+            IBindingList bindingList = source as IBindingList;
+
+            if (bindingList != null)
+            {
+                bindingList.ListChanged -= this.OnSourceListChanged;
+            }
+        }
+
+        private void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            this.RebuildFilteredItems(null);
+        }
+
+        private void OnSourceListChanged(object sender, ListChangedEventArgs e)
+        {
+            this.RebuildFilteredItems(null);
+        }
+
+        // Rebuilds the inner list from ItemsSource, keeping only entries whose
+        // display text matches the filter (Korean-aware). Preserves selection
+        // and typed text; suppresses SelectionChanged noise while rebuilding.
+        private void RebuildFilteredItems(string filterText)
+        {
+            this.isRebuildingItems = true;
+
+            try
+            {
+                object previousSelection = this.InnerComboBox.SelectedItem;
+                string previousEditorText = this.editableTextBox != null ? this.editableTextBox.Text : null;
+                int previousCaret = this.editableTextBox != null ? this.editableTextBox.CaretIndex : 0;
+
+                this.filteredItems.Clear();
+
+                IEnumerable source = this.ItemsSource;
+
+                if (source != null)
+                {
+                    foreach (object item in source)
+                    {
+                        if (string.IsNullOrEmpty(filterText) ||
+                            HangulTextMatcher.Contains(
+                                MemberPathReader.ReadDisplayText(item, this.DisplayMemberPath), filterText))
+                        {
+                            this.filteredItems.Add(item);
+                        }
+                    }
+                }
+
+                if (previousSelection != null && this.filteredItems.Contains(previousSelection))
+                {
+                    this.InnerComboBox.SelectedItem = previousSelection;
+                }
+
+                // Clearing/restoring the selection rewrites the editable text;
+                // put the user's typed text (and caret) back. The synchronous
+                // TextChanged this raises is ignored via isRebuildingItems.
+                if (this.editableTextBox != null && previousEditorText != null &&
+                    !string.Equals(this.editableTextBox.Text, previousEditorText, StringComparison.Ordinal))
+                {
+                    this.editableTextBox.Text = previousEditorText;
+                    this.editableTextBox.CaretIndex = Math.Min(previousCaret, previousEditorText.Length);
+                }
+            }
+            finally
+            {
+                this.isRebuildingItems = false;
+            }
+
+            this.UpdatePlaceholderVisibility();
+        }
+
+        // Grabs the editable text area from the template and hooks typing.
+        private void InnerComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            TextBox editor = this.InnerComboBox.Template.FindName("PART_EditableTextBox", this.InnerComboBox) as TextBox;
+
+            if (object.ReferenceEquals(editor, this.editableTextBox))
+            {
+                return;
+            }
+
+            if (this.editableTextBox != null)
+            {
+                this.editableTextBox.TextChanged -= this.OnEditableTextChanged;
+            }
+
+            this.editableTextBox = editor;
+
+            if (this.editableTextBox != null)
+            {
+                this.editableTextBox.TextChanged += this.OnEditableTextChanged;
+            }
+        }
+
+        // Fires during IME composition too, so the first consonant already
+        // filters the list and hides the placeholder.
+        private void OnEditableTextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.UpdatePlaceholderVisibility();
+
+            if (!this.IsEditable || this.isRebuildingItems)
+            {
+                return;
+            }
+
+            if (this.suppressFilter)
+            {
+                this.suppressFilter = false;
+                return;
+            }
+
+            if (!this.InnerComboBox.IsKeyboardFocusWithin)
+            {
+                return;
+            }
+
+            string typed = this.editableTextBox.Text;
+
+            this.RebuildFilteredItems(string.IsNullOrEmpty(typed) ? null : typed);
+            this.InnerComboBox.IsDropDownOpen = this.filteredItems.Count > 0 && !string.IsNullOrEmpty(typed);
+        }
+
+        // Reopening the dropdown from the chevron should show the full list.
+        // Also clears a stale suppress flag (a selection that did not change
+        // the text would otherwise eat the next keystroke's filtering).
+        private void OnDropDownClosed(object sender, EventArgs e)
+        {
+            if (this.IsEditable)
+            {
+                this.RebuildFilteredItems(null);
+                this.suppressFilter = false;
+            }
+        }
+
+        private void UpdatePlaceholderVisibility()
+        {
+            bool empty;
+
+            if (this.IsEditable)
+            {
+                string editorText = this.editableTextBox != null ? this.editableTextBox.Text : this.InnerComboBox.Text;
+                empty = string.IsNullOrEmpty(editorText);
+            }
+            else
+            {
+                empty = this.InnerComboBox.SelectedItem == null;
+            }
+
+            this.PlaceholderOverlay.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         private void InnerComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (this.isRebuildingItems)
+            {
+                return;
+            }
+
+            // Committing a selection rewrites the editable text with the item's
+            // display text; that change must not re-trigger filtering.
+            if (this.IsEditable)
+            {
+                this.suppressFilter = true;
+            }
+
+            this.UpdatePlaceholderVisibility();
+
             if (this.SelectionChanged != null)
             {
                 this.SelectionChanged(this, EventArgs.Empty);

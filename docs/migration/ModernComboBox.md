@@ -1,6 +1,6 @@
 # ModernComboBox 교체 가이드
 
-- **대체 대상**: `System.Windows.Forms.ComboBox` (DropDownList 스타일)
+- **대체 대상**: `System.Windows.Forms.ComboBox`
 - **네임스페이스**: `Modern.Lab.WinForms.Controls.Selection`
 
 ## 호환 제공 멤버
@@ -15,7 +15,8 @@
 | `SelectedIndex` | 미선택 시 -1 |
 | `Items` | 수동 항목 컬렉션 (`Items.Add(...)`). `DataSource` 지정 시 `DataSource`가 우선 |
 | `SelectedIndexChanged` | `DataSource` 할당 시 정확히 1회, 이후 사용자 선택 변경 시 발생 |
-| `Text` | 현재 선택 항목의 표시 텍스트 (읽기). 쓰기는 무동작 — 아래 참고 |
+| `DropDownStyle` | `DropDownList`(기본) = 선택 전용. **`DropDown`/`Simple` = 검색형 콤보** — 입력하면 목록이 필터링됨(한글 초성 검색 포함, "ㄱ" → 개발1팀·개발2팀·경영지원팀). 화살표로 탐색, 선택 시 `SelectedValue`/`SelectedIndexChanged` 정상 동작 |
+| `Text` | 현재 선택/입력 텍스트 (읽기). 쓰기는 DropDown/Simple에서만 동작, DropDownList에서는 무동작 |
 | `Enabled` | 전파됨 |
 
 ## 계약 보장 동작 (docs/design-notes.md §6-1)
@@ -36,8 +37,8 @@
 
 | 기존 멤버 | 대체 |
 |---|---|
-| `Text` 쓰기 (텍스트로 항목 선택) | `SelectedValue` 또는 `SelectedIndex`로 선택 |
-| `DropDownStyle` | 항상 DropDownList 동작 (직접 입력 없음). 편집형 콤보가 필요하면 별도 요청 |
+| `Text` 쓰기로 항목 선택 (DropDownList) | `SelectedValue` 또는 `SelectedIndex`로 선택 |
+| `AutoCompleteMode`/`AutoCompleteSource` | 불필요 — `DropDownStyle = DropDown`이면 검색형 필터링이 기본 동작 |
 | `SelectedValueChanged`/`SelectionChangeCommitted` | `SelectedIndexChanged`로 통합 |
 | `FormattingEnabled`, `FormatString` | 미구현 — 표시 문자열은 데이터 쪽에서 가공 |
 | `Font`, `BackColor`, `FlatStyle` | 없음 — 토큰이 결정 |

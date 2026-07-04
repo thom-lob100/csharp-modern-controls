@@ -93,6 +93,7 @@ namespace Modern.Lab.Samples
             //
             // cboDept
             //
+            this.cboDept.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.cboDept.Location = new System.Drawing.Point(276, 12);
             this.cboDept.Name = "cboDept";
             this.cboDept.Size = new System.Drawing.Size(140, 32);
