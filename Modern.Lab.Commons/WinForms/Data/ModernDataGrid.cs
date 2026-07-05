@@ -32,6 +32,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         private bool fallbackShowStatusBar;
         private string fallbackStatusText;
         private string fallbackStatusCountFormat;
+        private string fallbackRowColorMember;
 
         /// <summary>행 선택이 바뀔 때 발생한다(WinForms 호환 이름).</summary>
         public event EventHandler SelectionChanged;
@@ -47,6 +48,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             this.fallbackShowStatusBar = false;
             this.fallbackStatusText = string.Empty;
             this.fallbackStatusCountFormat = "{0:N0} rows";
+            this.fallbackRowColorMember = string.Empty;
 
             if (this.Wpf != null)
             {
@@ -235,6 +237,36 @@ namespace Modern.Lab.WinForms.Controls.Data
                 }
 
                 this.InvalidateDesignTimePreview();
+            }
+        }
+
+        /// <summary>
+        /// 행 배경색으로 쓸 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2" 같은 색
+        /// 문자열 또는 색 이름. 비었거나 해석 불가한 행은 기본 교차색을 유지한다.
+        /// 상태(Scrap 등)에 따라 행을 색으로 구분할 때 쓴다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("행 배경색으로 사용할 컬럼/속성 이름 — 값은 #RRGGBB 색 문자열(비우면 교차색 유지)")]
+        [DefaultValue("")]
+        public string RowColorMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.RowColorMemberPath;
+                }
+
+                return this.fallbackRowColorMember;
+            }
+            set
+            {
+                this.fallbackRowColorMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.RowColorMemberPath = value;
+                }
             }
         }
 

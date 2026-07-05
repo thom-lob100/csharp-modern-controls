@@ -50,6 +50,9 @@ namespace Modern.Lab.Samples
             this.gridHistory = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
             this.spDetail = new System.Windows.Forms.Panel();
             this.detailCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
+            this.spStep = new System.Windows.Forms.Panel();
+            this.stepCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
+            this.stepIndicator = new Modern.Lab.WinForms.Controls.Display.ModernStepIndicator();
             this.lblSelId = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.badgeType = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.badgeStat = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
@@ -74,6 +77,7 @@ namespace Modern.Lab.Samples
             this.waferCard.SuspendLayout();
             this.rightZone.SuspendLayout();
             this.detailCard.SuspendLayout();
+            this.stepCard.SuspendLayout();
             this.SuspendLayout();
             //
             // titlePanel
@@ -279,10 +283,37 @@ namespace Modern.Lab.Samples
             this.rightZone.Controls.Add(this.gridHistory);
             this.rightZone.Controls.Add(this.spDetail);
             this.rightZone.Controls.Add(this.detailCard);
+            this.rightZone.Controls.Add(this.spStep);
+            this.rightZone.Controls.Add(this.stepCard);
             this.rightZone.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightZone.Name = "rightZone";
             this.rightZone.Size = new System.Drawing.Size(1164, 676);
             this.rightZone.TabIndex = 2;
+            //
+            // stepCard
+            //
+            this.stepCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.stepCard.Controls.Add(this.stepIndicator);
+            this.stepCard.Dock = System.Windows.Forms.DockStyle.Top;
+            this.stepCard.Name = "stepCard";
+            this.stepCard.Padding = new System.Windows.Forms.Padding(12, 38, 12, 8);
+            this.stepCard.Size = new System.Drawing.Size(1164, 98);
+            this.stepCard.TabIndex = 0;
+            this.stepCard.Text = "Lifecycle";
+            //
+            // stepIndicator
+            //
+            this.stepIndicator.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stepIndicator.Name = "stepIndicator";
+            this.stepIndicator.TabIndex = 0;
+            this.stepIndicator.Child = null;
+            //
+            // spStep
+            //
+            this.spStep.Dock = System.Windows.Forms.DockStyle.Top;
+            this.spStep.Name = "spStep";
+            this.spStep.Size = new System.Drawing.Size(1164, 8);
+            this.spStep.TabIndex = 1;
             //
             // detailCard
             //
@@ -509,6 +540,7 @@ namespace Modern.Lab.Samples
             this.waferCard.ResumeLayout(false);
             this.leftZone.ResumeLayout(false);
             this.detailCard.ResumeLayout(false);
+            this.stepCard.ResumeLayout(false);
             this.rightZone.ResumeLayout(false);
             this.mainZone.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -542,6 +574,9 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridHistory;
         private System.Windows.Forms.Panel spDetail;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox detailCard;
+        private System.Windows.Forms.Panel spStep;
+        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox stepCard;
+        private Modern.Lab.WinForms.Controls.Display.ModernStepIndicator stepIndicator;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel lblSelId;
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeType;
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeStat;

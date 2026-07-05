@@ -116,6 +116,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\Wpf\Display\ModernStepIndicatorControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\Wpf\Display\ModernBusyOverlayControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -200,6 +204,11 @@
     <Compile Include="Controls\Wpf\Display\ModernSummaryListControl.xaml.cs">
       <DependentUpon>ModernSummaryListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Wpf\Display\ModernStepIndicatorControl.xaml.cs">
+      <DependentUpon>ModernStepIndicatorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Wpf\Display\ModernStepState.cs" />
+    <Compile Include="Controls\Wpf\Display\StepIndicatorItem.cs" />
     <Compile Include="Controls\Wpf\Display\ModernBusyOverlayControl.xaml.cs">
       <DependentUpon>ModernBusyOverlayControl.xaml</DependentUpon>
     </Compile>
@@ -238,6 +247,7 @@
     <Compile Include="WinForms\Display\ModernLabel.cs" />
     <Compile Include="WinForms\Display\ModernKpiCard.cs" />
     <Compile Include="WinForms\Display\ModernSummaryList.cs" />
+    <Compile Include="WinForms\Display\ModernStepIndicator.cs" />
     <Compile Include="WinForms\Display\ModernBusyOverlay.cs" />
     <Compile Include="WinForms\Display\ModernStatusBadge.cs" />
     <Compile Include="WinForms\Display\ModernToast.cs" />

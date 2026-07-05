@@ -54,6 +54,10 @@ namespace Modern.Lab.Samples
         // Scrap 상태 노드의 트리 텍스트 색.
         private const string scrapForeColor = "#DC2626";
 
+        // 그리드 행 배경색 (상태 배지 팔레트와 동일 계열).
+        private const string scrapRowColor = "#FEE2E2";   // Scrap 행/웨이퍼
+        private const string doneRowColor = "#DCFCE7";     // JobEnd(완료) 이력 행
+
         // 노드 종류/상태 배지 색.
         private static readonly Dictionary<string, string> typeBadgeColors = new Dictionary<string, string>
         {
@@ -171,14 +175,22 @@ namespace Modern.Lab.Samples
             this.treeLotWf.DisplayMember = "ID";
             this.treeLotWf.ForeColorMember = "NODE_COLOR";
 
+            // 공정 진행 단계 표시: 이력 이벤트를 LABEL/STATE로 만들어 넘긴다.
+            this.stepIndicator.DisplayMember = "LABEL";
+            this.stepIndicator.StateMember = "STATE";
+
             // 선택 Lot의 웨이퍼 목록 (Lot과 중복되는 정보는 제외한 웨이퍼 고유 항목).
             this.gridWafers.ConfigureColumns(
                 new ModernDataGridColumn("ID", "Wafer ID", 150),
                 new ModernDataGridColumn("LOT_STAT_TYP", "Status", 62) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("EVENT_CD", "Event"));
 
+            // Scrap 웨이퍼 행은 옅은 빨강 배경(트리 텍스트 빨강과 짝).
+            this.gridWafers.RowColorMember = "ROW_COLOR";
+
             this.gridHistory.ConfigureColumns(
                 new ModernDataGridColumn("EVENT_TM", "Event Time", 160) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("DURATION", "Duration", 90) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("EVENT_CD", "Event", 100) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("OPER_ID", "Operation", 110) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("EQP_ID", "Equipment", 110) { TextAlignment = GridTextAlignment.Center },
@@ -187,6 +199,9 @@ namespace Modern.Lab.Samples
                 new ModernDataGridColumn("LOT_STAT_TYP", "Status", 90) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("FLOW_ID", "Flow", 150),
                 new ModernDataGridColumn("TIMEKEY", "Time Key"));
+
+            // 이력 행 상태별 색: Scrapped 빨강, JobEnd(완료) 초록.
+            this.gridHistory.RowColorMember = "ROW_COLOR";
 
             // 화면 오픈 시 자동 조회 없음 — Lot ID(필수) 입력 후 Search로 조회한다.
             this.ClearSelection();
@@ -299,11 +314,18 @@ namespace Modern.Lab.Samples
                 tree.Columns.Add("NODE_COLOR", typeof(string));
             }
 
+            // 웨이퍼 목록 그리드의 Scrap 행 배경(옅은 빨강).
+            if (!tree.Columns.Contains("ROW_COLOR"))
+            {
+                tree.Columns.Add("ROW_COLOR", typeof(string));
+            }
+
             foreach (DataRow row in tree.Rows)
             {
                 if (ToText(row, "LOT_STAT_TYP") == "Scrap")
                 {
-                    row["NODE_COLOR"] = scrapForeColor;
+                    row["NODE_COLOR"] = scrapForeColor;   // 트리 텍스트 빨강
+                    row["ROW_COLOR"] = scrapRowColor;     // 웨이퍼 그리드 행 배경
                 }
             }
         }
@@ -469,10 +491,20 @@ namespace Modern.Lab.Samples
 
                     this.Invoke(new MethodInvoker(delegate
                     {
+                        // 이벤트 간 소요시간(이전 이벤트→이 이벤트) 컬럼을 채운다.
+                        AddDurationColumn(history);
+
+                        // 행 상태 색 컬럼: Scrapped 빨강, JobEnd(완료) 초록.
+                        AddRowColor(history);
+
                         // 이력은 한 번에 본다 — 페이징 없이 전체 바인딩,
-                        // 건수와 조회 대상은 그리드 상태바에 표시.
+                        // 건수와 조회 대상 + 총 사이클타임을 그리드 상태바에 표시.
                         this.gridHistory.DataSource = history;
-                        this.gridHistory.StatusText = nodeId + " · " + nodeKind;
+                        this.gridHistory.StatusText = nodeId + " · " + nodeKind + CycleTimeSuffix(history);
+
+                        // 공정 진행 단계 바(이벤트 시간순, 마지막이 현재/Scrap).
+                        this.stepIndicator.DataSource = BuildStepTable(history);
+
                         this.busyMain.Busy = false;
                     }));
                 }
@@ -504,6 +536,169 @@ namespace Modern.Lab.Samples
             this.waferCard.Text = "Wafers";
             this.gridHistory.DataSource = null;
             this.gridHistory.StatusText = string.Empty;
+            this.stepIndicator.DataSource = null;
+        }
+
+        // ===== 이력 파생 계산 (소요시간 · 사이클타임 · 진행 단계) =====
+
+        // 이력은 최신순(TIMEKEY DESC). 각 행의 DURATION = 이 이벤트 시각 − 바로 이전
+        // (더 오래된) 이벤트 시각. 가장 오래된 행(맨 아래)은 이전이 없어 빈칸.
+        private static void AddDurationColumn(DataTable history)
+        {
+            if (history == null)
+            {
+                return;
+            }
+
+            if (!history.Columns.Contains("DURATION"))
+            {
+                history.Columns.Add("DURATION", typeof(string));
+            }
+
+            for (int index = 0; index < history.Rows.Count; index++)
+            {
+                DateTime current;
+                DateTime older = DateTime.MinValue;
+
+                bool hasCurrent = TryParseEventTime(history.Rows[index], out current);
+                bool hasOlder = index + 1 < history.Rows.Count
+                    && TryParseEventTime(history.Rows[index + 1], out older);
+
+                if (hasCurrent && hasOlder)
+                {
+                    history.Rows[index]["DURATION"] = FormatDuration(current - older);
+                }
+                else
+                {
+                    history.Rows[index]["DURATION"] = string.Empty;
+                }
+            }
+        }
+
+        // 이력 행 배경색 컬럼(ROW_COLOR)을 이벤트로 채운다:
+        // Scrapped=빨강, JobEnd(완료)=초록, 그 외는 빈칸(기본 교차색 유지).
+        private static void AddRowColor(DataTable history)
+        {
+            if (history == null)
+            {
+                return;
+            }
+
+            if (!history.Columns.Contains("ROW_COLOR"))
+            {
+                history.Columns.Add("ROW_COLOR", typeof(string));
+            }
+
+            foreach (DataRow row in history.Rows)
+            {
+                string eventCd = ToText(row, "EVENT_CD");
+
+                if (eventCd == "Scrapped")
+                {
+                    row["ROW_COLOR"] = scrapRowColor;
+                }
+                else if (eventCd == "JobEnd")
+                {
+                    row["ROW_COLOR"] = doneRowColor;
+                }
+            }
+        }
+
+        // 상태바 우측에 붙일 총 사이클타임(가장 오래된 → 가장 최근 이벤트) 접미어.
+        private static string CycleTimeSuffix(DataTable history)
+        {
+            if (history == null || history.Rows.Count < 2)
+            {
+                return string.Empty;
+            }
+
+            DateTime newest;
+            DateTime oldest;
+
+            // 최신순이므로 첫 행이 최신, 마지막 행이 최초.
+            if (TryParseEventTime(history.Rows[0], out newest)
+                && TryParseEventTime(history.Rows[history.Rows.Count - 1], out oldest))
+            {
+                return "  ·  Cycle " + FormatDuration(newest - oldest);
+            }
+
+            return string.Empty;
+        }
+
+        // 이력 이벤트를 시간순(왼→오른쪽) 단계로 만든다. 마지막(최신) 이벤트가
+        // 현재 단계이며, 그 이벤트가 Scrapped면 Failed(빨강)로 표시한다.
+        private static DataTable BuildStepTable(DataTable history)
+        {
+            DataTable steps = new DataTable();
+            steps.Columns.Add("LABEL", typeof(string));
+            steps.Columns.Add("STATE", typeof(string));
+
+            if (history == null || history.Rows.Count == 0)
+            {
+                return steps;
+            }
+
+            // 최신순 → 시간순으로 뒤집어 왼쪽부터 진행 순서가 되게 한다.
+            int lastIndex = history.Rows.Count - 1;
+
+            for (int index = lastIndex; index >= 0; index--)
+            {
+                string eventCd = ToText(history.Rows[index], "EVENT_CD");
+                bool isCurrent = index == 0; // 최신 = 현재 단계
+                string state;
+
+                if (isCurrent)
+                {
+                    state = (eventCd == "Scrapped") ? "Failed" : "Current";
+                }
+                else
+                {
+                    state = "Completed";
+                }
+
+                steps.Rows.Add(eventCd, state);
+            }
+
+            return steps;
+        }
+
+        private static bool TryParseEventTime(DataRow row, out DateTime value)
+        {
+            value = DateTime.MinValue;
+            string text = ToText(row, "EVENT_TM");
+
+            if (text.Length == 0)
+            {
+                return false;
+            }
+
+            return DateTime.TryParse(text, out value);
+        }
+
+        // TimeSpan을 사람이 읽는 짧은 문자열로: "1d 4h" / "4h 12m" / "12m" / "45s".
+        private static string FormatDuration(TimeSpan span)
+        {
+            if (span.Ticks < 0)
+            {
+                span = span.Negate();
+            }
+
+            if (span.TotalDays >= 1d)
+            {
+                return (int)span.TotalDays + "d " + span.Hours + "h";
+            }
+
+            if (span.TotalHours >= 1d)
+            {
+                return (int)span.TotalHours + "h " + span.Minutes + "m";
+            }
+
+            if (span.TotalMinutes >= 1d)
+            {
+                return span.Minutes + "m";
+            }
+
+            return span.Seconds + "s";
         }
 
         // ===== 공통 헬퍼 =====

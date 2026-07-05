@@ -5,6 +5,8 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using Modern.Lab.Controls.Wpf.Common;
 
 namespace Modern.Lab.Controls.Wpf.Data
 {
@@ -66,6 +68,18 @@ namespace Modern.Lab.Controls.Wpf.Data
                 typeof(ModernDataGridControl),
                 new PropertyMetadata("{0:N0} rows", OnStatusBarAppearanceChanged));
 
+        /// <summary>
+        /// 행 배경색으로 쓸 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2" 같은 색
+        /// 문자열 또는 색 이름. 비어 있거나 해석 불가한 행은 기본 배경(교차색)을
+        /// 유지한다. 상태(Scrap 등)에 따라 행을 색으로 구분할 때 쓴다.
+        /// </summary>
+        public static readonly DependencyProperty RowColorMemberPathProperty =
+            DependencyProperty.Register(
+                "RowColorMemberPath",
+                typeof(string),
+                typeof(ModernDataGridControl),
+                new PropertyMetadata(string.Empty, OnRowColorMemberPathChanged));
+
         /// <summary>행 선택이 바뀔 때 발생한다.</summary>
         public event EventHandler SelectionChanged;
 
@@ -83,6 +97,9 @@ namespace Modern.Lab.Controls.Wpf.Data
             // 행 수 자동 갱신: 소스 교체/필터 변경 등으로 Items가 바뀔 때마다
             // 상태바의 카운트 텍스트를 다시 쓴다.
             ((INotifyCollectionChanged)this.InnerDataGrid.Items).CollectionChanged += this.OnItemsCollectionChanged;
+
+            // 행 색상: 행이 화면에 실체화될 때마다 RowColorMember 값으로 배경을 칠한다.
+            this.InnerDataGrid.LoadingRow += this.OnLoadingRow;
         }
 
         /// <summary>표시할 행 목록.</summary>
@@ -125,6 +142,13 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             get { return (string)this.GetValue(StatusCountFormatProperty); }
             set { this.SetValue(StatusCountFormatProperty, value); }
+        }
+
+        /// <summary>행 배경색으로 쓸 컬럼/속성 이름 (선택 사항).</summary>
+        public string RowColorMemberPath
+        {
+            get { return (string)this.GetValue(RowColorMemberPathProperty); }
+            set { this.SetValue(RowColorMemberPathProperty, value); }
         }
 
         /// <summary>현재 표시 중인 행 수.</summary>
@@ -254,6 +278,49 @@ namespace Modern.Lab.Controls.Wpf.Data
         private void OnItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             this.RefreshStatusBar();
+        }
+
+        private static void OnRowColorMemberPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ModernDataGridControl control = (ModernDataGridControl)d;
+
+            // 이미 실체화된 행에 새 경로를 반영하려면 다시 실체화시켜 LoadingRow를 재발생시킨다.
+            if (control.InnerDataGrid.Items.Count > 0)
+            {
+                control.InnerDataGrid.Items.Refresh();
+            }
+        }
+
+        // 각 행이 화면에 실체화될 때 배경을 칠한다. RowColorMember 값이 유효한 색이면
+        // 그 색으로, 아니면 로컬 배경을 지워 그리드 기본 교차색을 유지한다.
+        // (경로가 비어 있으면 기존 동작 그대로 — 배경을 건드리지 않는다.)
+        private void OnLoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            string path = this.RowColorMemberPath;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                e.Row.ClearValue(Control.BackgroundProperty);
+                return;
+            }
+
+            Color color;
+
+            if (ChipColorHelper.TryParseColor(ToText(MemberPathReader.Read(e.Row.Item, path)), out color))
+            {
+                SolidColorBrush brush = new SolidColorBrush(color);
+                brush.Freeze();
+                e.Row.Background = brush;
+            }
+            else
+            {
+                e.Row.ClearValue(Control.BackgroundProperty);
+            }
+        }
+
+        private static string ToText(object value)
+        {
+            return value == null ? string.Empty : value.ToString();
         }
 
         // 상태바 표시/텍스트를 현재 속성과 행 수로 다시 그린다.

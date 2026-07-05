@@ -34,6 +34,7 @@
 15. [ModernDataGrid](#moderndatagrid) — 데이터 그리드
 16. [ModernPagination](#modernpagination) — 페이지 바
 17. [ModernKpiCard / ModernSummaryList](#modernkpicard--modernsummarylist) — 통계 표시
+17-1. [ModernStepIndicator](#modernstepindicator) — 진행 단계 표시
 18. [ModernStatusBadge](#modernstatusbadge) — 상태 배지(pill)
 19. [ModernBusyOverlay](#modernbusyoverlay) — 로딩 오버레이
 20. [ModernToast](#moderntoast) — 자동 소멸 알림
@@ -511,6 +512,7 @@ this.treeOrg.SelectedValueChanged += this.OnOrgTreeSelectionChanged;
 | `ShowStatusBar` | bool | 기본 false. true면 그리드 하단에 상태바 표시 — 왼쪽에 행 수 자동 표기 |
 | `StatusCountFormat` | string | 상태바 행 수 형식. 기본 `"{0:N0} rows"` — `{0}`에 현재 행 수 |
 | `StatusText` | string | 상태바 오른쪽 자유 텍스트 (선택 대상·조회 조건 등) |
+| `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 교차색 유지. 상태별 행 강조(예: Scrap 빨강)용. 트리 `ForeColorMember`와 짝 |
 
 ### 예제 — 컬럼 정의와 선택 행 사용
 
@@ -613,6 +615,38 @@ this.listDeptCount.ColorMember = "COLOR";         // 선택 — 행별 "#DBEAFE"
 this.listDeptCount.DataSource = deptCountTable;   // 조회할 때마다 재할당
 // → [경영지원팀 4] [개발1팀 6] ... 칩으로 표시 (COLOR 컬럼이 있으면 부서마다 다른 색)
 ```
+
+---
+
+## ModernStepIndicator
+
+가로 진행 단계 표시(스텝 인디케이터). 공정/처리 흐름을 한 줄로 보여 "지금 어디까지
+왔는지"를 한눈에 파악하게 한다. 직접 대응하는 WinForms 컨트롤은 없다.
+
+| 멤버 | 설명 |
+|---|---|
+| `DataSource` | 단계 행 목록 (DataTable/DataView/IList/IEnumerable) |
+| `DisplayMember` | 단계 이름 컬럼/속성 |
+| `StateMember` | 단계 상태 컬럼/속성 — 값은 문자열 `Completed` / `Current` / `Pending` / `Failed` (대소문자 무시) |
+
+상태별 모양: `Completed` 액센트 채움+체크, `Current` 흰 원+액센트 테두리(강조),
+`Pending` 회색 번호, `Failed` 빨강+X. 색·글리프는 전부 디자인 토큰에서 온다.
+
+```csharp
+this.stepFlow.DisplayMember = "LABEL";
+this.stepFlow.StateMember = "STATE";
+
+DataTable steps = new DataTable();
+steps.Columns.Add("LABEL", typeof(string));
+steps.Columns.Add("STATE", typeof(string));
+steps.Rows.Add("Created", "Completed");
+steps.Rows.Add("Released", "Completed");
+steps.Rows.Add("JobEnd", "Current");     // 마지막 = 현재 단계
+this.stepFlow.DataSource = steps;         // → ●─●─◎ 진행 바
+```
+
+배치: 상세 카드/그리드 위에 `Dock = Top` 스트립(높이 약 56). 데이터의 실제 이벤트를
+시간순으로 넣으면 마지막을 `Current`(또는 중단이면 `Failed`)로 표시하는 식으로 쓴다.
 
 ---
 

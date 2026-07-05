@@ -1,0 +1,91 @@
+<UserControl x:Class="Modern.Lab.Controls.Wpf.Display.ModernStepIndicatorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             x:Name="RootControl"
+             FontFamily="{DynamicResource Font.Family}"
+             d:DesignWidth="560" d:DesignHeight="56">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Modern.Lab.Commons;component/Themes/Tokens.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- 단계들을 가로로 배치. 각 단계 = [왼쪽 연결선][노드][오른쪽 연결선] + 아래 레이블.
+         연결선은 * 열을 채워 인접 단계의 연결선과 맞닿아 하나의 진행선을 이룬다. -->
+    <ItemsControl x:Name="StepItemsControl"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Grid Width="118">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- 노드 행: 연결선 - 노드 - 연결선 -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Rectangle Grid.Column="0"
+                                   Height="2"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Stretch"
+                                   Fill="{Binding LeftConnectorBrush}"
+                                   Visibility="{Binding LeftConnectorVisibility}" />
+
+                        <Border Grid.Column="1"
+                                Width="26" Height="26"
+                                CornerRadius="13"
+                                BorderThickness="1.5"
+                                Background="{Binding NodeBackground}"
+                                BorderBrush="{Binding NodeBorderBrush}">
+                            <TextBlock Text="{Binding Glyph}"
+                                       FontFamily="{Binding GlyphFontFamily}"
+                                       FontSize="{StaticResource Font.Size.Icon}"
+                                       Foreground="{Binding NodeForeground}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+
+                        <Rectangle Grid.Column="2"
+                                   Height="2"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Stretch"
+                                   Fill="{Binding RightConnectorBrush}"
+                                   Visibility="{Binding RightConnectorVisibility}" />
+                    </Grid>
+
+                    <!-- 레이블 행: 노드 아래 가운데 정렬 -->
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding Label}"
+                               Margin="4,4,4,0"
+                               HorizontalAlignment="Center"
+                               MaxWidth="112"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               FontSize="{StaticResource Font.Size.Label}"
+                               FontWeight="{Binding LabelWeight}"
+                               Foreground="{Binding LabelForeground}" />
+                </Grid>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>
