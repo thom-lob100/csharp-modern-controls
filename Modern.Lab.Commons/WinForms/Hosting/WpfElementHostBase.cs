@@ -159,6 +159,62 @@ namespace Modern.Lab.WinForms.Controls.Hosting
             set { base.Child = value; }
         }
 
+        // ===== 무효 상속 속성 숨김 =====
+        // 아래 WinForms 상속 속성들은 WPF 콘텐츠에 아무 효과가 없다(모든 색·폰트는
+        // Themes/Tokens.xaml 토큰이 소스). 속성 그리드에 보이면 "바꿨는데 안 변하는"
+        // 혼동을 주므로 그리드와 직렬화에서 숨긴다. 기능 자체는 base로 그대로
+        // 위임하므로 기존 코드가 설정해도 깨지지 않는다.
+
+        /// <summary>WPF 콘텐츠에 효과 없음 — 디자인 토큰이 색상의 소스.</summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override System.Drawing.Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        /// <summary>WPF 콘텐츠에 효과 없음 — 디자인 토큰이 색상의 소스.</summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override System.Drawing.Color ForeColor
+        {
+            get { return base.ForeColor; }
+            set { base.ForeColor = value; }
+        }
+
+        /// <summary>WPF 콘텐츠에 효과 없음 — 디자인 토큰이 타이포그래피의 소스.</summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override Font Font
+        {
+            get { return base.Font; }
+            set { base.Font = value; }
+        }
+
+        /// <summary>WPF 콘텐츠에 효과 없음.</summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override Image BackgroundImage
+        {
+            get { return base.BackgroundImage; }
+            set { base.BackgroundImage = value; }
+        }
+
+        /// <summary>WPF 콘텐츠에 효과 없음.</summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ImageLayout BackgroundImageLayout
+        {
+            get { return base.BackgroundImageLayout; }
+            set { base.BackgroundImageLayout = value; }
+        }
+
         private void PaintDesignTimePreview(Graphics graphics)
         {
             if (this.Width <= 0 || this.Height <= 0)

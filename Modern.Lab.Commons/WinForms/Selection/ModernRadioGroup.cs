@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
     /// SelectedValue를 DataSource보다 먼저 설정해도 된다(계약 규칙 3).
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("SelectedValueChanged")]
     public class ModernRadioGroup : WpfElementHostBase<Modern.Lab.Controls.Wpf.Selection.ModernRadioGroupControl>
     {
         private object dataSource;

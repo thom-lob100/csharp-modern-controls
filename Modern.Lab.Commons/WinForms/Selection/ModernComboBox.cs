@@ -27,6 +27,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
     /// - null/빈 데이터는 빈 목록으로 렌더링되며 절대 예외를 던지지 않는다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("SelectedIndexChanged")]
     public class ModernComboBox : WpfElementHostBase<Modern.Lab.Controls.Wpf.Selection.ModernComboBoxControl>
     {
         // DataSource가 할당되지 않았을 때 사용하는 Items 컬렉션 (combo.Items.Add(...)).

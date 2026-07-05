@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
     /// 목록에 없는 행이 루트가 된다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("SelectedValueChanged")]
     public class ModernTreeView : WpfElementHostBase<Modern.Lab.Controls.Wpf.Selection.ModernTreeViewControl>
     {
         private object dataSource;

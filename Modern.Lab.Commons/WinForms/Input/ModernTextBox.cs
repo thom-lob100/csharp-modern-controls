@@ -22,6 +22,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// 발생하지 않는다).
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("TextChanged")]
     public class ModernTextBox : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernTextBoxControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

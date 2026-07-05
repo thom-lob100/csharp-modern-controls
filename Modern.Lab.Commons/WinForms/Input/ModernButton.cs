@@ -16,6 +16,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// (docs/design-notes.md 3절).
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("Click")]
     public class ModernButton : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernButtonControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

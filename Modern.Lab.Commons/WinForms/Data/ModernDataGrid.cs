@@ -20,6 +20,7 @@ namespace Modern.Lab.WinForms.Controls.Data
     /// - null/빈 데이터는 빈 그리드로 렌더링되며 절대 예외를 던지지 않는다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("SelectionChanged")]
     public class ModernDataGrid : WpfElementHostBase<ModernDataGridControl>
     {
         private object dataSource;
@@ -203,6 +204,8 @@ namespace Modern.Lab.WinForms.Controls.Data
                 {
                     this.Wpf.StatusText = value;
                 }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 
@@ -230,6 +233,8 @@ namespace Modern.Lab.WinForms.Controls.Data
                 {
                     this.Wpf.StatusCountFormat = value;
                 }
+
+                this.InvalidateDesignTimePreview();
             }
         }
 

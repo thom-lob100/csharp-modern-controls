@@ -15,6 +15,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// null 값 하나로 대체한다. 시간 부분은 지원하지 않는다(날짜 전용).
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("ValueChanged")]
     public class ModernDatePicker : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernDatePickerControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

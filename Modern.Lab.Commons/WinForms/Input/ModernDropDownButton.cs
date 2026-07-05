@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// 할당한다 — 엑셀 내보내기 옵션처럼 한 버튼에 여러 동작을 묶을 때 사용.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("ItemClicked")]
     public class ModernDropDownButton : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernDropDownButtonControl>
     {
         private object dataSource;

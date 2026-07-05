@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// 용도 구분: 설정성 "켬/끔"에는 스위치, 다중 "선택/포함"에는 체크박스.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("CheckedChanged")]
     public class ModernToggleSwitch : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernToggleSwitchControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

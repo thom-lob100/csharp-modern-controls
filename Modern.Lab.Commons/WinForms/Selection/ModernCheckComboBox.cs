@@ -18,6 +18,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
     /// 플레이스홀더가 보인다(보통 "전체" 의미).
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("CheckedChanged")]
     public class ModernCheckComboBox : WpfElementHostBase<Modern.Lab.Controls.Wpf.Selection.ModernCheckComboBoxControl>
     {
         private object dataSource;

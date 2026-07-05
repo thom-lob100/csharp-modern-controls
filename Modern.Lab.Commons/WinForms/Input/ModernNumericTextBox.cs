@@ -15,6 +15,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// 숫자만 치면 천단위 콤마가 자동으로 붙고, 우측 정렬로 표시된다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("ValueChanged")]
     public class ModernNumericTextBox : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernNumericTextBoxControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

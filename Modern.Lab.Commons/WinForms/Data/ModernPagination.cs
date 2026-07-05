@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Data
     /// 해당 페이지를 서버에 요청(또는 로컬 슬라이스)해서 그리드에 바인딩한다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("PageChanged")]
     public class ModernPagination : WpfElementHostBase<Modern.Lab.Controls.Wpf.Data.ModernPaginationControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가

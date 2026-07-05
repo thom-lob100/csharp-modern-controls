@@ -14,6 +14,7 @@ namespace Modern.Lab.WinForms.Controls.Input
     /// 숫자 6자리 마스크 입력 또는 12개월 그리드 팝업으로 선택한다.
     /// </summary>
     [ToolboxItem(true)]
+    [DefaultEvent("ValueChanged")]
     public class ModernMonthPicker : WpfElementHostBase<Modern.Lab.Controls.Wpf.Input.ModernMonthPickerControl>
     {
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
