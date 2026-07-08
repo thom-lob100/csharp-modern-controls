@@ -284,3 +284,40 @@ protected override void OnPaint(PaintEventArgs e)
 → 결론: 새 UI는 순수 WPF로 만들고 ElementHost 래퍼로 기존 WinForms에 얹는
 점진적 현대화가 유지보수 비용에서 압도적으로 유리하다. (서드파티 WinForms 스위트는
 회사 정책상 금지.)
+
+## 7. [성능 교훈] ElementHost는 "개수"가 성능이다 — 표시 전용 컨트롤은 GDI+로 (2026-07-09)
+
+회사 환경에서 Lot History 폼의 리사이즈가 굉장히 버겁다는 보고로 실측한 결과:
+
+- **ElementHost 1개당 리사이즈 1스텝에 ~20ms의 고정 비용**이 든다. 내용 복잡도와
+  거의 무관하다(16컬럼 그리드 22ms ≈ 6컬럼 그리드 19ms ≈ 트리 100노드 19ms;
+  빈 WinForms 폼은 1ms). HwndSource 리사이즈 시 WPF가 동기로 재배치·재렌더하는
+  비용이 지배적이기 때문이다.
+- 라벨/배지처럼 **한 폼에 수십 개씩 놓이는 표시 전용 컨트롤을 전부 ElementHost로
+  만들면 이 고정 비용이 개수만큼 누적**된다. Lot History 폼은 자식 HWND 87개,
+  리사이즈 1스텝 평균 556ms였다(집 PC 기준 — 회사 저사양/RDP에선 더 나쁨).
+
+**규칙**: 상호작용 없는 표시 전용 + 다수 배치 컨트롤(라벨, 배지)은 WPF를 호스팅하지
+말고 ModernGroupBox/ModernCardPanel처럼 **토큰을 미러링해 GDI+로 직접 그린다**.
+ModernLabel·ModernStatusBadge를 GDI+로 전환한 뒤 같은 폼이 평균 ~300ms로 개선됐다
+(남은 비용은 그리드·트리 등 꼭 필요한 WPF 섬들). 입력/그리드/트리처럼 WPF의 템플릿·
+가상화가 실제로 필요한 컨트롤만 ElementHost를 유지한다.
+
+전환 시 주의:
+
+- 기존 `.Designer.cs`가 직렬화해 둔 `xxx.Child = null;` 라인이 컴파일되도록
+  무동작 `Child` 속성(object, Browsable false)을 남긴다 — 타입 선언만 바꾸면 되는
+  drop-in 계약(6-1 룰 1) 유지.
+- GDI+ 텍스트는 `TextRenderer` + `TextFormatFlags.NoPadding`으로 그린다.
+  NoPadding이 없으면 GDI 기본 좌우 여백 때문에 같은 크기에서 WPF에는 들어가던
+  텍스트가 말줄임된다(직원관리 "이름" 라벨 잘림으로 발견).
+
+부수 발견 2건:
+
+- **WPF는 MergedDictionaries의 Source 사전을 캐시하지 않는다** — 컨트롤 인스턴스마다
+  Tokens.xaml(BAML)을 재파싱해 브러시를 새로 만든다. 모든 컨트롤 XAML은 일반
+  ResourceDictionary 대신 `common:SharedResourceDictionary`(프로세스 캐시)를 병합한다.
+- **숨겨진 ElementHost 안의 무한 Storyboard는 계속 돈다** — WinForms `Visible=false`는
+  WPF `Visibility`를 바꾸지 않으므로 Loaded+Forever 애니메이션(BusyOverlay 스피너)이
+  숨긴 뒤에도 디스패처 렌더 틱을 영원히 소모한다. 표시/숨김을 아는 래퍼가
+  `IsSpinning` 같은 DP로 명시적으로 켜고 꺼야 한다.

@@ -89,6 +89,24 @@ namespace Modern.Lab.Samples
         /// <summary>홈 환경 API 주소 — 회사 적용 시 함께 제거한다.</summary>
         private const string apiBaseUrl = "http://localhost:8080";
 
+        /// <summary>
+        /// API 호출 제한 시간(ms). WebClient 기본값은 100초라, 서버가 응답 없이
+        /// 매달리면(예: 백엔드는 죽고 포트만 살아 있는 경우) 로딩 팝업이 그만큼
+        /// 계속 떠 "실행 중"처럼 보인다 — 짧게 잘라 토스트 오류로 빠지게 한다.
+        /// </summary>
+        private const int apiTimeoutMs = 5000;
+
+        /// <summary>제한 시간을 적용한 WebClient (홈 환경 전용 헬퍼).</summary>
+        private sealed class TimedWebClient : WebClient
+        {
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                WebRequest request = base.GetWebRequest(address);
+                request.Timeout = apiTimeoutMs;
+                return request;
+            }
+        }
+
         // Lot/Wafer 통합 트리. 검색 결과의 조상(최상위 Lot까지)과 자손이 함께
         // 오고 IS_MATCH(Y/N)로 직접 매칭 노드가 표시되어야 한다.
         private DataTable RequestLotTree(string keyword, string[] subProdTypes)
@@ -117,7 +135,7 @@ namespace Modern.Lab.Samples
         {
             string query = "/api/mes/ids?keyword=" + Uri.EscapeDataString(keyword ?? string.Empty);
 
-            using (WebClient client = new WebClient())
+            using (WebClient client = new TimedWebClient())
             {
                 client.Encoding = Encoding.UTF8;
                 string json = client.DownloadString(apiBaseUrl + query);
@@ -145,7 +163,7 @@ namespace Modern.Lab.Samples
         // REST 공통: JSON 배열 응답을 DataTable로 변환한다 (홈 환경 전용 헬퍼).
         private DataTable DownloadTable(string pathAndQuery)
         {
-            using (WebClient client = new WebClient())
+            using (WebClient client = new TimedWebClient())
             {
                 client.Encoding = Encoding.UTF8;
                 string json = client.DownloadString(apiBaseUrl + pathAndQuery);

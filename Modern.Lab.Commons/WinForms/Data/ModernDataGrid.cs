@@ -29,6 +29,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         // 디자인 타임 WPF 생성이 실패한 경우(Wpf == null)에도 속성 그리드가
         // 동작하도록 하는 폴백 저장소.
         private bool fallbackAutoGenerateColumns;
+        private bool fallbackAutoFitColumns;
         private bool fallbackShowStatusBar;
         private string fallbackStatusText;
         private string fallbackStatusCountFormat;
@@ -45,6 +46,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         {
             this.Size = new Size(480, 240);
             this.fallbackAutoGenerateColumns = true;
+            this.fallbackAutoFitColumns = false;
             this.fallbackShowStatusBar = false;
             this.fallbackStatusText = string.Empty;
             this.fallbackStatusCountFormat = "{0:N0} rows";
@@ -150,6 +152,38 @@ namespace Modern.Lab.WinForms.Controls.Data
                 if (this.Wpf != null)
                 {
                     this.Wpf.AutoGenerateColumns = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 컬럼 너비를 헤더 캡션과 데이터 내용 중 더 넓은 쪽에 맞춰 자동 계산할지
+        /// 여부. ConfigureColumns로 정의한 컬럼에만 적용되며, 켜져 있으면
+        /// DataSource가 바뀔 때마다 각 컬럼이 잘림 없이 표시되는 너비로
+        /// 재계산된다 (컬럼 정의의 Width는 무시). 사용자가 마우스로 너비를
+        /// 조절하는 것은 그대로 가능하다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("컬럼 너비를 헤더와 데이터 내용에 맞춰 자동 계산할지 여부 (ConfigureColumns 컬럼에만 적용)")]
+        [DefaultValue(false)]
+        public bool AutoFitColumns
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.AutoFitColumns;
+                }
+
+                return this.fallbackAutoFitColumns;
+            }
+            set
+            {
+                this.fallbackAutoFitColumns = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.AutoFitColumns = value;
                 }
             }
         }

@@ -257,6 +257,7 @@ namespace Modern.Lab.Samples
             // 
             // gridHistory
             // 
+            this.gridHistory.AutoFitColumns = true;
             this.gridHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridHistory.Location = new System.Drawing.Point(0, 246);
             this.gridHistory.Name = "gridHistory";
@@ -619,6 +620,7 @@ namespace Modern.Lab.Samples
             // 
             // gridWafers
             // 
+            this.gridWafers.AutoFitColumns = true;
             this.gridWafers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridWafers.Location = new System.Drawing.Point(8, 40);
             this.gridWafers.Name = "gridWafers";

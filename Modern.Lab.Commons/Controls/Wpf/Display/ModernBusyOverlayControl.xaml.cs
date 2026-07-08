@@ -25,6 +25,18 @@ namespace Modern.Lab.Controls.Wpf.Display
                 typeof(ModernBusyOverlayControl),
                 new PropertyMetadata(string.Empty));
 
+        /// <summary>
+        /// 스피너 회전 여부. 래퍼가 표시할 때 true, 숨길 때 false로 되돌린다 —
+        /// WinForms Visible=false는 WPF Visibility를 바꾸지 않아 Loaded 기반
+        /// 무한 애니메이션은 숨긴 뒤에도 계속 돌기 때문에 명시적으로 제어한다.
+        /// </summary>
+        public static readonly DependencyProperty IsSpinningProperty =
+            DependencyProperty.Register(
+                "IsSpinning",
+                typeof(bool),
+                typeof(ModernBusyOverlayControl),
+                new PropertyMetadata(false));
+
         public ModernBusyOverlayControl()
         {
             this.InitializeComponent();
@@ -42,6 +54,13 @@ namespace Modern.Lab.Controls.Wpf.Display
         {
             get { return (string)this.GetValue(SubMessageProperty); }
             set { this.SetValue(SubMessageProperty, value); }
+        }
+
+        /// <summary>스피너 회전 여부 (표시 중에만 true로 유지한다).</summary>
+        public bool IsSpinning
+        {
+            get { return (bool)this.GetValue(IsSpinningProperty); }
+            set { this.SetValue(IsSpinningProperty, value); }
         }
     }
 }

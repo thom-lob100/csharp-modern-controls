@@ -28,6 +28,10 @@
 |---|---|
 | `ConfigureColumns(params ModernDataGridColumn[])` | 명시적 컬럼 정의. `DataSource` 할당 전에 호출. `ModernDataGridColumn(dataPropertyName, headerText[, width])` — width 생략/음수는 남은 폭 채움(star). `TextAlignment`(Left/Center/Right) 지정 가능 |
 | `SelectedItem` | 선택 행 (`DataTable` 소스일 때 `DataRowView`) — 기존 `CurrentRow.DataBoundItem` 대체 |
+| `AutoFitColumns` | true면 각 컬럼 너비를 **헤더 캡션과 데이터 내용 중 더 넓은 쪽**에 맞춰 자동 계산 (`ConfigureColumns` 컬럼에만 적용, 컬럼 정의의 `Width`는 무시). `DataSource`가 바뀔 때마다 재계산되며 하한 48px / 상한 600px. 사용자의 마우스 폭 조절은 그대로 가능 |
+
+정렬 글리프(▲/▼)는 헤더 텍스트 옆이 아니라 **헤더 셀 오른쪽 끝에 고정** 표시된다 —
+컬럼 너비와 무관하게 위치가 일정해 정렬 상태를 훑어보기 쉽다.
 
 ## 미지원 멤버와 대체 방법
 

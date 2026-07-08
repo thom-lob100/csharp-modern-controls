@@ -60,6 +60,14 @@ namespace Modern.Lab.WinForms.Controls.Display
             {
                 this.busy = value;
 
+                // 스피너 회전은 표시 중에만. WinForms Visible=false는 WPF 쪽
+                // Visibility를 바꾸지 않아, 회전을 끄지 않으면 숨긴 뒤에도
+                // 무한 애니메이션이 디스패처를 계속 점유한다.
+                if (this.Wpf != null)
+                {
+                    this.Wpf.IsSpinning = value;
+                }
+
                 if (value)
                 {
                     this.CenterInParent();

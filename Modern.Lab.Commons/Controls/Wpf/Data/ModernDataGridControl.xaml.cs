@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -26,7 +27,21 @@ namespace Modern.Lab.Controls.Wpf.Data
                 "ItemsSource",
                 typeof(IEnumerable),
                 typeof(ModernDataGridControl),
-                new PropertyMetadata(null));
+                new PropertyMetadata(null, OnItemsSourcePropertyChanged));
+
+        /// <summary>
+        /// 컬럼 너비를 헤더 캡션과 데이터 내용 중 더 넓은 쪽에 맞춰 자동 계산할지
+        /// 여부. ApplyColumns로 정의된 컬럼에만 적용되며, 켜져 있으면 데이터가
+        /// 바뀔 때마다 각 컬럼이 잘림 없이 표시되는 최소 너비로 재계산된다
+        /// (정의의 Width는 무시). 스크롤 중 너비가 흔들리는 WPF Auto 크기 대신
+        /// 전체 데이터를 미리 측정해 고정 픽셀 너비를 넣는다.
+        /// </summary>
+        public static readonly DependencyProperty AutoFitColumnsProperty =
+            DependencyProperty.Register(
+                "AutoFitColumns",
+                typeof(bool),
+                typeof(ModernDataGridControl),
+                new PropertyMetadata(false, OnAutoFitColumnsChanged));
 
         /// <summary>현재 선택된 행 항목. 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty SelectedItemProperty =
@@ -89,6 +104,21 @@ namespace Modern.Lab.Controls.Wpf.Data
         // 마지막으로 통지한 표시 가능 행 수 — 같은 값이면 이벤트를 삼킨다.
         private int lastCapacity;
 
+        // ApplyColumns로 받은 컬럼 정의 — AutoFitColumns 재계산의 원천.
+        private IList<ModernDataGridColumn> columnDefinitions;
+
+        // ===== AutoFitColumns 측정 상수 =====
+        // 컬럼당 실제 픽셀 측정할 후보 문자열 수 — 글자 수 상위 후보만 측정해
+        // 큰 데이터에서도 비용을 일정하게 유지한다.
+        private const int autoFitCandidateCount = 8;
+        // 자동 맞춤 너비의 하한/상한 (지나치게 좁은 컬럼과 폭주 컬럼 방지).
+        private const double autoFitMinWidth = 48d;
+        private const double autoFitMaxWidth = 600d;
+        // 셀 좌우 패딩(Pad.Field 12,0) + 우측 구분선/렌더링 오차 여유.
+        private const double autoFitCellPadding = 28d;
+        // 헤더 전용 추가 여유: 오른쪽 고정 정렬 글리프(여백 6 + 글리프 폭).
+        private const double autoFitSortGlyphReserve = 18d;
+
         public ModernDataGridControl()
         {
             this.InitializeComponent();
@@ -121,6 +151,13 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             get { return (bool)this.GetValue(AutoGenerateColumnsProperty); }
             set { this.SetValue(AutoGenerateColumnsProperty, value); }
+        }
+
+        /// <summary>컬럼 너비를 헤더와 데이터 내용에 맞춰 자동 계산할지 여부.</summary>
+        public bool AutoFitColumns
+        {
+            get { return (bool)this.GetValue(AutoFitColumnsProperty); }
+            set { this.SetValue(AutoFitColumnsProperty, value); }
         }
 
         /// <summary>그리드 하단 상태바 표시 여부.</summary>
@@ -219,16 +256,22 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             this.AutoGenerateColumns = false;
             this.InnerDataGrid.Columns.Clear();
+            this.columnDefinitions = null;
 
             if (columns == null)
             {
                 return;
             }
 
+            this.columnDefinitions = new List<ModernDataGridColumn>(columns);
+
             foreach (ModernDataGridColumn definition in columns)
             {
                 this.InnerDataGrid.Columns.Add(CreateColumn(definition));
             }
+
+            // 데이터가 이미 할당돼 있으면(할당 순서 내성) 즉시 자동 맞춤을 적용한다.
+            this.AutoFitColumnWidths();
         }
 
         private static DataGridTextColumn CreateColumn(ModernDataGridColumn definition)
@@ -273,6 +316,158 @@ namespace Modern.Lab.Controls.Wpf.Data
         private static void OnStatusBarAppearanceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((ModernDataGridControl)d).RefreshStatusBar();
+        }
+
+        private static void OnItemsSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernDataGridControl)d).AutoFitColumnWidths();
+        }
+
+        private static void OnAutoFitColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernDataGridControl)d).AutoFitColumnWidths();
+        }
+
+        // ===== 컬럼 자동 맞춤 (헤더 + 데이터 최대 폭) =====
+
+        // 각 컬럼 너비를 max(헤더 캡션 폭 + 글리프 여유, 데이터 최대 폭)으로
+        // 재계산해 고정 픽셀 너비로 넣는다. WPF DataGridLength.Auto는 가상화로
+        // 실체화된 행만 보고 계산해 스크롤 중 너비가 계속 변하므로 쓰지 않는다.
+        private void AutoFitColumnWidths()
+        {
+            if (!this.AutoFitColumns || this.columnDefinitions == null)
+            {
+                return;
+            }
+
+            double pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+            Typeface headerTypeface = new Typeface(this.FontFamily, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+            Typeface bodyTypeface = new Typeface(this.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+            double headerFontSize = (double)this.FindResource("Font.Size.Label");
+            double bodyFontSize = (double)this.FindResource("Font.Size.Body");
+
+            int count = Math.Min(this.columnDefinitions.Count, this.InnerDataGrid.Columns.Count);
+
+            for (int index = 0; index < count; index++)
+            {
+                ModernDataGridColumn definition = this.columnDefinitions[index];
+
+                double width = MeasureText(definition.HeaderText, headerTypeface, headerFontSize, pixelsPerDip)
+                    + autoFitCellPadding + autoFitSortGlyphReserve;
+
+                foreach (string candidate in CollectLongestCellTexts(this.ItemsSource, definition))
+                {
+                    double cellWidth = MeasureText(candidate, bodyTypeface, bodyFontSize, pixelsPerDip)
+                        + autoFitCellPadding;
+
+                    if (cellWidth > width)
+                    {
+                        width = cellWidth;
+                    }
+                }
+
+                if (width < autoFitMinWidth)
+                {
+                    width = autoFitMinWidth;
+                }
+
+                if (width > autoFitMaxWidth)
+                {
+                    width = autoFitMaxWidth;
+                }
+
+                this.InnerDataGrid.Columns[index].Width = new DataGridLength(Math.Ceiling(width));
+            }
+        }
+
+        // 한 컬럼의 셀 텍스트 중 "글자 수 상위" 후보만 모은다. 픽셀 폭은 글자 수와
+        // 단조 일치하지 않지만(글자별 폭 차이), 상위 여러 개를 함께 측정하면
+        // 실용적으로 안전하다 — 전체 행을 모두 픽셀 측정하는 비용을 피한다.
+        private static List<string> CollectLongestCellTexts(IEnumerable source, ModernDataGridColumn definition)
+        {
+            List<string> candidates = new List<string>();
+
+            if (source == null)
+            {
+                return candidates;
+            }
+
+            foreach (object row in source)
+            {
+                string text = FormatCellText(MemberPathReader.Read(row, definition.DataPropertyName), definition.Format);
+
+                if (text.Length == 0 || candidates.Contains(text))
+                {
+                    continue;
+                }
+
+                if (candidates.Count < autoFitCandidateCount)
+                {
+                    candidates.Add(text);
+                    continue;
+                }
+
+                // 가장 짧은 후보를 찾아 더 긴 텍스트로 교체한다.
+                int shortestIndex = 0;
+
+                for (int index = 1; index < candidates.Count; index++)
+                {
+                    if (candidates[index].Length < candidates[shortestIndex].Length)
+                    {
+                        shortestIndex = index;
+                    }
+                }
+
+                if (text.Length > candidates[shortestIndex].Length)
+                {
+                    candidates[shortestIndex] = text;
+                }
+            }
+
+            return candidates;
+        }
+
+        // 셀에 표시될 문자열을 만든다 — 컬럼 Format이 있으면 바인딩 StringFormat과
+        // 같은 규칙("{0:형식}")으로 적용하고, 실패하면 기본 문자열 표현을 쓴다.
+        private static string FormatCellText(object value, string format)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(format))
+            {
+                try
+                {
+                    return string.Format(CultureInfo.CurrentCulture, "{0:" + format + "}", value);
+                }
+                catch (FormatException)
+                {
+                    // 형식 오류는 기본 표현으로 폴백한다 (바인딩 표시와 동일한 완화).
+                }
+            }
+
+            return value.ToString();
+        }
+
+        private static double MeasureText(string text, Typeface typeface, double fontSize, double pixelsPerDip)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return 0d;
+            }
+
+            FormattedText formatted = new FormattedText(
+                text,
+                CultureInfo.CurrentCulture,
+                System.Windows.FlowDirection.LeftToRight,
+                typeface,
+                fontSize,
+                Brushes.Black,
+                pixelsPerDip);
+
+            return formatted.WidthIncludingTrailingWhitespace;
         }
 
         private void OnItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

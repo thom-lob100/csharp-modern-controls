@@ -146,6 +146,7 @@
     <!-- Shared WPF-side helpers -->
     <Compile Include="Controls\Wpf\Common\MemberPathReader.cs" />
     <Compile Include="Controls\Wpf\Common\ChipColorHelper.cs" />
+    <Compile Include="Controls\Wpf\Common\SharedResourceDictionary.cs" />
     <!-- Input code-behind -->
     <Compile Include="Controls\Wpf\Input\ButtonKind.cs" />
     <Compile Include="Controls\Wpf\Input\HangulTextMatcher.cs" />
