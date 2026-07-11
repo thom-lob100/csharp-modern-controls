@@ -56,6 +56,7 @@ namespace Modern.Lab.Samples
             // 각 샘플 화면을 여기서 AddSample 호출 하나로 등록한다.
             this.AddSample("Lot History", () => new LotHistoryForm());
             this.AddSample("직원관리", () => new EmployeeManagementForm());
+            this.AddSample("Oracle 조회", () => new OracleQueryForm());
         }
 
         private void AddSample(string title, Func<Form> factory)
