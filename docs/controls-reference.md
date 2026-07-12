@@ -41,6 +41,7 @@
 21. [ModernCardPanel](#moderncardpanel) — 카드 판넬
 22. [ModernGroupBox](#moderngroupbox) — 타이틀 있는 카드(그룹박스)
 23. [ModernDataGridColumn](#moderndatagridcolumn) — 컬럼 정의 (그리드/콤보 공용)
+24. [다크 테마 (ModernTheme)](#다크-테마-moderntheme) — 라이트/다크 선택
 
 ---
 
@@ -753,3 +754,40 @@ new ModernDataGridColumn("EMP_NAME", "이름", 110),
 new ModernDataGridColumn("SALARY", "급여", 100) { TextAlignment = GridTextAlignment.Right, Format = "N0" },
 new ModernDataGridColumn("NOTE", "비고")   // 마지막은 폭 생략으로 채움
 ```
+
+---
+
+## 다크 테마 (ModernTheme)
+
+전 컨트롤 공통의 라이트/다크 테마 (`Modern.Lab.Theming.ModernTheme`). 기본은
+라이트이며, **앱 시작 시 첫 컨트롤을 만들기 전에 한 번** `Mode`를 설정하는 opt-in
+방식이다 — 설정하지 않으면 기존과 완전히 동일하므로, 이 라이브러리를 쓰는 다른
+시스템에는 영향이 없다.
+
+| 멤버 | 설명 |
+|---|---|
+| `ModernTheme.Mode` | `ThemeMode.Light`(기본) / `ThemeMode.Dark`. 시작 시 한 번만 설정 |
+| `ModernTheme.IsDark` | 현재 다크 여부 (읽기 전용) |
+| `Surface` / `Background` / `Border` / `TextPrimary` / `TextSecondary` / `Accent` / `SelectionBackground` / `SurfaceAlt` 등 | 중앙 팔레트 색(`System.Drawing.Color`) — 폼 배경, 일반 WinForms 컨트롤 등 라이브러리 밖 요소를 테마에 맞춰 칠할 때 사용 |
+
+```csharp
+// Program.cs — 반드시 첫 폼 생성(Application.Run) 전에
+ModernTheme.Mode = settings.IsDarkTheme
+        ? ModernTheme.ThemeMode.Dark
+        : ModernTheme.ThemeMode.Light;
+Application.Run(new MainForm());
+```
+
+동작 원리 (통합자는 몰라도 됨):
+
+- WPF(ElementHost) 컨트롤 — 다크 모드면 `Tokens.Dark.xaml`이 `Tokens.xaml` 뒤에
+  병합돼 같은 토큰 키를 다크 값으로 덮는다.
+- 순수 GDI+ 컨트롤(`ModernLabel`/`ModernStatusBadge`/`ModernCardPanel`/`ModernGroupBox`)
+  — XAML을 읽을 수 없으므로 `ModernTheme` 팔레트 색을 직접 읽는다.
+
+주의:
+
+- **런타임 토글은 지원하지 않는다** — WPF StaticResource가 로드 시 확정되기 때문.
+  테마 전환 UI는 설정을 저장한 뒤 **앱 재시작**으로 반영한다.
+- 일반 WinForms 컨트롤(폼 배경, 기본 `Button`/`TextBox` 등)은 자동으로 어두워지지
+  않는다 — 폼 쪽에서 `ModernTheme` 팔레트 색으로 직접 칠해야 한다.

@@ -9,7 +9,7 @@ namespace Modern.Lab.Theming
     ///   - WPF(ElementHost) 컨트롤: XAML의 StaticResource가 <c>Themes/Tokens.xaml</c>를
     ///     쓰는데, <c>SharedResourceDictionary</c>가 <see cref="IsDark"/>일 때
     ///     <c>Tokens.Dark.xaml</c> 오버라이드를 뒤에 병합해 다크 값을 집게 한다.
-    ///   - 순수 GDI+ 컨트automation(ModernLabel/StatusBadge/CardPanel/GroupBox): XAML을 읽을 수
+    ///   - 순수 GDI+ 컨트롤(ModernLabel/StatusBadge/CardPanel/GroupBox): XAML을 읽을 수
     ///     없으므로 여기 팔레트 색을 읽는다.
     ///
     /// <see cref="Mode"/>는 <b>앱 시작 시 첫 컨트롤 생성 전에 한 번</b> 설정한다
