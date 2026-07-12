@@ -105,6 +105,18 @@ namespace Modern.Lab.Theming
             get { return IsDark ? Rgb(209, 213, 219) : Rgb(55, 65, 81); }
         }
 
+        /// <summary>선택 강조 배경 (Brush.SelectedBackground)</summary>
+        public static Color SelectionBackground
+        {
+            get { return IsDark ? Rgb(22, 58, 94) : Rgb(182, 217, 242); }
+        }
+
+        /// <summary>보조 표면 — 카드 위 살짝 다른 톤 (Brush.SurfaceAlt / HeaderBackground)</summary>
+        public static Color SurfaceAlt
+        {
+            get { return IsDark ? Rgb(50, 50, 51) : Rgb(249, 250, 251); }
+        }
+
         private static Color Rgb(int r, int g, int b)
         {
             return Color.FromArgb(255, r, g, b);
