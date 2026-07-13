@@ -21,6 +21,11 @@ namespace Modern.Lab.Samples
         {
             this.sampleFactories = new Dictionary<string, Func<Form>>();
             this.InitializeLayout();
+
+            // 다크 테마 한 줄 적용 (타이틀바 + 폼 배경 + 하드코딩 라이트 색 치환).
+            // 라이트 모드에서는 no-op — 실사용 폼도 이 위치에 이 한 줄이면 된다.
+            Modern.Lab.Theming.ModernThemeWinForms.Apply(this);
+
             this.RegisterSamples();
             this.ShowFirstSample();
         }
@@ -110,13 +115,10 @@ namespace Modern.Lab.Samples
             sample.FormBorderStyle = FormBorderStyle.None;
             sample.Dock = DockStyle.Fill;
 
-            // 다크 테마: 샘플 폼의 .Designer.cs에 라이트 배경이 직렬화돼 있으므로
-            // 팔레트 배경색으로 덮는다 — 기존 폼을 다크에 맞추는 실사용 패턴과 동일
-            // (각 폼 생성자에서 InitializeComponent() 직후 한 줄이면 된다).
-            if (Modern.Lab.Theming.ModernTheme.IsDark)
-            {
-                sample.BackColor = Modern.Lab.Theming.ModernTheme.Background;
-            }
+            // 다크 테마 한 줄 적용: 샘플 폼의 .Designer.cs에 직렬화된 라이트 색
+            // (폼 배경, 캡션 라벨 배경 등)을 다크 팔레트로 치환한다 — 실사용 폼은
+            // 각 폼 생성자에서 InitializeComponent() 직후 이 한 줄이면 된다.
+            Modern.Lab.Theming.ModernThemeWinForms.Apply(sample);
 
             this.contentPanel.Controls.Add(sample);
             this.currentSample = sample;
