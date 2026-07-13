@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -38,6 +39,37 @@ namespace Modern.Lab.WinForms.Controls.Layout
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.ResizeRedraw,
                 true);
+        }
+
+        /// <summary>
+        /// 카드 표면색 — 테마(ModernTheme)가 결정하므로 디자이너 직렬화를 차단한다.
+        /// 디자이너는 항상 라이트 모드로 돌기 때문에, 이 속성이 직렬화되면
+        /// .Designer.cs에 흰색이 박혀 다크 테마에서 생성자가 설정한 표면색을
+        /// InitializeComponent가 도로 덮어쓰는 사고가 난다(다크 모드 무력화의 주범).
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override Color BackColor
+        {
+            get { return base.BackColor; }
+            set { base.BackColor = value; }
+        }
+
+        /// <summary>
+        /// 다크 테마일 때 카드 표면색을 재적용한다. 과거 버전에서 디자이너가
+        /// .Designer.cs에 직렬화해 둔 라이트 색(흰색)이 InitializeComponent에서
+        /// 생성자 값을 덮어쓰므로, 그보다 늦은 핸들 생성 시점에 되돌린다 —
+        /// 덕분에 기존 폼의 .Designer.cs는 한 줄도 고칠 필요가 없다.
+        /// 라이트 모드에서는 아무 것도 하지 않는다(디자인 서피스 포함, 기존 동작 보존).
+        /// </summary>
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            if (Modern.Lab.Theming.ModernTheme.IsDark)
+            {
+                this.BackColor = SurfaceColor;
+            }
         }
 
         /// <summary>둥근 카드 표면과 테두리를 그린다.</summary>

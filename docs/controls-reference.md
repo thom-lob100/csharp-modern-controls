@@ -791,3 +791,28 @@ Application.Run(new MainForm());
   테마 전환 UI는 설정을 저장한 뒤 **앱 재시작**으로 반영한다.
 - 일반 WinForms 컨트롤(폼 배경, 기본 `Button`/`TextBox` 등)은 자동으로 어두워지지
   않는다 — 폼 쪽에서 `ModernTheme` 팔레트 색으로 직접 칠해야 한다.
+- **카드 배경색은 디자이너에 직렬화되지 않는다** (v0.4.1) — VS 디자이너는 항상
+  라이트 모드로 돌기 때문에, 과거에는 `ModernCardPanel`/`ModernGroupBox`의
+  `BackColor`(흰색)가 `.Designer.cs`에 저장돼 다크 테마에서 카드가 라이트로
+  남는 문제가 있었다. v0.4.1부터 `BackColor` 직렬화를 차단하고, 이미 저장돼 있는
+  값도 런타임(핸들 생성 시점)에 테마 표면색으로 복구하므로 **기존 폼의
+  `.Designer.cs`는 수정할 필요가 없다**.
+
+### 다크 테마 적용 체크리스트 (기존 앱)
+
+1. **DLL 교체** — `Modern.Lab.Commons` v0.4.1 이상 (카드/그룹박스 다크 복구 포함).
+2. **Program.cs** — `Application.Run(...)` **직전**(첫 폼 생성 전)에 한 번:
+   ```csharp
+   Modern.Lab.Theming.ModernTheme.Mode = Modern.Lab.Theming.ModernTheme.ThemeMode.Dark;
+   ```
+3. **각 폼** — 생성자에서 `InitializeComponent()` **직후** 한 줄(폼 배경은 자동으로
+   어두워지지 않으므로):
+   ```csharp
+   if (Modern.Lab.Theming.ModernTheme.IsDark) { this.BackColor = Modern.Lab.Theming.ModernTheme.Background; }
+   ```
+   하드코딩된 라이트 색(예: `Color.FromArgb(247, 248, 250)`, `Color.White`)을 쓰는
+   일반 `Panel`/컨트롤이 있으면 같은 방식으로 `ModernTheme` 팔레트 색으로 바꾼다.
+4. `.Designer.cs`는 손대지 않는다 — `ModernCardPanel`/`ModernGroupBox`의 옛
+   `BackColor` 직렬화 줄이 남아 있어도 라이브러리가 런타임에 복구한다.
+
+동작 확인은 샘플 갤러리로: `Modern.Lab.Samples.exe --dark`

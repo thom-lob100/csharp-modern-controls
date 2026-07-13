@@ -44,4 +44,4 @@ searchCard.Controls.Add(searchRow);
 | 항목 | 내용 |
 |---|---|
 | 모서리 배경 | 둥근 모서리 바깥은 부모 `BackColor`로 다시 칠함 — 부모 배경이 단색일 때 자연스러움 |
-| `BackColor` | 기본 Surface(흰색). 변경하지 않는 것을 권장 (토큰 일관성) |
+| `BackColor` | 테마(`ModernTheme.Surface`)가 결정 — 라이트 흰색 / 다크 짙은 회색. v0.4.1부터 디자이너에 직렬화되지 않으며, 옛 버전이 `.Designer.cs`에 남긴 값도 런타임(핸들 생성 시)에 테마색으로 복구됨 |

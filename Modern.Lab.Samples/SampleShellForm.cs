@@ -34,7 +34,10 @@ namespace Modern.Lab.Samples
             this.ClientSize = new Size(1740, 840);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Font = new Font("Segoe UI", 9f);
-            this.BackColor = Color.FromArgb(247, 248, 250);
+
+            // 폼/내비 배경은 하드코딩 대신 ModernTheme 팔레트에서 —
+            // 일반 WinForms 폼은 자동으로 어두워지지 않으므로 이렇게 직접 칠한다.
+            this.BackColor = Modern.Lab.Theming.ModernTheme.SurfaceAlt;
 
             this.navPanel = new FlowLayoutPanel();
             this.navPanel.Dock = DockStyle.Left;
@@ -42,7 +45,7 @@ namespace Modern.Lab.Samples
             this.navPanel.FlowDirection = FlowDirection.TopDown;
             this.navPanel.WrapContents = false;
             this.navPanel.Padding = new Padding(8);
-            this.navPanel.BackColor = Color.FromArgb(243, 244, 246);
+            this.navPanel.BackColor = Modern.Lab.Theming.ModernTheme.Background;
 
             this.contentPanel = new Panel();
             this.contentPanel.Dock = DockStyle.Fill;
@@ -71,6 +74,7 @@ namespace Modern.Lab.Samples
             navButton.FlatAppearance.BorderSize = 0;
             navButton.TextAlign = ContentAlignment.MiddleLeft;
             navButton.BackColor = Color.Transparent;
+            navButton.ForeColor = Modern.Lab.Theming.ModernTheme.TextPrimary;
             navButton.Click += (sender, args) => this.ShowSample(title);
 
             this.navPanel.Controls.Add(navButton);
@@ -105,6 +109,14 @@ namespace Modern.Lab.Samples
             sample.TopLevel = false;
             sample.FormBorderStyle = FormBorderStyle.None;
             sample.Dock = DockStyle.Fill;
+
+            // 다크 테마: 샘플 폼의 .Designer.cs에 라이트 배경이 직렬화돼 있으므로
+            // 팔레트 배경색으로 덮는다 — 기존 폼을 다크에 맞추는 실사용 패턴과 동일
+            // (각 폼 생성자에서 InitializeComponent() 직후 한 줄이면 된다).
+            if (Modern.Lab.Theming.ModernTheme.IsDark)
+            {
+                sample.BackColor = Modern.Lab.Theming.ModernTheme.Background;
+            }
 
             this.contentPanel.Controls.Add(sample);
             this.currentSample = sample;
