@@ -2,67 +2,67 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================================= -->
-    <!-- Gray 테마 오버라이드 — Fluent 뉴트럴 램프 기반의 어두운 무채    -->
-    <!-- (다크 #202020보다 한 톤 밝은 #333333 dim). 액센트도 Fluent      -->
-    <!-- 뉴트럴(#BEBBB8 계열, OnAccent는 검정)로 완전 무채색을 유지한다. -->
+    <!-- Gray 테마 오버라이드 — 연한 미드 그레이 모노톤 (#555555 기반,    -->
+    <!-- 완전 무채색; 어두운 계열 중 가장 밝은 톤).                      -->
+    <!-- 액센트도 밝은 뉴트럴(#E0DEDC, 검정 텍스트)로 모노톤을 유지한다.  -->
     <!-- SharedResourceDictionary가 ModernTheme.Mode == Gray일 때 병합.  -->
     <!-- ============================================================= -->
 
-    <!-- Primary (액센트) — Fluent neutralTertiary 계열, 어두운 면에서 밝게 -->
-    <SolidColorBrush x:Key="Brush.Accent" Color="#FFBEBBB8" />
-    <SolidColorBrush x:Key="Brush.AccentHover" Color="#FFC8C6C4" />
-    <SolidColorBrush x:Key="Brush.AccentPressed" Color="#FFA19F9D" />
+    <!-- Primary (액센트) — 밝은 뉴트럴 (미드 그레이 면에서 또렷하게) -->
+    <SolidColorBrush x:Key="Brush.Accent" Color="#FFE0DEDC" />
+    <SolidColorBrush x:Key="Brush.AccentHover" Color="#FFECEAE8" />
+    <SolidColorBrush x:Key="Brush.AccentPressed" Color="#FFC9C7C5" />
     <SolidColorBrush x:Key="Brush.OnAccent" Color="#FF1B1B1B" />
-    <SolidColorBrush x:Key="Brush.SelectedBackground" Color="#FF575757" />
-    <SolidColorBrush x:Key="Brush.SelectedText" Color="#FFF0F0F0" />
-    <SolidColorBrush x:Key="Brush.FocusBorder" Color="#FFBEBBB8" />
-    <SolidColorBrush x:Key="Brush.FocusRing" Color="#55BEBBB8" />
+    <SolidColorBrush x:Key="Brush.SelectedBackground" Color="#FF7C7C7C" />
+    <SolidColorBrush x:Key="Brush.SelectedText" Color="#FFFAFAFA" />
+    <SolidColorBrush x:Key="Brush.FocusBorder" Color="#FFE0DEDC" />
+    <SolidColorBrush x:Key="Brush.FocusRing" Color="#55E0DEDC" />
 
-    <!-- Neutral (서피스 / 테두리 / 텍스트) — Fluent 뉴트럴 dim -->
-    <SolidColorBrush x:Key="Brush.Background" Color="#FF333333" />
-    <SolidColorBrush x:Key="Brush.Surface" Color="#FF3D3D3D" />
-    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FF444444" />
-    <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FF414141" />
-    <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FF474747" />
-    <SolidColorBrush x:Key="Brush.GridRowAlt" Color="#FF424242" />
-    <SolidColorBrush x:Key="Brush.Border" Color="#FF525252" />
-    <SolidColorBrush x:Key="Brush.BorderSubtle" Color="#FF4A4A4A" />
-    <SolidColorBrush x:Key="Brush.BorderHover" Color="#FF6B6B6B" />
-    <SolidColorBrush x:Key="Brush.TextPrimary" Color="#FFE8E8E8" />
-    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#FFACACAC" />
-    <SolidColorBrush x:Key="Brush.TextPlaceholder" Color="#FF8C8C8C" />
-    <SolidColorBrush x:Key="Brush.HoverBackground" Color="#FF464646" />
-    <SolidColorBrush x:Key="Brush.DisabledBackground" Color="#FF3D3D3D" />
-    <SolidColorBrush x:Key="Brush.DisabledText" Color="#FF7C7C7C" />
+    <!-- Neutral (서피스 / 테두리 / 텍스트) — 연한 미드 그레이 -->
+    <SolidColorBrush x:Key="Brush.Background" Color="#FF555555" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="#FF616161" />
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FF686868" />
+    <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FF656565" />
+    <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FF6E6E6E" />
+    <SolidColorBrush x:Key="Brush.GridRowAlt" Color="#FF666666" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#FF7A7A7A" />
+    <SolidColorBrush x:Key="Brush.BorderSubtle" Color="#FF707070" />
+    <SolidColorBrush x:Key="Brush.BorderHover" Color="#FF929292" />
+    <SolidColorBrush x:Key="Brush.TextPrimary" Color="#FFF5F5F5" />
+    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#FFCCCCCC" />
+    <SolidColorBrush x:Key="Brush.TextPlaceholder" Color="#FFB0B0B0" />
+    <SolidColorBrush x:Key="Brush.HoverBackground" Color="#FF6B6B6B" />
+    <SolidColorBrush x:Key="Brush.DisabledBackground" Color="#FF616161" />
+    <SolidColorBrush x:Key="Brush.DisabledText" Color="#FF9C9C9C" />
 
-    <!-- Semantic — 어두운 면 기준 (다크 테마와 같은 WinUI 계열) -->
-    <SolidColorBrush x:Key="Brush.InfoBackground" Color="#FF2E3E4E" />
-    <SolidColorBrush x:Key="Brush.InfoBorder" Color="#FF41586F" />
-    <SolidColorBrush x:Key="Brush.InfoText" Color="#FF9CC5EC" />
-    <SolidColorBrush x:Key="Brush.Success" Color="#FF6CCB5F" />
-    <SolidColorBrush x:Key="Brush.SuccessHover" Color="#FF7FD573" />
-    <SolidColorBrush x:Key="Brush.SuccessPressed" Color="#FF54B247" />
-    <SolidColorBrush x:Key="Brush.SuccessBackground" Color="#FF3E4425" />
-    <SolidColorBrush x:Key="Brush.SuccessBorder" Color="#FF576030" />
-    <SolidColorBrush x:Key="Brush.SuccessText" Color="#FF8AD680" />
-    <SolidColorBrush x:Key="Brush.Warning" Color="#FFE8B33D" />
-    <SolidColorBrush x:Key="Brush.WarningBackground" Color="#FF4A3D20" />
-    <SolidColorBrush x:Key="Brush.WarningBorder" Color="#FF6F5C30" />
-    <SolidColorBrush x:Key="Brush.WarningText" Color="#FFEBC066" />
-    <SolidColorBrush x:Key="Brush.StatusSuccess" Color="#FF6CCB5F" />
-    <SolidColorBrush x:Key="Brush.StatusWarning" Color="#FFE8B33D" />
-    <SolidColorBrush x:Key="Brush.ErrorBorder" Color="#FFFF8A94" />
-    <SolidColorBrush x:Key="Brush.ErrorBorderSoft" Color="#FF734448" />
-    <SolidColorBrush x:Key="Brush.ErrorBackground" Color="#FF4C3132" />
-    <SolidColorBrush x:Key="Brush.ErrorText" Color="#FFFFA7B0" />
-    <SolidColorBrush x:Key="Brush.DangerPressed" Color="#FFD65560" />
-    <SolidColorBrush x:Key="Brush.NeutralBackground" Color="#FF4A4A4A" />
-    <SolidColorBrush x:Key="Brush.NeutralText" Color="#FFD4D2D0" />
+    <!-- Semantic — 미드 그레이 면에 맞춘 채도 (다크보다 밝은 면색) -->
+    <SolidColorBrush x:Key="Brush.InfoBackground" Color="#FF41505F" />
+    <SolidColorBrush x:Key="Brush.InfoBorder" Color="#FF56697C" />
+    <SolidColorBrush x:Key="Brush.InfoText" Color="#FFAFD3F2" />
+    <SolidColorBrush x:Key="Brush.Success" Color="#FF7ED672" />
+    <SolidColorBrush x:Key="Brush.SuccessHover" Color="#FF90DE85" />
+    <SolidColorBrush x:Key="Brush.SuccessPressed" Color="#FF63BD57" />
+    <SolidColorBrush x:Key="Brush.SuccessBackground" Color="#FF4E5834" />
+    <SolidColorBrush x:Key="Brush.SuccessBorder" Color="#FF66743F" />
+    <SolidColorBrush x:Key="Brush.SuccessText" Color="#FF9FE295" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="#FFEDBD53" />
+    <SolidColorBrush x:Key="Brush.WarningBackground" Color="#FF5C4E2C" />
+    <SolidColorBrush x:Key="Brush.WarningBorder" Color="#FF7C693B" />
+    <SolidColorBrush x:Key="Brush.WarningText" Color="#FFF0C978" />
+    <SolidColorBrush x:Key="Brush.StatusSuccess" Color="#FF7ED672" />
+    <SolidColorBrush x:Key="Brush.StatusWarning" Color="#FFEDBD53" />
+    <SolidColorBrush x:Key="Brush.ErrorBorder" Color="#FFFF97A0" />
+    <SolidColorBrush x:Key="Brush.ErrorBorderSoft" Color="#FF80545A" />
+    <SolidColorBrush x:Key="Brush.ErrorBackground" Color="#FF5E4144" />
+    <SolidColorBrush x:Key="Brush.ErrorText" Color="#FFFFB2B9" />
+    <SolidColorBrush x:Key="Brush.DangerPressed" Color="#FFDE6570" />
+    <SolidColorBrush x:Key="Brush.NeutralBackground" Color="#FF707070" />
+    <SolidColorBrush x:Key="Brush.NeutralText" Color="#FFDEDCDA" />
 
     <SolidColorBrush x:Key="Brush.Scrim" Color="#99000000" />
 
-    <Color x:Key="Color.Accent">#FFBEBBB8</Color>
-    <Color x:Key="Color.TrackOff">#FF6B6B6B</Color>
+    <Color x:Key="Color.Accent">#FFE0DEDC</Color>
+    <Color x:Key="Color.TrackOff">#FF929292</Color>
 
     <!-- Text.* 스타일 재정의 — 어두운 전경 (Dark와 동일 이유) -->
     <Style x:Key="Text.Title" TargetType="TextBlock">

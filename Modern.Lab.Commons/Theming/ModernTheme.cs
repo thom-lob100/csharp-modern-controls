@@ -15,7 +15,7 @@ namespace Modern.Lab.Theming
     /// 팔레트는 Windows 11(WinUI 3) 순정 Fluent 값을 기준으로 한다:
     ///   - Light: 창 배경 #F3F3F3(Mica 근사), 액센트 #005FB8 램프, 무채 뉴트럴.
     ///   - Dark: #202020/#2B2B2B, 액센트 #4CC2FF(+검정 OnAccent — WPF 쪽 토큰).
-    ///   - Gray: Fluent 뉴트럴 램프의 어두운 무채 dim (#333333).
+    ///   - Gray: Fluent 뉴트럴 램프의 연한 미드 그레이 모노톤 (#454545).
     ///   - Purple/Orange/Tomato: Fluent 공식 액센트(#5C2E91/#CA5010/#D13438) 램프의
     ///     밝은 파스텔 (흰 카드 + 틴트 배경/테두리).
     ///
@@ -34,7 +34,7 @@ namespace Modern.Lab.Theming
             /// <summary>Win11 다크 (#202020, 액센트 #4CC2FF).</summary>
             Dark,
 
-            /// <summary>Fluent 뉴트럴 램프의 어두운 무채 dim 테마.</summary>
+            /// <summary>Fluent 뉴트럴 램프의 연한 미드 그레이 모노톤 테마.</summary>
             Gray,
 
             /// <summary>Fluent 퍼플(#5C2E91) 파스텔 테마 (라이트 기반).</summary>
@@ -75,7 +75,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(43, 43, 43);
-                    case ThemeMode.Gray: return Rgb(61, 61, 61);
+                    case ThemeMode.Gray: return Rgb(97, 97, 97);
                     default: return Rgb(255, 255, 255);
                 }
             }
@@ -89,7 +89,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(32, 32, 32);
-                    case ThemeMode.Gray: return Rgb(51, 51, 51);
+                    case ThemeMode.Gray: return Rgb(85, 85, 85);
                     case ThemeMode.Purple: return Rgb(239, 232, 248);
                     case ThemeMode.Orange: return Rgb(250, 234, 220);
                     case ThemeMode.Tomato: return Rgb(250, 231, 232);
@@ -106,7 +106,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(65, 65, 65);
-                    case ThemeMode.Gray: return Rgb(82, 82, 82);
+                    case ThemeMode.Gray: return Rgb(122, 122, 122);
                     case ThemeMode.Purple: return Rgb(211, 194, 236);
                     case ThemeMode.Orange: return Rgb(239, 208, 178);
                     case ThemeMode.Tomato: return Rgb(240, 198, 200);
@@ -123,7 +123,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(56, 56, 56);
-                    case ThemeMode.Gray: return Rgb(74, 74, 74);
+                    case ThemeMode.Gray: return Rgb(112, 112, 112);
                     case ThemeMode.Purple: return Rgb(226, 214, 243);
                     case ThemeMode.Orange: return Rgb(246, 226, 205);
                     case ThemeMode.Tomato: return Rgb(247, 222, 223);
@@ -140,7 +140,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(240, 240, 240);
-                    case ThemeMode.Gray: return Rgb(232, 232, 232);
+                    case ThemeMode.Gray: return Rgb(245, 245, 245);
                     default: return Rgb(27, 27, 27);
                 }
             }
@@ -154,7 +154,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(160, 160, 160);
-                    case ThemeMode.Gray: return Rgb(172, 172, 172);
+                    case ThemeMode.Gray: return Rgb(204, 204, 204);
                     default: return Rgb(93, 93, 93);
                 }
             }
@@ -168,7 +168,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(110, 110, 110);
-                    case ThemeMode.Gray: return Rgb(124, 124, 124);
+                    case ThemeMode.Gray: return Rgb(156, 156, 156);
                     default: return Rgb(157, 157, 157);
                 }
             }
@@ -182,7 +182,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(76, 194, 255);
-                    case ThemeMode.Gray: return Rgb(190, 187, 184);
+                    case ThemeMode.Gray: return Rgb(224, 222, 220);
                     case ThemeMode.Purple: return Rgb(92, 46, 145);
                     case ThemeMode.Orange: return Rgb(202, 80, 16);
                     case ThemeMode.Tomato: return Rgb(209, 52, 56);
@@ -205,7 +205,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(56, 56, 56);
-                    case ThemeMode.Gray: return Rgb(74, 74, 74);
+                    case ThemeMode.Gray: return Rgb(112, 112, 112);
                     default: return Rgb(240, 240, 240);
                 }
             }
@@ -219,7 +219,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(208, 208, 208);
-                    case ThemeMode.Gray: return Rgb(212, 210, 208);
+                    case ThemeMode.Gray: return Rgb(228, 226, 224);
                     default: return Rgb(59, 59, 59);
                 }
             }
@@ -233,7 +233,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(30, 73, 100);
-                    case ThemeMode.Gray: return Rgb(87, 87, 87);
+                    case ThemeMode.Gray: return Rgb(124, 124, 124);
                     case ThemeMode.Purple: return Rgb(220, 204, 240);
                     case ThemeMode.Orange: return Rgb(246, 217, 188);
                     case ThemeMode.Tomato: return Rgb(246, 208, 210);
@@ -250,7 +250,7 @@ namespace Modern.Lab.Theming
                 switch (Mode)
                 {
                     case ThemeMode.Dark: return Rgb(51, 51, 51);
-                    case ThemeMode.Gray: return Rgb(68, 68, 68);
+                    case ThemeMode.Gray: return Rgb(104, 104, 104);
                     case ThemeMode.Purple: return Rgb(246, 241, 251);
                     case ThemeMode.Orange: return Rgb(253, 245, 236);
                     case ThemeMode.Tomato: return Rgb(253, 244, 244);
