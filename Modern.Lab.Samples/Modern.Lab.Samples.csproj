@@ -96,11 +96,11 @@
     <Compile Include="EmployeeManagementForm.Designer.cs">
       <DependentUpon>EmployeeManagementForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LotHistoryForm.cs">
+    <Compile Include="ItemHistoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LotHistoryForm.Designer.cs">
-      <DependentUpon>LotHistoryForm.cs</DependentUpon>
+    <Compile Include="ItemHistoryForm.Designer.cs">
+      <DependentUpon>ItemHistoryForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\JsonTableConverter.cs" />
     <Compile Include="Services\OracleDb.cs" />
@@ -119,8 +119,8 @@
     <EmbeddedResource Include="EmployeeManagementForm.resx">
       <DependentUpon>EmployeeManagementForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LotHistoryForm.resx">
-      <DependentUpon>LotHistoryForm.cs</DependentUpon>
+    <EmbeddedResource Include="ItemHistoryForm.resx">
+      <DependentUpon>ItemHistoryForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

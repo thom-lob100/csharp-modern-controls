@@ -27,7 +27,60 @@ namespace Modern.Lab.Samples
             Modern.Lab.Theming.ModernThemeWinForms.Apply(this);
 
             this.RegisterSamples();
+            this.AddThemeSwitcher();
             this.ShowFirstSample();
+        }
+
+        /// <summary>
+        /// 내비 하단의 테마 전환 버튼들. 라이브 전환은 미지원(WPF StaticResource가
+        /// 로드 시 확정)이므로, 선택한 테마 인자로 같은 exe를 재실행하고 현재 창을
+        /// 닫는 "재시작 방식"으로 전환한다 — 실사용 앱의 설정 저장 후 재시작과 동일한 UX.
+        /// </summary>
+        private void AddThemeSwitcher()
+        {
+            Panel spacer = new Panel();
+            spacer.Size = new Size(180, 14);
+            this.navPanel.Controls.Add(spacer);
+
+            Label caption = new Label();
+            caption.Text = "Theme (restart)";
+            caption.AutoSize = false;
+            caption.Size = new Size(180, 20);
+            caption.Font = new Font("Segoe UI Semibold", 8.5f);
+            caption.ForeColor = Modern.Lab.Theming.ModernTheme.TextSecondary;
+            this.navPanel.Controls.Add(caption);
+
+            foreach (Modern.Lab.Theming.ModernTheme.ThemeMode mode
+                    in Enum.GetValues(typeof(Modern.Lab.Theming.ModernTheme.ThemeMode)))
+            {
+                bool current = mode == Modern.Lab.Theming.ModernTheme.Mode;
+
+                Button themeButton = new Button();
+                themeButton.Text = (current ? "●  " : "    ") + mode.ToString();
+                themeButton.Width = this.navPanel.Width - 20;
+                themeButton.Height = 28;
+                themeButton.FlatStyle = FlatStyle.Flat;
+                themeButton.FlatAppearance.BorderSize = 0;
+                themeButton.TextAlign = ContentAlignment.MiddleLeft;
+                themeButton.BackColor = Color.Transparent;
+                themeButton.ForeColor = current
+                        ? Modern.Lab.Theming.ModernTheme.Accent
+                        : Modern.Lab.Theming.ModernTheme.TextPrimary;
+                themeButton.Enabled = !current;
+
+                Modern.Lab.Theming.ModernTheme.ThemeMode captured = mode;
+                themeButton.Click += (sender, args) => { this.RestartWithTheme(captured); };
+                this.navPanel.Controls.Add(themeButton);
+            }
+        }
+
+        /// <summary>선택 테마 인자로 새 프로세스를 띄우고 현재 갤러리를 닫는다.</summary>
+        private void RestartWithTheme(Modern.Lab.Theming.ModernTheme.ThemeMode mode)
+        {
+            System.Diagnostics.Process.Start(
+                    Application.ExecutablePath,
+                    "--theme=" + mode.ToString().ToLowerInvariant());
+            this.Close();
         }
 
         private void InitializeLayout()
@@ -62,7 +115,7 @@ namespace Modern.Lab.Samples
         private void RegisterSamples()
         {
             // 각 샘플 화면을 여기서 AddSample 호출 하나로 등록한다.
-            this.AddSample("Lot History", () => new LotHistoryForm());
+            this.AddSample("Item History", () => new ItemHistoryForm());
             this.AddSample("직원관리", () => new EmployeeManagementForm());
             this.AddSample("Oracle 조회", () => new OracleQueryForm());
         }

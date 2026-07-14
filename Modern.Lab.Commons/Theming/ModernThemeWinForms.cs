@@ -14,12 +14,12 @@ namespace Modern.Lab.Theming
     /// Modern.Lab.Theming.ModernThemeWinForms.Apply(this);
     /// </code>
     ///
-    /// 하는 일 (다크 모드일 때만 — 라이트 모드에서는 완전한 no-op이라 항상 호출해도 안전):
-    ///   1. OS 타이틀바를 다크로 전환 (DWM immersive dark mode)
-    ///   2. 폼 배경을 <see cref="ModernTheme.Background"/>로
+    /// 하는 일 (Light가 아닌 테마일 때만 — 기본 라이트에서는 완전한 no-op이라 항상 호출해도 안전):
+    ///   1. OS 타이틀바를 다크로 전환 (Dark 테마 전용; 틴트 테마는 밝은 타이틀바 유지)
+    ///   2. 화면 배경을 <see cref="ModernTheme.Background"/>로
     ///   3. 자식 컨트롤 전체를 재귀 순회하며, 라이트 모드에서 관행적으로 하드코딩되던
     ///      색(흰색, 247/248/250, 243/244/246, SystemColors 기본값 등)을 대응하는
-    ///      다크 팔레트 색으로 치환 — <c>.Designer.cs</c>는 한 줄도 고칠 필요 없다.
+    ///      현재 테마 팔레트 색으로 치환 — <c>.Designer.cs</c>는 한 줄도 고칠 필요 없다.
     ///
     /// 치환은 "알려진 라이트 토큰 색과 정확히 일치"할 때만 일어나므로, 상태색(빨강/
     /// 초록 배지 등) 같은 의도적인 색은 건드리지 않는다. 런타임에 동적으로 추가한
@@ -55,7 +55,9 @@ namespace Modern.Lab.Theming
                 return;
             }
 
-            if (!ModernTheme.IsDark)
+            // 기본 라이트 테마면 아무것도 하지 않는다. 다크/틴트 테마는 모두
+            // 같은 치환 표를 쓴다 — 팔레트 속성이 테마별 값을 돌려주기 때문.
+            if (ModernTheme.Mode == ModernTheme.ThemeMode.Light)
             {
                 return;
             }

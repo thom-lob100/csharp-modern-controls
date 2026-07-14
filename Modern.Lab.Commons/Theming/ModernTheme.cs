@@ -18,14 +18,26 @@ namespace Modern.Lab.Theming
     /// </summary>
     public static class ModernTheme
     {
-        /// <summary>테마 종류.</summary>
+        /// <summary>테마 종류. Dark 외에는 모두 라이트 기반(밝은 표면 + 액센트/배경 틴트)이다.</summary>
         public enum ThemeMode
         {
-            /// <summary>기본값 — 기존 라이트 Fluent 테마.</summary>
+            /// <summary>기본값 — 기존 라이트 Fluent 테마 (블루 액센트).</summary>
             Light,
 
             /// <summary>어두운 배경 테마.</summary>
-            Dark
+            Dark,
+
+            /// <summary>무채색 슬레이트 그레이 테마 (라이트 기반).</summary>
+            Gray,
+
+            /// <summary>바이올렛 테마 (라이트 기반).</summary>
+            Purple,
+
+            /// <summary>오렌지 테마 (라이트 기반).</summary>
+            Orange,
+
+            /// <summary>토마토 레드 테마 (라이트 기반).</summary>
+            Tomato
         }
 
         /// <summary>현재 테마. 앱 시작 시 한 번 설정한다.</summary>
@@ -45,10 +57,21 @@ namespace Modern.Lab.Theming
             get { return IsDark ? Rgb(42, 42, 43) : Rgb(255, 255, 255); }
         }
 
-        /// <summary>폼/페이지 바탕 (Brush.Background)</summary>
+        /// <summary>폼/페이지 바탕 (Brush.Background) — 틴트 테마는 여기서 톤이 갈린다.</summary>
         public static Color Background
         {
-            get { return IsDark ? Rgb(30, 30, 30) : Rgb(243, 244, 246); }
+            get
+            {
+                switch (Mode)
+                {
+                    case ThemeMode.Dark: return Rgb(30, 30, 30);
+                    case ThemeMode.Gray: return Rgb(231, 234, 238);
+                    case ThemeMode.Purple: return Rgb(245, 243, 250);
+                    case ThemeMode.Orange: return Rgb(250, 244, 238);
+                    case ThemeMode.Tomato: return Rgb(250, 243, 241);
+                    default: return Rgb(243, 244, 246);
+                }
+            }
         }
 
         /// <summary>기본 테두리 (Brush.Border)</summary>
@@ -81,10 +104,21 @@ namespace Modern.Lab.Theming
             get { return IsDark ? Rgb(107, 114, 128) : Rgb(156, 163, 175); }
         }
 
-        /// <summary>액센트 (Brush.Accent) — 다크에서는 가독성을 위해 밝게.</summary>
+        /// <summary>액센트 (Brush.Accent) — 테마의 주 색. 다크에서는 가독성을 위해 밝게.</summary>
         public static Color Accent
         {
-            get { return IsDark ? Rgb(59, 158, 255) : Rgb(0, 120, 212); }
+            get
+            {
+                switch (Mode)
+                {
+                    case ThemeMode.Dark: return Rgb(59, 158, 255);
+                    case ThemeMode.Gray: return Rgb(100, 116, 139);
+                    case ThemeMode.Purple: return Rgb(124, 58, 237);
+                    case ThemeMode.Orange: return Rgb(234, 88, 12);
+                    case ThemeMode.Tomato: return Rgb(217, 68, 43);
+                    default: return Rgb(0, 120, 212);
+                }
+            }
         }
 
         /// <summary>필수 표시/위험 빨강 (Brush.ErrorBorder)</summary>
@@ -108,13 +142,35 @@ namespace Modern.Lab.Theming
         /// <summary>선택 강조 배경 (Brush.SelectedBackground)</summary>
         public static Color SelectionBackground
         {
-            get { return IsDark ? Rgb(22, 58, 94) : Rgb(182, 217, 242); }
+            get
+            {
+                switch (Mode)
+                {
+                    case ThemeMode.Dark: return Rgb(22, 58, 94);
+                    case ThemeMode.Gray: return Rgb(226, 232, 240);
+                    case ThemeMode.Purple: return Rgb(237, 233, 254);
+                    case ThemeMode.Orange: return Rgb(255, 237, 213);
+                    case ThemeMode.Tomato: return Rgb(254, 226, 220);
+                    default: return Rgb(182, 217, 242);
+                }
+            }
         }
 
         /// <summary>보조 표면 — 카드 위 살짝 다른 톤 (Brush.SurfaceAlt / HeaderBackground)</summary>
         public static Color SurfaceAlt
         {
-            get { return IsDark ? Rgb(50, 50, 51) : Rgb(249, 250, 251); }
+            get
+            {
+                switch (Mode)
+                {
+                    case ThemeMode.Dark: return Rgb(50, 50, 51);
+                    case ThemeMode.Gray: return Rgb(241, 243, 246);
+                    case ThemeMode.Purple: return Rgb(248, 246, 252);
+                    case ThemeMode.Orange: return Rgb(252, 248, 243);
+                    case ThemeMode.Tomato: return Rgb(252, 246, 244);
+                    default: return Rgb(249, 250, 251);
+                }
+            }
         }
 
         private static Color Rgb(int r, int g, int b)

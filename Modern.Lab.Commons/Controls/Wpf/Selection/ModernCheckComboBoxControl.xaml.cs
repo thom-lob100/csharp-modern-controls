@@ -393,23 +393,23 @@ namespace Modern.Lab.Controls.Wpf.Selection
 
             // 전체 선택 헤더: 전부 = 체크, 없음 = 해제, 일부 = 부분 선택(대시).
             // 라벨도 다음 동작을 안내하도록 바뀐다 — 전부 체크 상태에서는
-            // "전체 해제", 그 외에는 "전체 선택".
+            // "Deselect all", 그 외에는 "Select all". (UI 표시 문자열은 영문)
             if (this.SelectAllCheck != null)
             {
                 if (this.checkItems.Count == 0 || texts.Count == 0)
                 {
                     this.SelectAllCheck.IsChecked = false;
-                    this.SelectAllCheck.Content = "전체 선택";
+                    this.SelectAllCheck.Content = "Select all";
                 }
                 else if (texts.Count == this.checkItems.Count)
                 {
                     this.SelectAllCheck.IsChecked = true;
-                    this.SelectAllCheck.Content = "전체 해제";
+                    this.SelectAllCheck.Content = "Deselect all";
                 }
                 else
                 {
                     this.SelectAllCheck.IsChecked = null;
-                    this.SelectAllCheck.Content = "전체 선택";
+                    this.SelectAllCheck.Content = "Select all";
                 }
             }
         }

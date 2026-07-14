@@ -287,14 +287,14 @@ protected override void OnPaint(PaintEventArgs e)
 
 ## 7. [성능 교훈] ElementHost는 "개수"가 성능이다 — 표시 전용 컨트롤은 GDI+로 (2026-07-09)
 
-회사 환경에서 Lot History 폼의 리사이즈가 굉장히 버겁다는 보고로 실측한 결과:
+회사 환경에서 Item History 폼의 리사이즈가 굉장히 버겁다는 보고로 실측한 결과:
 
 - **ElementHost 1개당 리사이즈 1스텝에 ~20ms의 고정 비용**이 든다. 내용 복잡도와
   거의 무관하다(16컬럼 그리드 22ms ≈ 6컬럼 그리드 19ms ≈ 트리 100노드 19ms;
   빈 WinForms 폼은 1ms). HwndSource 리사이즈 시 WPF가 동기로 재배치·재렌더하는
   비용이 지배적이기 때문이다.
 - 라벨/배지처럼 **한 폼에 수십 개씩 놓이는 표시 전용 컨트롤을 전부 ElementHost로
-  만들면 이 고정 비용이 개수만큼 누적**된다. Lot History 폼은 자식 HWND 87개,
+  만들면 이 고정 비용이 개수만큼 누적**된다. Item History 폼은 자식 HWND 87개,
   리사이즈 1스텝 평균 556ms였다(집 PC 기준 — 회사 저사양/RDP에선 더 나쁨).
 
 **규칙**: 상호작용 없는 표시 전용 + 다수 배치 컨트롤(라벨, 배지)은 WPF를 호스팅하지
@@ -332,7 +332,7 @@ ModernLabel·ModernStatusBadge를 GDI+로 전환한 뒤 같은 폼이 평균 ~30
 | 컨트롤 생성+핸들 (개당) | WPF 호스팅 6~10ms vs 순정 0.5~3.5ms | **WPF 섬당 ~3~15배** |
 | GDI+ 전환한 라벨/배지 (개당) | 0.45~0.5ms | 순정 Label과 동일 |
 | WPF 스택 최초 기동 | 첫 컨트롤 1개에 ~300ms | 프로세스당 1회 |
-| 폼 오픈 (Lot History) | ctor 70 + show/load 220 + dispose ~20 = **~310ms** | 서버 호출 없음 — 순수 UI 비용 |
+| 폼 오픈 (Item History) | ctor 70 + show/load 220 + dispose ~20 = **~310ms** | 서버 호출 없음 — 순수 UI 비용 |
 | 폼 오픈 (직원관리) | **~520ms** (WPF 섬 20여 개) | 데이터 전부 인메모리 — 순수 UI 비용 |
 | 콜드 스타트(창 응답까지) | ~720ms | 양호 |
 | 유휴 CPU (데이터 로드 상태 10초) | **0.00%** | 애니메이션/타이머 누수 없음 |

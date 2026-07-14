@@ -14,26 +14,26 @@ using Modern.Lab.Samples.Services;
 namespace Modern.Lab.Samples
 {
     /// <summary>
-    /// Lot History 화면 — MES Lot 계보 트리와 선택 Lot의 이력·웨이퍼 조회.
+    /// Item History 화면 — MES Item 계보 트리와 선택 Item의 이력·웨이퍼 조회.
     ///
     /// 영역 구성 (계약 룰 5 — 레이아웃은 WinForms 담당):
-    /// - 상단: 조회 카드 (Type 다중 필터[체크콤보] + Lot ID 검색[필수, 자동완성 — LOT만])
-    /// - 중앙 좌측: Lot 계보 트리(Scrap Lot은 빨간 텍스트) + 선택 Lot의 웨이퍼 목록
-    /// - 중앙 우측: 선택 Lot 상세 카드(주요 컬럼 표) + 이력 그리드
-    ///   (MES_LOT_HIS 전체 컬럼, 최신순, 하단 상태바 — 페이징 없음)
+    /// - 상단: 조회 카드 (Type 다중 필터[체크콤보] + Item ID 검색[필수, 자동완성 — ITEM만])
+    /// - 중앙 좌측: Item 계보 트리(Scrap Item은 빨간 텍스트) + 선택 Item의 웨이퍼 목록
+    /// - 중앙 우측: 선택 Item 상세 카드(주요 컬럼 표) + 이력 그리드
+    ///   (MES_ITEM_HIS 전체 컬럼, 최신순, 하단 상태바 — 페이징 없음)
     ///
-    /// 화면 오픈 시 자동 조회는 하지 않는다 — Lot ID(필수)를 넣고 Search로 조회한다.
-    /// 트리/자동완성은 LOT만 다룬다. 트리에서 Lot을 선택하면 그 Lot의 이력(LOT_HIS)과
-    /// 웨이퍼 목록(WF_MAS)을 서버에서 함께 불러온다(로딩 팝업 표시).
-    /// 검색어와 LOT_ID가 정확히 일치하면 그 Lot을, 없으면 첫 Lot을 자동 선택한다.
+    /// 화면 오픈 시 자동 조회는 하지 않는다 — Item ID(필수)를 넣고 Search로 조회한다.
+    /// 트리/자동완성은 ITEM만 다룬다. 트리에서 Item을 선택하면 그 Item의 이력(ITEM_HIS)과
+    /// 웨이퍼 목록(UNIT_MAS)을 서버에서 함께 불러온다(로딩 팝업 표시).
+    /// 검색어와 ITEM_ID가 정확히 일치하면 그 Item을, 없으면 첫 Item을 자동 선택한다.
     ///
     /// 서버 호출은 아래 "서버 조회 (★ 회사 환경 교체 지점)" 영역의 private
-    /// 메서드 4개(tree/ids/history/wafers)에만 있다 — 회사 환경에서는 그 메서드들의
+    /// 메서드 4개(tree/ids/history/units)에만 있다 — 회사 환경에서는 그 메서드들의
     /// 본문만 사내 인터페이스(전문/미들웨어) 호출로 바꾸면 된다. 반환 타입이
     /// DataTable / string[]이라 화면 코드는 손대지 않는다.
     /// 모든 조회는 백그라운드 스레드 + UI Invoke 패턴(계약 규칙 3)으로 수행한다.
     /// </summary>
-    public partial class LotHistoryForm : Form
+    public partial class ItemHistoryForm : Form
     {
 
         // 마지막 트리 조회 결과 — 상세 카드/웨이퍼 목록의 원천.
@@ -45,7 +45,7 @@ namespace Modern.Lab.Samples
         // 검색 직후 코드로 SelectedValue를 넣을 때 이벤트 중복 처리를 막는다.
         private bool suppressTreeEvent;
 
-        // Lot ID 자동완성 typeahead: 입력이 잠시 멈추면 서버에서 후보를 가져온다.
+        // Item ID 자동완성 typeahead: 입력이 잠시 멈추면 서버에서 후보를 가져온다.
         private System.Windows.Forms.Timer autoCompleteTimer;
 
         // 자동완성 요청 버전 — 오래된 응답이 최신 후보를 덮어쓰지 않게 한다.
@@ -64,9 +64,9 @@ namespace Modern.Lab.Samples
         // 노드 종류/상태 배지 색.
         private static readonly Dictionary<string, string> typeBadgeColors = new Dictionary<string, string>
         {
-            { "Wafer", "#DBEAFE" },
-            { "Chip", "#FEF3C7" },
-            { "Lamella", "#E0E7FF" }
+            { "Main", "#DBEAFE" },
+            { "PartA", "#FEF3C7" },
+            { "PartB", "#E0E7FF" }
         };
 
         private static readonly Dictionary<string, string> statBadgeColors = new Dictionary<string, string>
@@ -76,7 +76,7 @@ namespace Modern.Lab.Samples
             { "Create", "" }
         };
 
-        public LotHistoryForm()
+        public ItemHistoryForm()
         {
             this.InitializeComponent();
         }
@@ -107,12 +107,12 @@ namespace Modern.Lab.Samples
             }
         }
 
-        // Lot/Wafer 통합 트리. 검색 결과의 조상(최상위 Lot까지)과 자손이 함께
+        // Item/Unit 통합 트리. 검색 결과의 조상(최상위 Item까지)과 자손이 함께
         // 오고 IS_MATCH(Y/N)로 직접 매칭 노드가 표시되어야 한다.
-        private DataTable RequestLotTree(string keyword, string[] subProdTypes)
+        private DataTable RequestItemTree(string keyword, string[] subProdTypes)
         {
             StringBuilder query = new StringBuilder();
-            query.Append("/api/mes/tree?keyword=").Append(Uri.EscapeDataString(keyword ?? string.Empty));
+            query.Append("/api/items/tree?keyword=").Append(Uri.EscapeDataString(keyword ?? string.Empty));
 
             // 다중 Type은 같은 이름의 파라미터를 반복해서 보낸다 (Spring List 바인딩).
             if (subProdTypes != null)
@@ -121,7 +121,7 @@ namespace Modern.Lab.Samples
                 {
                     if (!string.IsNullOrEmpty(subProdType))
                     {
-                        query.Append("&subProdTyp=").Append(Uri.EscapeDataString(subProdType));
+                        query.Append("&subTyp=").Append(Uri.EscapeDataString(subProdType));
                     }
                 }
             }
@@ -129,11 +129,11 @@ namespace Modern.Lab.Samples
             return this.DownloadTable(query.ToString());
         }
 
-        // Lot ID 자동완성 후보 — 부분 일치하는 LOT/WF ID 상위 일부.
+        // Item ID 자동완성 후보 — 부분 일치하는 ITEM/WF ID 상위 일부.
         // 입력 중 typeahead로 호출되므로 가볍고 빠르게 유지한다.
         private string[] RequestIdCandidates(string keyword)
         {
-            string query = "/api/mes/ids?keyword=" + Uri.EscapeDataString(keyword ?? string.Empty);
+            string query = "/api/items/ids?keyword=" + Uri.EscapeDataString(keyword ?? string.Empty);
 
             using (WebClient client = new TimedWebClient())
             {
@@ -146,17 +146,17 @@ namespace Modern.Lab.Samples
             }
         }
 
-        // 선택 Lot의 이력 (MES_LOT_HIS 전체 컬럼, 최신순).
-        private DataTable RequestLotHistory(string lotId)
+        // 선택 Item의 이력 (MES_ITEM_HIS 전체 컬럼, 최신순).
+        private DataTable RequestItemHistory(string itemId)
         {
-            string query = "/api/mes/history?lotId=" + Uri.EscapeDataString(lotId ?? string.Empty);
+            string query = "/api/items/history?itemId=" + Uri.EscapeDataString(itemId ?? string.Empty);
             return this.DownloadTable(query);
         }
 
-        // 선택 Lot에 속한 Wafer 목록 (MES_WF_MAS 현재 상태).
-        private DataTable RequestWafers(string lotId)
+        // 선택 Item에 속한 Unit 목록 (MES_UNIT_MAS 현재 상태).
+        private DataTable RequestUnits(string itemId)
         {
-            string query = "/api/mes/wafers?lotId=" + Uri.EscapeDataString(lotId ?? string.Empty);
+            string query = "/api/items/units?itemId=" + Uri.EscapeDataString(itemId ?? string.Empty);
             return this.DownloadTable(query);
         }
 
@@ -177,68 +177,68 @@ namespace Modern.Lab.Samples
             DataTable typeTable = new DataTable();
             typeTable.Columns.Add("TYPE_CODE", typeof(string));
             typeTable.Columns.Add("TYPE_NAME", typeof(string));
-            typeTable.Rows.Add("Wafer", "Wafer");
-            typeTable.Rows.Add("Chip", "Chip");
-            typeTable.Rows.Add("Lamella", "Lamella");
+            typeTable.Rows.Add("Main", "Main");
+            typeTable.Rows.Add("PartA", "PartA");
+            typeTable.Rows.Add("PartB", "PartB");
 
             this.cboType.DisplayMember = "TYPE_NAME";
             this.cboType.ValueMember = "TYPE_CODE";
             this.cboType.DataSource = typeTable;
 
-            // Lot ID 자동완성: 입력이 300ms 멈추면 서버 typeahead로 후보를 갱신한다.
-            this.txtLotId.AutoCompleteMode = AutoCompleteMode.Suggest;
-            this.txtLotId.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            // Item ID 자동완성: 입력이 300ms 멈추면 서버 typeahead로 후보를 갱신한다.
+            this.txtItemId.AutoCompleteMode = AutoCompleteMode.Suggest;
+            this.txtItemId.AutoCompleteSource = AutoCompleteSource.CustomSource;
 
             this.autoCompleteTimer = new System.Windows.Forms.Timer();
             this.autoCompleteTimer.Interval = 300;
             this.autoCompleteTimer.Tick += this.OnAutoCompleteTimerTick;
 
-            // 트리: LOT 계보만 표시한다(Wafer 제외). LOT_ID/PARENT_LOT_ID로 계보 구성.
-            // Scrap Lot은 클라이언트에서 채운 NODE_COLOR 컬럼으로 빨간 텍스트가 된다.
-            this.treeLotWf.IdMember = "LOT_ID";
-            this.treeLotWf.ParentIdMember = "PARENT_LOT_ID";
-            this.treeLotWf.DisplayMember = "LOT_ID";
-            this.treeLotWf.ForeColorMember = "NODE_COLOR";
+            // 트리: ITEM 계보만 표시한다(Unit 제외). ITEM_ID/PARENT_ITEM_ID로 계보 구성.
+            // Scrap Item은 클라이언트에서 채운 NODE_COLOR 컬럼으로 빨간 텍스트가 된다.
+            this.treeItemUnit.IdMember = "ITEM_ID";
+            this.treeItemUnit.ParentIdMember = "PARENT_ITEM_ID";
+            this.treeItemUnit.DisplayMember = "ITEM_ID";
+            this.treeItemUnit.ForeColorMember = "NODE_COLOR";
 
             // 공정 진행 단계 표시: 이력 이벤트를 LABEL/STATE로 만들어 넘긴다.
             this.stepIndicator.DisplayMember = "LABEL";
             this.stepIndicator.StateMember = "STATE";
 
-            // 선택 Lot에 속한 Wafer 목록 (MES_WF_MAS 현재 상태).
-            this.gridWafers.ConfigureColumns(
-                new ModernDataGridColumn("WF_ID", "Wafer ID", 150),
-                new ModernDataGridColumn("SUB_PROD_TYP", "Type", 70) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("LOT_STAT_TYP", "Status", 66) { TextAlignment = GridTextAlignment.Center },
+            // 선택 Item에 속한 Unit 목록 (MES_UNIT_MAS 현재 상태).
+            this.gridUnits.ConfigureColumns(
+                new ModernDataGridColumn("UNIT_ID", "Unit ID", 150),
+                new ModernDataGridColumn("SUB_TYP", "Type", 70) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("STAT_TYP", "Status", 66) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("EVENT_CD", "Event", 90),
                 new ModernDataGridColumn("OPER_ID", "Oper", 90),
-                new ModernDataGridColumn("EQP_ID", "Eqp", 90));
+                new ModernDataGridColumn("STATION_ID", "Eqp", 90));
 
             // Scrap 웨이퍼 행은 옅은 빨강 배경(트리 텍스트 빨강과 짝).
-            this.gridWafers.RowColorMember = "ROW_COLOR";
+            this.gridUnits.RowColorMember = "ROW_COLOR";
 
-            // 이력 그리드: MES_LOT_HIS 전체 컬럼 + 파생(DURATION). 실제 컬럼명 그대로 바인딩.
+            // 이력 그리드: MES_ITEM_HIS 전체 컬럼 + 파생(DURATION). 실제 컬럼명 그대로 바인딩.
             this.gridHistory.ConfigureColumns(
                 new ModernDataGridColumn("EVENT_TM", "Event Time", 150) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("DURATION", "Duration", 84) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("EVENT_CD", "Event", 96) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("LOT_STAT_TYP", "Status", 84) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("STAT_TYP", "Status", 84) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("OPER_ID", "Operation", 96) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("EQP_ID", "Equipment", 96) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("CARRIER_ID", "Carrier", 92) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("STK_ID", "Stocker", 92) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("STATION_ID", "Equipment", 96) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("BOX_ID", "Carrier", 92) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("STORE_ID", "Stocker", 92) { TextAlignment = GridTextAlignment.Center },
                 new ModernDataGridColumn("FLOW_ID", "Flow", 130),
-                new ModernDataGridColumn("PROD_ID", "Product", 150),
-                new ModernDataGridColumn("PROD_TYP", "Prod Type", 90) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("SUB_PROD_TYP", "Sub Type", 90) { TextAlignment = GridTextAlignment.Center },
-                new ModernDataGridColumn("ORG_LOT_ID", "Org Lot", 120),
-                new ModernDataGridColumn("PARENT_LOT_ID", "Parent Lot", 120),
-                new ModernDataGridColumn("LOT_ID", "Lot", 120),
+                new ModernDataGridColumn("MODEL_ID", "Product", 150),
+                new ModernDataGridColumn("ITEM_TYP", "Prod Type", 90) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("SUB_TYP", "Sub Type", 90) { TextAlignment = GridTextAlignment.Center },
+                new ModernDataGridColumn("ORG_ITEM_ID", "Org Item", 120),
+                new ModernDataGridColumn("PARENT_ITEM_ID", "Parent Item", 120),
+                new ModernDataGridColumn("ITEM_ID", "Item", 120),
                 new ModernDataGridColumn("TIMEKEY", "Time Key", 150));
 
             // 이력 행 상태별 색: Scrapped 빨강, JobEnd(완료) 초록.
             this.gridHistory.RowColorMember = "ROW_COLOR";
 
-            // 화면 오픈 시 자동 조회 없음 — Lot ID(필수) 입력 후 Search로 조회한다.
+            // 화면 오픈 시 자동 조회 없음 — Item ID(필수) 입력 후 Search로 조회한다.
             this.ClearSelection();
             this.searchReady = true;
         }
@@ -250,13 +250,13 @@ namespace Modern.Lab.Samples
             this.ExecuteSearch();
         }
 
-        // Reset: 조건과 결과를 모두 비운다. Lot ID가 필수라 빈 조건 재조회는 없다.
+        // Reset: 조건과 결과를 모두 비운다. Item ID가 필수라 빈 조건 재조회는 없다.
         private void OnResetClick(object sender, EventArgs e)
         {
-            this.txtLotId.Text = string.Empty;
+            this.txtItemId.Text = string.Empty;
             this.cboType.CheckedValues = null;
             this.treeData = null;
-            this.treeLotWf.DataSource = null;
+            this.treeItemUnit.DataSource = null;
             this.ClearSelection();
         }
 
@@ -290,12 +290,12 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            string keyword = this.txtLotId.Text.Trim();
+            string keyword = this.txtItemId.Text.Trim();
 
-            // Lot ID는 필수 입력이다.
+            // Item ID는 필수 입력이다.
             if (keyword.Length == 0)
             {
-                this.toastMain.Show("Lot ID is required.", ToastKind.Warning);
+                this.toastMain.Show("Item ID is required.", ToastKind.Warning);
                 return;
             }
 
@@ -307,15 +307,15 @@ namespace Modern.Lab.Samples
             {
                 try
                 {
-                    DataTable tree = this.RequestLotTree(keyword, subProdTypes);
+                    DataTable tree = this.RequestItemTree(keyword, subProdTypes);
 
                     this.Invoke(new MethodInvoker(delegate
                     {
                         // 트리가 참조하는 컬럼이 (해당 값이 전부 null이면 JSON에서 키가
                         // 생략돼) 누락될 수 있으므로 미리 보장한다.
-                        EnsureColumns(tree, "LOT_ID", "PARENT_LOT_ID", "ORG_LOT_ID",
-                            "SUB_PROD_TYP", "PROD_TYP", "LOT_STAT_TYP", "EVENT_CD", "PROD_ID",
-                            "FLOW_ID", "OPER_ID", "EQP_ID", "CARRIER_ID", "STK_ID", "EVENT_TM");
+                        EnsureColumns(tree, "ITEM_ID", "PARENT_ITEM_ID", "ORG_ITEM_ID",
+                            "SUB_TYP", "ITEM_TYP", "STAT_TYP", "EVENT_CD", "MODEL_ID",
+                            "FLOW_ID", "OPER_ID", "STATION_ID", "BOX_ID", "STORE_ID", "EVENT_TM");
 
                         ApplyScrapColor(tree);
                         this.treeData = tree;
@@ -324,8 +324,8 @@ namespace Modern.Lab.Samples
 
                         try
                         {
-                            this.treeLotWf.DataSource = tree;
-                            this.treeLotWf.SelectedValue = FindAutoSelectId(tree, keyword);
+                            this.treeItemUnit.DataSource = tree;
+                            this.treeItemUnit.SelectedValue = FindAutoSelectId(tree, keyword);
                         }
                         finally
                         {
@@ -347,7 +347,7 @@ namespace Modern.Lab.Samples
             });
         }
 
-        // Scrap 상태 Lot에 트리 텍스트 색 컬럼(NODE_COLOR)을 채운다.
+        // Scrap 상태 Item에 트리 텍스트 색 컬럼(NODE_COLOR)을 채운다.
         private static void ApplyScrapColor(DataTable tree)
         {
             if (!tree.Columns.Contains("NODE_COLOR"))
@@ -357,17 +357,17 @@ namespace Modern.Lab.Samples
 
             foreach (DataRow row in tree.Rows)
             {
-                if (ToText(row, "LOT_STAT_TYP") == "Scrap")
+                if (ToText(row, "STAT_TYP") == "Scrap")
                 {
                     row["NODE_COLOR"] = scrapForeColor;   // 트리 텍스트 빨강
                 }
             }
         }
 
-        // ===== Lot ID 자동완성 (서버 typeahead) =====
+        // ===== Item ID 자동완성 (서버 typeahead) =====
 
         // 입력이 바뀔 때마다 디바운스 타이머를 재시작한다 — 타이핑이 멈추면 조회.
-        private void OnLotIdTextChanged(object sender, EventArgs e)
+        private void OnItemIdTextChanged(object sender, EventArgs e)
         {
             if (!this.searchReady)
             {
@@ -377,7 +377,7 @@ namespace Modern.Lab.Samples
             // 자동완성 목록에서 항목을 "선택"하면 그 값이 그대로 TextBox에 들어와
             // TextChanged가 다시 발생한다. 이때 값이 이미 후보 목록에 있는 완전 일치이면
             // 재조회/재표시를 건너뛴다 — 선택 직후 같은 값으로 목록이 다시 뜨는 것을 막는다.
-            if (this.IsExistingCandidate(this.txtLotId.Text.Trim()))
+            if (this.IsExistingCandidate(this.txtItemId.Text.Trim()))
             {
                 this.autoCompleteTimer.Stop();
                 return;
@@ -390,7 +390,7 @@ namespace Modern.Lab.Samples
         // 현재 자동완성 후보 목록에 주어진 텍스트와 대소문자 무시 완전 일치가 있는지.
         private bool IsExistingCandidate(string text)
         {
-            AutoCompleteStringCollection source = this.txtLotId.AutoCompleteCustomSource;
+            AutoCompleteStringCollection source = this.txtItemId.AutoCompleteCustomSource;
 
             if (source == null || text.Length == 0)
             {
@@ -412,11 +412,11 @@ namespace Modern.Lab.Samples
         {
             this.autoCompleteTimer.Stop();
 
-            string keyword = this.txtLotId.Text.Trim();
+            string keyword = this.txtItemId.Text.Trim();
 
             if (keyword.Length == 0)
             {
-                this.txtLotId.AutoCompleteCustomSource = null;
+                this.txtItemId.AutoCompleteCustomSource = null;
                 return;
             }
 
@@ -439,7 +439,7 @@ namespace Modern.Lab.Samples
 
                         AutoCompleteStringCollection collection = new AutoCompleteStringCollection();
                         collection.AddRange(candidates);
-                        this.txtLotId.AutoCompleteCustomSource = collection;
+                        this.txtItemId.AutoCompleteCustomSource = collection;
                     }));
                 }
                 catch (Exception)
@@ -449,21 +449,21 @@ namespace Modern.Lab.Samples
             });
         }
 
-        // 자동 선택 대상: 검색어와 LOT_ID가 정확히 일치하는 Lot이 있으면 그 Lot,
-        // 없으면 트리의 첫 Lot(정렬상 최상단).
+        // 자동 선택 대상: 검색어와 ITEM_ID가 정확히 일치하는 Item이 있으면 그 Item,
+        // 없으면 트리의 첫 Item(정렬상 최상단).
         private static string FindAutoSelectId(DataTable tree, string keyword)
         {
             foreach (DataRow row in tree.Rows)
             {
-                string lotId = ToText(row, "LOT_ID");
+                string itemId = ToText(row, "ITEM_ID");
 
-                if (string.Equals(lotId, keyword, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(itemId, keyword, StringComparison.OrdinalIgnoreCase))
                 {
-                    return lotId;
+                    return itemId;
                 }
             }
 
-            return tree.Rows.Count > 0 ? ToText(tree.Rows[0], "LOT_ID") : null;
+            return tree.Rows.Count > 0 ? ToText(tree.Rows[0], "ITEM_ID") : null;
         }
 
         // ===== 트리 선택 → 상세 + 웨이퍼 목록 + 이력 =====
@@ -478,11 +478,11 @@ namespace Modern.Lab.Samples
             this.ApplyTreeSelection();
         }
 
-        // 현재 트리 선택(LOT) 상태를 상세 카드에 즉시 반영하고, 이력/웨이퍼는
+        // 현재 트리 선택(ITEM) 상태를 상세 카드에 즉시 반영하고, 이력/웨이퍼는
         // 서버에서 백그라운드로 불러온다(로딩 팝업 표시).
         private void ApplyTreeSelection()
         {
-            DataRowView selected = this.treeLotWf.SelectedItem as DataRowView;
+            DataRowView selected = this.treeItemUnit.SelectedItem as DataRowView;
 
             if (selected == null)
             {
@@ -491,37 +491,37 @@ namespace Modern.Lab.Samples
             }
 
             this.FillDetail(selected);
-            this.LoadLotDetails(GetString(selected, "LOT_ID"));
+            this.LoadItemDetails(GetString(selected, "ITEM_ID"));
         }
 
         private void FillDetail(DataRowView row)
         {
-            string subType = GetString(row, "SUB_PROD_TYP");
-            string stat = GetString(row, "LOT_STAT_TYP");
+            string subType = GetString(row, "SUB_TYP");
+            string stat = GetString(row, "STAT_TYP");
 
-            // 카드 제목에 선택 Lot ID를 표시한다.
-            string lotId = GetString(row, "LOT_ID");
-            this.detailCard.Text = lotId.Length > 0 ? lotId : "Selection";
+            // 카드 제목에 선택 Item ID를 표시한다.
+            string itemId = GetString(row, "ITEM_ID");
+            this.detailCard.Text = itemId.Length > 0 ? itemId : "Selection";
             this.badgeType.Text = subType.Length > 0 ? subType : "-";
             this.badgeType.Color = typeBadgeColors.ContainsKey(subType) ? typeBadgeColors[subType] : string.Empty;
             this.badgeStat.Text = stat.Length > 0 ? stat : "-";
             this.badgeStat.Color = statBadgeColors.ContainsKey(stat) ? statBadgeColors[stat] : string.Empty;
 
-            // Selection: Lot의 주요 컬럼들 (MES_LOT_MAS 현재 상태).
-            this.valProduct.Text = GetString(row, "PROD_ID");
-            this.valProdTyp.Text = GetString(row, "PROD_TYP");
+            // Selection: Item의 주요 컬럼들 (MES_ITEM_MAS 현재 상태).
+            this.valProduct.Text = GetString(row, "MODEL_ID");
+            this.valProdTyp.Text = GetString(row, "ITEM_TYP");
             this.valEvent.Text = GetString(row, "EVENT_CD");
             this.valFlow.Text = GetString(row, "FLOW_ID");
             this.valOper.Text = GetString(row, "OPER_ID");
-            this.valEqp.Text = GetString(row, "EQP_ID");
-            this.valCarrier.Text = GetString(row, "CARRIER_ID");
-            this.valStk.Text = GetString(row, "STK_ID");
+            this.valEqp.Text = GetString(row, "STATION_ID");
+            this.valCarrier.Text = GetString(row, "BOX_ID");
+            this.valStk.Text = GetString(row, "STORE_ID");
             this.valEventTm.Text = GetString(row, "EVENT_TM");
         }
 
-        // 선택 Lot의 이력(MES_LOT_HIS)과 웨이퍼 목록(MES_WF_MAS)을 백그라운드에서
+        // 선택 Item의 이력(MES_ITEM_HIS)과 웨이퍼 목록(MES_UNIT_MAS)을 백그라운드에서
         // 함께 불러온다. 두 조회가 끝날 때까지 로딩 팝업이 계속 표시된다.
-        private void LoadLotDetails(string lotId)
+        private void LoadItemDetails(string itemId)
         {
             this.busyMain.Busy = true;
             this.selectionVersion = this.selectionVersion + 1;
@@ -531,33 +531,33 @@ namespace Modern.Lab.Samples
             {
                 try
                 {
-                    DataTable history = this.RequestLotHistory(lotId);
-                    DataTable wafers = this.RequestWafers(lotId);
+                    DataTable history = this.RequestItemHistory(itemId);
+                    DataTable units = this.RequestUnits(itemId);
 
                     this.Invoke(new MethodInvoker(delegate
                     {
-                        // 그 사이 다른 Lot이 선택됐으면 이 응답은 버린다.
+                        // 그 사이 다른 Item이 선택됐으면 이 응답은 버린다.
                         if (version != this.selectionVersion)
                         {
                             return;
                         }
 
-                        // ---- 이력 그리드 (LOT_HIS 전체 컬럼) ----
-                        EnsureColumns(history, "TIMEKEY", "LOT_ID", "EVENT_CD", "EVENT_TM",
-                            "PROD_ID", "PROD_TYP", "SUB_PROD_TYP", "ORG_LOT_ID", "PARENT_LOT_ID",
-                            "CARRIER_ID", "FLOW_ID", "OPER_ID", "EQP_ID", "STK_ID", "LOT_STAT_TYP");
+                        // ---- 이력 그리드 (ITEM_HIS 전체 컬럼) ----
+                        EnsureColumns(history, "TIMEKEY", "ITEM_ID", "EVENT_CD", "EVENT_TM",
+                            "MODEL_ID", "ITEM_TYP", "SUB_TYP", "ORG_ITEM_ID", "PARENT_ITEM_ID",
+                            "BOX_ID", "FLOW_ID", "OPER_ID", "STATION_ID", "STORE_ID", "STAT_TYP");
                         AddDurationColumn(history);
                         AddRowColor(history);
                         this.gridHistory.DataSource = history;
-                        this.gridHistory.StatusText = lotId + CycleTimeSuffix(history);
+                        this.gridHistory.StatusText = itemId + CycleTimeSuffix(history);
                         this.stepIndicator.DataSource = BuildStepTable(history);
 
                         // ---- 웨이퍼 목록 ----
-                        EnsureColumns(wafers, "WF_ID", "SUB_PROD_TYP", "LOT_STAT_TYP",
-                            "EVENT_CD", "OPER_ID", "EQP_ID");
-                        AddWaferRowColor(wafers);
-                        this.gridWafers.DataSource = wafers;
-                        this.waferCard.Text = "Wafers — " + lotId;
+                        EnsureColumns(units, "UNIT_ID", "SUB_TYP", "STAT_TYP",
+                            "EVENT_CD", "OPER_ID", "STATION_ID");
+                        AddUnitRowColor(units);
+                        this.gridUnits.DataSource = units;
+                        this.unitCard.Text = "Units — " + itemId;
 
                         this.busyMain.Busy = false;
                     }));
@@ -574,21 +574,21 @@ namespace Modern.Lab.Samples
         }
 
         // 웨이퍼 목록의 Scrap 행 배경(옅은 빨강) 컬럼을 채운다.
-        private static void AddWaferRowColor(DataTable wafers)
+        private static void AddUnitRowColor(DataTable units)
         {
-            if (wafers == null)
+            if (units == null)
             {
                 return;
             }
 
-            if (!wafers.Columns.Contains("ROW_COLOR"))
+            if (!units.Columns.Contains("ROW_COLOR"))
             {
-                wafers.Columns.Add("ROW_COLOR", typeof(string));
+                units.Columns.Add("ROW_COLOR", typeof(string));
             }
 
-            foreach (DataRow row in wafers.Rows)
+            foreach (DataRow row in units.Rows)
             {
-                if (ToText(row, "LOT_STAT_TYP") == "Scrap")
+                if (ToText(row, "STAT_TYP") == "Scrap")
                 {
                     row["ROW_COLOR"] = scrapRowColor;
                 }
@@ -651,8 +651,8 @@ namespace Modern.Lab.Samples
             this.valCarrier.Text = "-";
             this.valStk.Text = "-";
             this.valEventTm.Text = "-";
-            this.gridWafers.DataSource = null;
-            this.waferCard.Text = "Wafers";
+            this.gridUnits.DataSource = null;
+            this.unitCard.Text = "Units";
             this.gridHistory.DataSource = null;
             this.gridHistory.StatusText = string.Empty;
             this.stepIndicator.DataSource = null;

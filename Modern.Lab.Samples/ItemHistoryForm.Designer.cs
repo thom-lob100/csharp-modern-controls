@@ -1,6 +1,6 @@
 namespace Modern.Lab.Samples
 {
-    public partial class LotHistoryForm
+    public partial class ItemHistoryForm
     {
         /// <summary>Required designer variable.</summary>
         private System.ComponentModel.IContainer components = null;
@@ -32,8 +32,8 @@ namespace Modern.Lab.Samples
             this.searchCard = new Modern.Lab.WinForms.Controls.Layout.ModernCardPanel();
             this.lblType = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.cboType = new Modern.Lab.WinForms.Controls.Selection.ModernCheckComboBox();
-            this.lblLotId = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
-            this.txtLotId = new Modern.Lab.WinForms.Controls.Input.ModernTextBox();
+            this.lblItemId = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
+            this.txtItemId = new Modern.Lab.WinForms.Controls.Input.ModernTextBox();
             this.btnSearch = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.btnReset = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.spSearch = new System.Windows.Forms.Panel();
@@ -70,10 +70,10 @@ namespace Modern.Lab.Samples
             this.spTree = new System.Windows.Forms.Panel();
             this.leftZone = new System.Windows.Forms.Panel();
             this.treeCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
-            this.treeLotWf = new Modern.Lab.WinForms.Controls.Selection.ModernTreeView();
-            this.spWafer = new System.Windows.Forms.Panel();
-            this.waferCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
-            this.gridWafers = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
+            this.treeItemUnit = new Modern.Lab.WinForms.Controls.Selection.ModernTreeView();
+            this.spUnit = new System.Windows.Forms.Panel();
+            this.unitCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
+            this.gridUnits = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
             this.toastMain = new Modern.Lab.WinForms.Controls.Display.ModernToast();
             this.titlePanel.SuspendLayout();
             this.searchCard.SuspendLayout();
@@ -84,7 +84,7 @@ namespace Modern.Lab.Samples
             this.stepCard.SuspendLayout();
             this.leftZone.SuspendLayout();
             this.treeCard.SuspendLayout();
-            this.waferCard.SuspendLayout();
+            this.unitCard.SuspendLayout();
             this.SuspendLayout();
             // 
             // titlePanel
@@ -105,7 +105,7 @@ namespace Modern.Lab.Samples
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(1456, 28);
             this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "Lot History";
+            this.lblTitle.Text = "Item History";
             this.lblTitle.TitleBar = true;
             this.lblTitle.Child = null;
             // 
@@ -133,8 +133,8 @@ namespace Modern.Lab.Samples
             this.searchCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.searchCard.Controls.Add(this.lblType);
             this.searchCard.Controls.Add(this.cboType);
-            this.searchCard.Controls.Add(this.lblLotId);
-            this.searchCard.Controls.Add(this.txtLotId);
+            this.searchCard.Controls.Add(this.lblItemId);
+            this.searchCard.Controls.Add(this.txtItemId);
             this.searchCard.Controls.Add(this.btnSearch);
             this.searchCard.Controls.Add(this.btnReset);
             this.searchCard.Dock = System.Windows.Forms.DockStyle.Top;
@@ -163,30 +163,30 @@ namespace Modern.Lab.Samples
             this.cboType.TabIndex = 1;
             this.cboType.Child = null;
             // 
-            // lblLotId
+            // lblItemId
             // 
-            this.lblLotId.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
-            this.lblLotId.Location = new System.Drawing.Point(250, 12);
-            this.lblLotId.Name = "lblLotId";
-            this.lblLotId.Required = true;
-            this.lblLotId.Size = new System.Drawing.Size(56, 32);
-            this.lblLotId.TabIndex = 2;
-            this.lblLotId.Text = "Lot ID";
-            this.lblLotId.Child = null;
+            this.lblItemId.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
+            this.lblItemId.Location = new System.Drawing.Point(250, 12);
+            this.lblItemId.Name = "lblItemId";
+            this.lblItemId.Required = true;
+            this.lblItemId.Size = new System.Drawing.Size(56, 32);
+            this.lblItemId.TabIndex = 2;
+            this.lblItemId.Text = "Item ID";
+            this.lblItemId.Child = null;
             // 
-            // txtLotId
+            // txtItemId
             // 
-            this.txtLotId.AllowedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-";
-            this.txtLotId.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.txtLotId.Location = new System.Drawing.Point(310, 12);
-            this.txtLotId.Name = "txtLotId";
-            this.txtLotId.PlaceholderText = "Lot or Wafer ID";
-            this.txtLotId.Required = true;
-            this.txtLotId.Size = new System.Drawing.Size(200, 32);
-            this.txtLotId.TabIndex = 3;
-            this.txtLotId.EnterPressed += new System.EventHandler(this.OnSearchClick);
-            this.txtLotId.TextChanged += new System.EventHandler(this.OnLotIdTextChanged);
-            this.txtLotId.Child = null;
+            this.txtItemId.AllowedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-";
+            this.txtItemId.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.txtItemId.Location = new System.Drawing.Point(310, 12);
+            this.txtItemId.Name = "txtItemId";
+            this.txtItemId.PlaceholderText = "Item or Unit ID";
+            this.txtItemId.Required = true;
+            this.txtItemId.Size = new System.Drawing.Size(200, 32);
+            this.txtItemId.TabIndex = 3;
+            this.txtItemId.EnterPressed += new System.EventHandler(this.OnSearchClick);
+            this.txtItemId.TextChanged += new System.EventHandler(this.OnItemIdTextChanged);
+            this.txtItemId.Child = null;
             // 
             // btnSearch
             // 
@@ -568,8 +568,8 @@ namespace Modern.Lab.Samples
             // leftZone
             // 
             this.leftZone.Controls.Add(this.treeCard);
-            this.leftZone.Controls.Add(this.spWafer);
-            this.leftZone.Controls.Add(this.waferCard);
+            this.leftZone.Controls.Add(this.spUnit);
+            this.leftZone.Controls.Add(this.unitCard);
             this.leftZone.Dock = System.Windows.Forms.DockStyle.Left;
             this.leftZone.Location = new System.Drawing.Point(0, 0);
             this.leftZone.Name = "leftZone";
@@ -579,54 +579,54 @@ namespace Modern.Lab.Samples
             // treeCard
             // 
             this.treeCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.treeCard.Controls.Add(this.treeLotWf);
+            this.treeCard.Controls.Add(this.treeItemUnit);
             this.treeCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeCard.Location = new System.Drawing.Point(0, 0);
             this.treeCard.Name = "treeCard";
             this.treeCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
             this.treeCard.Size = new System.Drawing.Size(340, 428);
             this.treeCard.TabIndex = 0;
-            this.treeCard.Text = "Lot / Wafer Tree";
+            this.treeCard.Text = "Item / Unit Tree";
             // 
-            // treeLotWf
+            // treeItemUnit
             // 
-            this.treeLotWf.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeLotWf.Location = new System.Drawing.Point(8, 40);
-            this.treeLotWf.Name = "treeLotWf";
-            this.treeLotWf.Size = new System.Drawing.Size(324, 380);
-            this.treeLotWf.TabIndex = 0;
-            this.treeLotWf.SelectedValueChanged += new System.EventHandler(this.OnTreeSelectionChanged);
-            this.treeLotWf.Child = null;
+            this.treeItemUnit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeItemUnit.Location = new System.Drawing.Point(8, 40);
+            this.treeItemUnit.Name = "treeItemUnit";
+            this.treeItemUnit.Size = new System.Drawing.Size(324, 380);
+            this.treeItemUnit.TabIndex = 0;
+            this.treeItemUnit.SelectedValueChanged += new System.EventHandler(this.OnTreeSelectionChanged);
+            this.treeItemUnit.Child = null;
             // 
-            // spWafer
+            // spUnit
             // 
-            this.spWafer.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.spWafer.Location = new System.Drawing.Point(0, 428);
-            this.spWafer.Name = "spWafer";
-            this.spWafer.Size = new System.Drawing.Size(340, 8);
-            this.spWafer.TabIndex = 1;
+            this.spUnit.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.spUnit.Location = new System.Drawing.Point(0, 428);
+            this.spUnit.Name = "spUnit";
+            this.spUnit.Size = new System.Drawing.Size(340, 8);
+            this.spUnit.TabIndex = 1;
             // 
-            // waferCard
+            // unitCard
             // 
-            this.waferCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.waferCard.Controls.Add(this.gridWafers);
-            this.waferCard.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.waferCard.Location = new System.Drawing.Point(0, 436);
-            this.waferCard.Name = "waferCard";
-            this.waferCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
-            this.waferCard.Size = new System.Drawing.Size(340, 240);
-            this.waferCard.TabIndex = 2;
-            this.waferCard.Text = "Wafers";
+            this.unitCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.unitCard.Controls.Add(this.gridUnits);
+            this.unitCard.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.unitCard.Location = new System.Drawing.Point(0, 436);
+            this.unitCard.Name = "unitCard";
+            this.unitCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
+            this.unitCard.Size = new System.Drawing.Size(340, 240);
+            this.unitCard.TabIndex = 2;
+            this.unitCard.Text = "Units";
             // 
-            // gridWafers
+            // gridUnits
             // 
-            this.gridWafers.AutoFitColumns = true;
-            this.gridWafers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridWafers.Location = new System.Drawing.Point(8, 40);
-            this.gridWafers.Name = "gridWafers";
-            this.gridWafers.Size = new System.Drawing.Size(324, 192);
-            this.gridWafers.TabIndex = 0;
-            this.gridWafers.Child = null;
+            this.gridUnits.AutoFitColumns = true;
+            this.gridUnits.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridUnits.Location = new System.Drawing.Point(8, 40);
+            this.gridUnits.Name = "gridUnits";
+            this.gridUnits.Size = new System.Drawing.Size(324, 192);
+            this.gridUnits.TabIndex = 0;
+            this.gridUnits.Child = null;
             // 
             // toastMain
             // 
@@ -637,7 +637,7 @@ namespace Modern.Lab.Samples
             this.toastMain.Visible = false;
             this.toastMain.Child = null;
             // 
-            // LotHistoryForm
+            // ItemHistoryForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -651,10 +651,10 @@ namespace Modern.Lab.Samples
             this.Controls.Add(this.titlePanel);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.MinimumSize = new System.Drawing.Size(1240, 660);
-            this.Name = "LotHistoryForm";
+            this.Name = "ItemHistoryForm";
             this.Padding = new System.Windows.Forms.Padding(12);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Lot History";
+            this.Text = "Item History";
             this.Load += new System.EventHandler(this.OnFormLoad);
             this.titlePanel.ResumeLayout(false);
             this.searchCard.ResumeLayout(false);
@@ -665,7 +665,7 @@ namespace Modern.Lab.Samples
             this.stepCard.ResumeLayout(false);
             this.leftZone.ResumeLayout(false);
             this.treeCard.ResumeLayout(false);
-            this.waferCard.ResumeLayout(false);
+            this.unitCard.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -679,18 +679,18 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Layout.ModernCardPanel searchCard;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel lblType;
         private Modern.Lab.WinForms.Controls.Selection.ModernCheckComboBox cboType;
-        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblLotId;
-        private Modern.Lab.WinForms.Controls.Input.ModernTextBox txtLotId;
+        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblItemId;
+        private Modern.Lab.WinForms.Controls.Input.ModernTextBox txtItemId;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnSearch;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnReset;
         private System.Windows.Forms.Panel spSearch;
         private System.Windows.Forms.Panel mainZone;
         private System.Windows.Forms.Panel leftZone;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox treeCard;
-        private Modern.Lab.WinForms.Controls.Selection.ModernTreeView treeLotWf;
-        private System.Windows.Forms.Panel spWafer;
-        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox waferCard;
-        private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridWafers;
+        private Modern.Lab.WinForms.Controls.Selection.ModernTreeView treeItemUnit;
+        private System.Windows.Forms.Panel spUnit;
+        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox unitCard;
+        private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridUnits;
         private System.Windows.Forms.Panel spTree;
         private System.Windows.Forms.Panel rightZone;
         private Modern.Lab.WinForms.Controls.Display.ModernBusyOverlay busyMain;

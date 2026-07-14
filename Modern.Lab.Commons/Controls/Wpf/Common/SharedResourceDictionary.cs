@@ -22,9 +22,24 @@ namespace Modern.Lab.Controls.Wpf.Common
         private static readonly Dictionary<Uri, ResourceDictionary> cache =
             new Dictionary<Uri, ResourceDictionary>();
 
-        // 다크 오버라이드 사전 — 다크 모드일 때 Tokens.xaml 뒤에 병합해 같은 키를 덮는다.
-        private static readonly Uri DarkOverrideUri =
-            new Uri("/Modern.Lab.Commons;component/Themes/Tokens.Dark.xaml", UriKind.Relative);
+        /// <summary>
+        /// 현재 테마의 오버라이드 사전 URI. Light(기본)는 오버라이드가 없으므로 null.
+        /// 오버라이드 사전은 Tokens.xaml 뒤에 병합되어 같은 키를 테마 값으로 덮는다.
+        /// </summary>
+        private static Uri OverrideUriFor(ModernTheme.ThemeMode mode)
+        {
+            string name;
+            switch (mode)
+            {
+                case ModernTheme.ThemeMode.Dark: name = "Tokens.Dark.xaml"; break;
+                case ModernTheme.ThemeMode.Gray: name = "Tokens.Gray.xaml"; break;
+                case ModernTheme.ThemeMode.Purple: name = "Tokens.Purple.xaml"; break;
+                case ModernTheme.ThemeMode.Orange: name = "Tokens.Orange.xaml"; break;
+                case ModernTheme.ThemeMode.Tomato: name = "Tokens.Tomato.xaml"; break;
+                default: return null;
+            }
+            return new Uri("/Modern.Lab.Commons;component/Themes/" + name, UriKind.Relative);
+        }
 
         private Uri sourceUri;
 
@@ -49,13 +64,14 @@ namespace Modern.Lab.Controls.Wpf.Common
 
                 this.MergedDictionaries.Add(Load(value));
 
-                // 다크 모드면 메인 토큰 사전 뒤에 다크 오버라이드를 병합한다 —
-                // 병합 사전은 나중에 추가된 쪽이 이기므로 StaticResource가 다크 값을 집는다.
+                // Light가 아닌 테마면 메인 토큰 사전 뒤에 테마 오버라이드를 병합한다 —
+                // 병합 사전은 나중에 추가된 쪽이 이기므로 StaticResource가 테마 값을 집는다.
                 // 라이트(기본)에서는 아무것도 하지 않으므로 다른 시스템은 영향이 없다.
-                if (ModernTheme.IsDark
+                Uri overrideUri = OverrideUriFor(ModernTheme.Mode);
+                if (overrideUri != null
                         && value.OriginalString.EndsWith("Tokens.xaml", StringComparison.OrdinalIgnoreCase))
                 {
-                    this.MergedDictionaries.Add(Load(DarkOverrideUri));
+                    this.MergedDictionaries.Add(Load(overrideUri));
                 }
             }
         }

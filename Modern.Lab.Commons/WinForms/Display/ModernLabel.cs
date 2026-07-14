@@ -11,7 +11,7 @@ namespace Modern.Lab.WinForms.Controls.Display
     ///
     /// 원래 WPF ModernLabelControl을 ElementHost로 호스팅했지만, 라벨은 한 폼에
     /// 수십 개씩 놓이는 컨트롤이라 개당 HWND + WPF 컴포지션 비용이 폼 리사이즈를
-    /// 눈에 띄게 무겁게 만들었다(실측: Lot History 폼 리사이즈 1스텝 ~556ms).
+    /// 눈에 띄게 무겁게 만들었다(실측: Item History 폼 리사이즈 1스텝 ~556ms).
     /// 그래서 ModernGroupBox/ModernCardPanel과 같은 방식으로 디자인 토큰을
     /// 미러링해 **GDI+로 직접 그리는 순수 WinForms 컨트롤**로 전환했다.
     /// 공개 API(Text/Kind/Required/TitleBar)와 시각 결과는 WPF 버전과 동일하다.

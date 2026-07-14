@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================= -->
+    <!-- Tomato 테마 오버라이드 — 라이트 기반 토마토 레드 틴트.           -->
+    <!-- Tokens.xaml 뒤에 병합되어 액센트 계열과 배경 톤만 덮어쓴다.      -->
+    <!-- 텍스트/시맨틱(성공·경고·오류) 색은 라이트 값을 그대로 공유한다.  -->
+    <!-- SharedResourceDictionary가 ModernTheme.Mode == Tomato일 때 병합. -->
+    <!-- ============================================================= -->
+
+    <!-- Primary (액센트) — 토마토 (흰 글자 대비를 위해 순수 tomato보다 짙게) -->
+    <SolidColorBrush x:Key="Brush.Accent" Color="#FFD9442B" />
+    <SolidColorBrush x:Key="Brush.AccentHover" Color="#FFEB5B41" />
+    <SolidColorBrush x:Key="Brush.AccentPressed" Color="#FFB93A24" />
+    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="Brush.SelectedBackground" Color="#FFFEE2DC" />
+    <SolidColorBrush x:Key="Brush.SelectedText" Color="#FF9A2F1C" />
+    <SolidColorBrush x:Key="Brush.FocusBorder" Color="#FFD9442B" />
+    <SolidColorBrush x:Key="Brush.FocusRing" Color="#55D9442B" />
+
+    <!-- Neutral — 웜 레드 배경 톤 (표면은 라이트와 같은 흰색 유지) -->
+    <SolidColorBrush x:Key="Brush.Background" Color="#FFFAF3F1" />
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FFFCF6F4" />
+    <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FFFCF6F4" />
+    <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FFF7E9E5" />
+
+    <Color x:Key="Color.Accent">#FFD9442B</Color>
+
+</ResourceDictionary>
