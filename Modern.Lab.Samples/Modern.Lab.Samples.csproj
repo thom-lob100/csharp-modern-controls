@@ -96,6 +96,9 @@
     <Compile Include="EmployeeManagementForm.Designer.cs">
       <DependentUpon>EmployeeManagementForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ItemHistory2Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ItemHistoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
