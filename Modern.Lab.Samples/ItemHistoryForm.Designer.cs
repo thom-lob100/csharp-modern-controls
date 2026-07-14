@@ -67,7 +67,7 @@ namespace Modern.Lab.Samples
             this.spStep = new System.Windows.Forms.Panel();
             this.stepCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
             this.stepIndicator = new Modern.Lab.WinForms.Controls.Display.ModernStepIndicator();
-            this.spTree = new System.Windows.Forms.Panel();
+            this.splitMain = new Modern.Lab.WinForms.Controls.Layout.ModernSplitContainer();
             this.leftZone = new System.Windows.Forms.Panel();
             this.treeCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
             this.treeItemUnit = new Modern.Lab.WinForms.Controls.Selection.ModernTreeView();
@@ -82,6 +82,10 @@ namespace Modern.Lab.Samples
             this.detailCard.SuspendLayout();
             this.tblDetail.SuspendLayout();
             this.stepCard.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
+            this.splitMain.Panel1.SuspendLayout();
+            this.splitMain.Panel2.SuspendLayout();
+            this.splitMain.SuspendLayout();
             this.leftZone.SuspendLayout();
             this.treeCard.SuspendLayout();
             this.unitCard.SuspendLayout();
@@ -221,9 +225,7 @@ namespace Modern.Lab.Samples
             // 
             // mainZone
             // 
-            this.mainZone.Controls.Add(this.rightZone);
-            this.mainZone.Controls.Add(this.spTree);
-            this.mainZone.Controls.Add(this.leftZone);
+            this.mainZone.Controls.Add(this.splitMain);
             this.mainZone.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainZone.Location = new System.Drawing.Point(12, 112);
             this.mainZone.Name = "mainZone";
@@ -239,7 +241,7 @@ namespace Modern.Lab.Samples
             this.rightZone.Controls.Add(this.spStep);
             this.rightZone.Controls.Add(this.stepCard);
             this.rightZone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rightZone.Location = new System.Drawing.Point(352, 0);
+            this.rightZone.Location = new System.Drawing.Point(0, 0);
             this.rightZone.Name = "rightZone";
             this.rightZone.Size = new System.Drawing.Size(1164, 676);
             this.rightZone.TabIndex = 2;
@@ -556,21 +558,27 @@ namespace Modern.Lab.Samples
             this.stepIndicator.Size = new System.Drawing.Size(1140, 52);
             this.stepIndicator.TabIndex = 0;
             this.stepIndicator.Child = null;
-            // 
-            // spTree
-            // 
-            this.spTree.Dock = System.Windows.Forms.DockStyle.Left;
-            this.spTree.Location = new System.Drawing.Point(340, 0);
-            this.spTree.Name = "spTree";
-            this.spTree.Size = new System.Drawing.Size(12, 676);
-            this.spTree.TabIndex = 1;
-            // 
+            //
+            // splitMain
+            //
+            this.splitMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitMain.Location = new System.Drawing.Point(0, 0);
+            this.splitMain.Name = "splitMain";
+            this.splitMain.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.splitMain.Panel1.Controls.Add(this.leftZone);
+            this.splitMain.Panel1MinSize = 240;
+            this.splitMain.Panel2.Controls.Add(this.rightZone);
+            this.splitMain.Panel2MinSize = 480;
+            this.splitMain.Size = new System.Drawing.Size(1516, 676);
+            this.splitMain.SplitterDistance = 340;
+            this.splitMain.TabIndex = 0;
+            //
             // leftZone
-            // 
+            //
             this.leftZone.Controls.Add(this.treeCard);
             this.leftZone.Controls.Add(this.spUnit);
             this.leftZone.Controls.Add(this.unitCard);
-            this.leftZone.Dock = System.Windows.Forms.DockStyle.Left;
+            this.leftZone.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftZone.Location = new System.Drawing.Point(0, 0);
             this.leftZone.Name = "leftZone";
             this.leftZone.Size = new System.Drawing.Size(340, 676);
@@ -663,6 +671,10 @@ namespace Modern.Lab.Samples
             this.tblDetail.ResumeLayout(false);
             this.detailCard.ResumeLayout(false);
             this.stepCard.ResumeLayout(false);
+            this.splitMain.Panel1.ResumeLayout(false);
+            this.splitMain.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitMain)).EndInit();
+            this.splitMain.ResumeLayout(false);
             this.leftZone.ResumeLayout(false);
             this.treeCard.ResumeLayout(false);
             this.unitCard.ResumeLayout(false);
@@ -691,7 +703,7 @@ namespace Modern.Lab.Samples
         private System.Windows.Forms.Panel spUnit;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox unitCard;
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridUnits;
-        private System.Windows.Forms.Panel spTree;
+        private Modern.Lab.WinForms.Controls.Layout.ModernSplitContainer splitMain;
         private System.Windows.Forms.Panel rightZone;
         private Modern.Lab.WinForms.Controls.Display.ModernBusyOverlay busyMain;
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridHistory;

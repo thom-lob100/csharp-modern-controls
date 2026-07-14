@@ -57,6 +57,9 @@
     <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FFF9FAFB" />
     <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FFF3F4F6" />
     <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FFEFF3FA" />
+    <!-- 그리드 지브라(짝수 행) 전용 — SurfaceAlt(249)보다 한 톤 진하게(246) 해서
+         큰 그리드에서 행 줄이 실제로 구분되게 한다 (고가독성 LOB 원칙: 명도 차 강조). -->
+    <SolidColorBrush x:Key="Brush.GridRowAlt" Color="#FFF6F7F9" />
     <SolidColorBrush x:Key="Brush.Border" Color="#FFD1D5DB" />
     <SolidColorBrush x:Key="Brush.BorderSubtle" Color="#FFE5E7EB" />
     <SolidColorBrush x:Key="Brush.BorderHover" Color="#FF9CA3AF" />

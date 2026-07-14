@@ -24,6 +24,7 @@
     <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FF323233" />
     <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FF2D2D2E" />
     <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FF31383F" />
+    <SolidColorBrush x:Key="Brush.GridRowAlt" Color="#FF313132" />
     <SolidColorBrush x:Key="Brush.Border" Color="#FF3F3F46" />
     <SolidColorBrush x:Key="Brush.BorderSubtle" Color="#FF3A3A3C" />
     <SolidColorBrush x:Key="Brush.BorderHover" Color="#FF5A5A62" />

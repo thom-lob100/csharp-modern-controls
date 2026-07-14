@@ -56,17 +56,18 @@ namespace Modern.Lab.WinForms.Controls.Layout
         }
 
         /// <summary>
-        /// 다크 테마일 때 카드 표면색을 재적용한다. 과거 버전에서 디자이너가
+        /// Light가 아닌 테마일 때 카드 표면색을 재적용한다. 과거 버전에서 디자이너가
         /// .Designer.cs에 직렬화해 둔 라이트 색(흰색)이 InitializeComponent에서
         /// 생성자 값을 덮어쓰므로, 그보다 늦은 핸들 생성 시점에 되돌린다 —
         /// 덕분에 기존 폼의 .Designer.cs는 한 줄도 고칠 필요가 없다.
-        /// 라이트 모드에서는 아무 것도 하지 않는다(디자인 서피스 포함, 기존 동작 보존).
+        /// (파스텔 테마는 표면이 흰색이라 사실상 no-op, 다크 계열에서 실효.)
+        /// 기본 라이트에서는 아무 것도 하지 않는다(디자인 서피스 포함, 기존 동작 보존).
         /// </summary>
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
 
-            if (Modern.Lab.Theming.ModernTheme.IsDark)
+            if (Modern.Lab.Theming.ModernTheme.Mode != Modern.Lab.Theming.ModernTheme.ThemeMode.Light)
             {
                 this.BackColor = SurfaceColor;
             }

@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================================================= -->
-    <!-- Orange 테마 오버라이드 — 라이트 기반 오렌지 틴트.                -->
-    <!-- Tokens.xaml 뒤에 병합되어 액센트 계열과 배경 톤만 덮어쓴다.      -->
-    <!-- 텍스트/시맨틱(성공·경고·오류) 색은 라이트 값을 그대로 공유한다.  -->
+    <!-- Orange 테마 오버라이드 — 피치 파스텔 (라이트 기반).              -->
+    <!-- 흰 카드가 뚜렷한 파스텔 배경/테두리 위에 떠 보이도록 배경·테두리· -->
+    <!-- 선택 강조를 틴트한다. 텍스트/시맨틱 색은 라이트 값을 공유한다.   -->
     <!-- SharedResourceDictionary가 ModernTheme.Mode == Orange일 때 병합. -->
     <!-- ============================================================= -->
 
@@ -13,16 +13,21 @@
     <SolidColorBrush x:Key="Brush.AccentHover" Color="#FFF97316" />
     <SolidColorBrush x:Key="Brush.AccentPressed" Color="#FFC2410C" />
     <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="Brush.SelectedBackground" Color="#FFFFEDD5" />
+    <SolidColorBrush x:Key="Brush.SelectedBackground" Color="#FFFCE0C0" />
     <SolidColorBrush x:Key="Brush.SelectedText" Color="#FF9A3412" />
     <SolidColorBrush x:Key="Brush.FocusBorder" Color="#FFEA580C" />
     <SolidColorBrush x:Key="Brush.FocusRing" Color="#55EA580C" />
 
-    <!-- Neutral — 웜 오렌지 배경 톤 (표면은 라이트와 같은 흰색 유지) -->
-    <SolidColorBrush x:Key="Brush.Background" Color="#FFFAF4EE" />
-    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FFFCF8F3" />
-    <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FFFCF8F3" />
-    <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FFF7EDE2" />
+    <!-- Neutral — 피치 파스텔 배경·테두리 (카드 표면은 흰색 유지) -->
+    <SolidColorBrush x:Key="Brush.Background" Color="#FFFAE7D3" />
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#FFFDF2E6" />
+    <SolidColorBrush x:Key="Brush.HeaderBackground" Color="#FFFDF2E6" />
+    <SolidColorBrush x:Key="Brush.GridHeaderBackground" Color="#FFF7E3CC" />
+    <SolidColorBrush x:Key="Brush.GridRowAlt" Color="#FFFDF5EB" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#FFF0D9BE" />
+    <SolidColorBrush x:Key="Brush.BorderSubtle" Color="#FFF7E5D0" />
+    <SolidColorBrush x:Key="Brush.BorderHover" Color="#FFE3B98C" />
+    <SolidColorBrush x:Key="Brush.HoverBackground" Color="#FFFCF0E2" />
 
     <Color x:Key="Color.Accent">#FFEA580C</Color>
 

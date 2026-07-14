@@ -29,9 +29,13 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridColumnHeader">
                             <Grid>
+                                <!-- 헤더-본문 경계(아래)는 Border, 컬럼 간 세로 구분은
+                                     BorderSubtle — 명도 차로 구획을 분명히 한다. -->
+                                <Border BorderBrush="{StaticResource Brush.Border}"
+                                        BorderThickness="0,0,0,1">
                                 <Border Background="{TemplateBinding Background}"
                                         BorderBrush="{StaticResource Brush.BorderSubtle}"
-                                        BorderThickness="0,0,1,1"
+                                        BorderThickness="0,0,1,0"
                                         Padding="{TemplateBinding Padding}">
                                     <!-- 정렬 글리프는 텍스트 옆이 아니라 셀 오른쪽 끝에
                                          고정한다 — 컬럼 너비와 무관하게 위치가 일정해
@@ -51,6 +55,7 @@
                                                    VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush.TextSecondary}" />
                                     </Grid>
+                                </Border>
                                 </Border>
                                 <Thumb x:Name="PART_RightHeaderGripper"
                                        HorizontalAlignment="Right"
@@ -167,7 +172,7 @@
                   GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="{StaticResource Brush.BorderSubtle}"
                   RowBackground="{StaticResource Brush.Surface}"
-                  AlternatingRowBackground="{StaticResource Brush.SurfaceAlt}"
+                  AlternatingRowBackground="{StaticResource Brush.GridRowAlt}"
                   RowHeight="{StaticResource Size.RowHeight}"
                   ColumnHeaderHeight="{StaticResource Size.GridHeaderHeight}"
                   ColumnHeaderStyle="{StaticResource ModernGridColumnHeaderStyle}"

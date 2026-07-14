@@ -75,8 +75,8 @@ namespace Modern.Lab.Theming
 
         /// <summary>
         /// OS 타이틀바만 다크로 전환한다 (Apply가 내부에서 호출; 개별 사용도 가능).
-        /// 핸들이 아직 없으면 핸들 생성 시점에 자동 적용된다.
-        /// 라이트 모드이거나 OS가 지원하지 않으면 조용히 무시된다.
+        /// 어두운 표면 계열 테마(Dark/Gray)에서만 동작하고, 핸들이 아직 없으면
+        /// 핸들 생성 시점에 자동 적용된다. OS가 지원하지 않으면 조용히 무시된다.
         /// </summary>
         public static void ApplyDarkTitleBar(Form form)
         {
@@ -85,7 +85,7 @@ namespace Modern.Lab.Theming
                 return;
             }
 
-            if (!ModernTheme.IsDark)
+            if (!ModernTheme.IsDarkBased)
             {
                 return;
             }
