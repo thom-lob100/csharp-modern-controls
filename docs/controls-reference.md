@@ -915,6 +915,30 @@ Application.Run(new MainForm());
 
 동작 확인은 샘플 갤러리로: `Modern.Lab.Samples.exe --dark` 또는 `--theme=purple` 등.
 
+### WPF 호스트 커서 방어 (v0.9.0) — WpfHostOptions / WpfHostCursorGuard
+
+호스트 폼(수정할 수 없는 공용 base form 등)이 조회 중 `Cursor = WaitCursor` /
+`UseWaitCursor = true`를 걸면 ElementHost의 기본 속성 매핑이 그 값을 WPF 콘텐츠로
+**복사**하는데, 복원이 매핑에 반영되지 않는 경로(`Cursor.Current`로 복원, 비 UI
+스레드 복원, 예외로 복원 누락)를 타면 **WPF 컨트롤 위에만 Wait 커서가 영구히
+남는다** (네이티브 컨트롤·빈 배경은 정상으로 보이는 것이 특징). 이를 옵트인으로
+차단한다:
+
+```csharp
+// 방법 A(권장) — Program.cs, 첫 폼 생성 전 한 줄. 모든 래퍼(동적 생성 포함) 커버.
+Modern.Lab.WinForms.Controls.Hosting.WpfHostOptions.DisableCursorPropertyMap = true;
+
+// 방법 B — 특정 폼만: InitializeComponent() 직후 (테마 Apply와 같은 자리).
+Modern.Lab.WinForms.Controls.Hosting.WpfHostCursorGuard.Apply(this);
+```
+
+- 켜면 WPF 콘텐츠가 항상 자기 커서를 관리하므로 잔류가 원천 차단된다. 이미 Wait가
+  박힌 화면에 B를 적용해도 다음 마우스 이동부터 정상으로 돌아온다.
+- 트레이드오프: 폼이 **의도적으로** 건 Wait 커서도 WPF 컨트롤 위에서는 보이지
+  않는다 (커서 표시 외에 기능·데이터·이벤트 영향은 없음).
+- 기본값 off — 켜지 않으면 기존 버전과 완전히 동일하게 동작한다.
+- 샘플 확인: `Modern.Lab.Samples.exe --cursor-guard`
+
 ### ModernThemeWinForms.Apply(root) — 화면 테마 적용 헬퍼 (v0.5.0)
 
 `Modern.Lab.Theming.ModernThemeWinForms`. Light가 아닌 테마(다크/틴트)일 때만

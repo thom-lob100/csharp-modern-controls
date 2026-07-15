@@ -22,6 +22,12 @@ namespace Modern.Lab.Samples
                 {
                     Modern.Lab.Theming.ModernTheme.Mode = Modern.Lab.Theming.ModernTheme.ThemeMode.Dark;
                 }
+                else if (string.Equals(arg, "--cursor-guard", StringComparison.OrdinalIgnoreCase))
+                {
+                    // 커서 방어 확인용: 호스트 폼의 Wait 커서가 WPF 콘텐츠로
+                    // 복사되지 않는지 검증할 때 켠다 (기본 off).
+                    Modern.Lab.WinForms.Controls.Hosting.WpfHostOptions.DisableCursorPropertyMap = true;
+                }
                 else if (arg.StartsWith("--theme=", StringComparison.OrdinalIgnoreCase))
                 {
                     string name = arg.Substring("--theme=".Length);

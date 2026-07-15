@@ -258,6 +258,8 @@
     </Compile>
     <!-- WinForms wrapper hosting base (ElementHost) and wrappers -->
     <Compile Include="WinForms\Hosting\WpfElementHostBase.cs" />
+    <Compile Include="WinForms\Hosting\WpfHostOptions.cs" />
+    <Compile Include="WinForms\Hosting\WpfHostCursorGuard.cs" />
     <Compile Include="WinForms\Hosting\DataSourceConverter.cs" />
     <Compile Include="WinForms\Input\ModernButton.cs" />
     <Compile Include="WinForms\Input\ModernTextBox.cs" />

@@ -81,6 +81,13 @@ namespace Modern.Lab.WinForms.Controls.Hosting
             }
             else
             {
+                // 커서 방어(옵트인): 호스트 폼의 Wait 커서 잔류가 WPF 콘텐츠에
+                // 복사되어 박히지 않도록, Child 연결 전에 기본 Cursor 매핑을 끊는다.
+                if (WpfHostOptions.DisableCursorPropertyMap)
+                {
+                    WpfHostCursorGuard.RemoveCursorMapping(this);
+                }
+
                 // 런타임 생성 실패는 정상적으로 전파되어야 한다.
                 this.Wpf = new TWpf();
                 this.Child = this.Wpf;
