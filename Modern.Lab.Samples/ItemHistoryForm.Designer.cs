@@ -47,7 +47,7 @@ namespace Modern.Lab.Samples
             this.pageUnitHistory = new Modern.Lab.WinForms.Controls.Layout.ModernTabPage();
             this.spDetail = new System.Windows.Forms.Panel();
             this.detailCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
-            this.tblDetail = new System.Windows.Forms.TableLayoutPanel();
+            this.tblDetail = new Modern.Lab.WinForms.Controls.Layout.ModernDetailTable();
             this.badgeType = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.badgeStat = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.capProduct = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
@@ -340,6 +340,7 @@ namespace Modern.Lab.Samples
             this.detailCard.TabIndex = 0;
             this.detailCard.Text = "Selection";
             this.detailCard.TitleAccent = true;
+            this.detailCard.TitleFontSize = 10F;
             this.detailCard.TitleFontStyle = System.Drawing.FontStyle.Bold;
             //
             // tblDetail
@@ -385,7 +386,6 @@ namespace Modern.Lab.Samples
             this.tblDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblDetail.Size = new System.Drawing.Size(1140, 97);
             this.tblDetail.TabIndex = 3;
-            this.tblDetail.CellPaint += new System.Windows.Forms.TableLayoutCellPaintEventHandler(this.OnDetailCellPaint);
             //
             // badgeType
             //
@@ -778,7 +778,7 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Layout.ModernTabPage pageUnitHistory;
         private System.Windows.Forms.Panel spDetail;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox detailCard;
-        private System.Windows.Forms.TableLayoutPanel tblDetail;
+        private Modern.Lab.WinForms.Controls.Layout.ModernDetailTable tblDetail;
         private System.Windows.Forms.Panel spStep;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox stepCard;
         private Modern.Lab.WinForms.Controls.Display.ModernStepIndicator stepIndicator;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -633,82 +632,6 @@ namespace Modern.Lab.Samples
 
                 this.toastMain.Show("Server call failed: " + ex.Message, ToastKind.Error);
             }
-        }
-
-        // ===== 상세 표 그리기 =====
-
-        // Selection 상세 표의 셀 배경/괘선을 그린다. 행·열 좌표 하드코딩 대신
-        // "그 셀을 차지한 컨트롤"로 판정한다:
-        // - 캡션 셀: 주인이 캡션 라벨(Kind=Label)이면 헤더 톤(SurfaceAlt)으로 칠한다.
-        // - 오른쪽 세로선: 오른쪽 이웃 셀의 주인이 같은 컨트롤(열 병합 내부)이면 긋지 않는다.
-        // (TableLayoutPanel 기본 CellBorderStyle은 진회색 클래식 선이라 쓰지 않는다.)
-        // 색은 하드코딩하지 않고 ModernTheme 팔레트에서 읽는다 — 커스텀 페인트는
-        // ModernThemeWinForms.Apply의 속성 치환이 닿지 않으므로 이렇게 해야
-        // 라이트/다크 모두에서 맞는 색이 나온다.
-        private void OnDetailCellPaint(object sender, TableLayoutCellPaintEventArgs e)
-        {
-            Control owner = this.GetDetailCellOwner(e.Column, e.Row);
-            Control rightNeighbor = this.GetDetailCellOwner(e.Column + 1, e.Row);
-
-            ModernLabel captionLabel = owner as ModernLabel;
-            bool captionCell = captionLabel != null && captionLabel.Kind == LabelKind.Label;
-            bool insideSpan = owner != null && object.ReferenceEquals(owner, rightNeighbor);
-
-            if (captionCell)
-            {
-                using (SolidBrush headerBrush = new SolidBrush(Modern.Lab.Theming.ModernTheme.SurfaceAlt))
-                {
-                    e.Graphics.FillRectangle(headerBrush, e.CellBounds);
-                }
-            }
-
-            using (Pen linePen = new Pen(Modern.Lab.Theming.ModernTheme.BorderSubtle))
-            {
-                Rectangle cell = e.CellBounds;
-
-                // 오른쪽 세로선: 병합된 값 영역 내부 셀에는 그리지 않는다
-                // (병합 마지막 셀의 오른쪽 경계는 그림).
-                if (!insideSpan)
-                {
-                    e.Graphics.DrawLine(linePen, cell.Right - 1, cell.Top, cell.Right - 1, cell.Bottom - 1);
-                }
-
-                // 아래 가로선은 모든 셀에, 왼쪽·위 선은 가장자리 셀에만 그려
-                // 이웃 셀과 선이 겹치지 않게 한다.
-                e.Graphics.DrawLine(linePen, cell.Left, cell.Bottom - 1, cell.Right - 1, cell.Bottom - 1);
-
-                if (e.Column == 0)
-                {
-                    e.Graphics.DrawLine(linePen, cell.Left, cell.Top, cell.Left, cell.Bottom - 1);
-                }
-
-                if (e.Row == 0)
-                {
-                    e.Graphics.DrawLine(linePen, cell.Left, cell.Top, cell.Right - 1, cell.Top);
-                }
-            }
-        }
-
-        // (column, row) 셀을 차지한 컨트롤을 찾는다 — 열 병합(ColumnSpan) 포함.
-        private Control GetDetailCellOwner(int column, int row)
-        {
-            if (column < 0 || column >= this.tblDetail.ColumnCount)
-            {
-                return null;
-            }
-
-            foreach (Control child in this.tblDetail.Controls)
-            {
-                TableLayoutPanelCellPosition position = this.tblDetail.GetPositionFromControl(child);
-                int span = this.tblDetail.GetColumnSpan(child);
-
-                if (position.Row == row && column >= position.Column && column < position.Column + span)
-                {
-                    return child;
-                }
-            }
-
-            return null;
         }
 
         private void ClearSelection()

@@ -25,6 +25,7 @@ namespace Modern.Lab.WinForms.Controls.Layout
 
         private string titleText;
         private FontStyle titleFontStyle;
+        private float titleFontSize;
         private bool titleAccent;
         private double fontWidthRatio;
 
@@ -33,7 +34,28 @@ namespace Modern.Lab.WinForms.Controls.Layout
         {
             this.titleText = "그룹";
             this.titleFontStyle = FontStyle.Regular;
+            this.titleFontSize = 9f;
             this.Padding = new Padding(12, HeaderHeight + 8, 12, 12);
+        }
+
+        /// <summary>
+        /// 헤더 타이틀 폰트 크기(pt). 기본 9pt — 탭 헤더(ModernTabControl, 10pt)와
+        /// 나란히 놓여 시각적 위계를 맞춰야 하는 카드만 10pt로 올린다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("헤더 타이틀 폰트 크기(pt) — 기본 9. 탭 헤더(10pt)와 맞추려면 10")]
+        [DefaultValue(9f)]
+        public float TitleFontSize
+        {
+            get
+            {
+                return this.titleFontSize;
+            }
+            set
+            {
+                this.titleFontSize = value > 0f ? value : 9f;
+                this.Invalidate();
+            }
         }
 
         /// <summary>헤더 타이틀에 적용할 폰트 스타일(Bold/Italic 조합 가능).</summary>
@@ -119,7 +141,7 @@ namespace Modern.Lab.WinForms.Controls.Layout
 
             // 타이틀: 구조 요소 규칙(SemiBold)을 따른다. Segoe UI Semibold가
             // 없으면 Bold로 폴백된다. TitleFontStyle로 Bold/Italic을 겹칠 수 있다.
-            using (Font titleFont = new Font("Segoe UI Semibold", 9f, this.titleFontStyle))
+            using (Font titleFont = new Font("Segoe UI Semibold", this.titleFontSize, this.titleFontStyle))
             using (SolidBrush titleBrush = new SolidBrush(this.titleAccent ? AccentTitleColor : TitleColor))
             {
                 SizeF textSize = e.Graphics.MeasureString(this.titleText, titleFont);

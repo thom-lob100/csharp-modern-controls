@@ -287,6 +287,9 @@
     <Compile Include="WinForms\Layout\ModernTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinForms\Layout\ModernDetailTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WinForms\Design\ModernTabControlDesigner.cs" />
     <Compile Include="WinForms\Display\ModernLabel.cs" />
     <Compile Include="WinForms\Display\ModernKpiCard.cs" />

@@ -774,6 +774,7 @@ searchCard.Controls.Add(this.lblName);       // 자식은 일반 Panel처럼 추
 this.grpStats.Text = "조회 통계";              // 헤더 타이틀 (SemiBold + 구분선)
 this.grpStats.Controls.Add(this.listDept);    // 자식은 일반 Panel처럼
 // 기본 Padding(12, 40, 12, 12)이 헤더 아래 공간을 확보
+this.grpDetail.TitleFontSize = 10f;           // 탭 헤더(10pt)와 위계를 맞출 때 (기본 9pt)
 ```
 
 헤더가 필요 없으면 `ModernCardPanel`, 헤더가 필요하면 `ModernGroupBox`.
@@ -826,6 +827,24 @@ this.tabHistory.SelectedIndexChanged += this.OnHistoryTabChanged;
 ```
 
 자세한 멤버/주의는 `migration/ModernTabControl.md`.
+
+---
+
+## ModernDetailTable
+
+캡션/값 상세 표 — `TableLayoutPanel`의 드롭인 대체 (순수 WinForms).
+디자이너 사용법(행/열, 셀 배치, 열 병합)은 표준과 같고 그리기만 다르다:
+테마 팔레트 괘선 + 캡션 셀(`ModernLabel Kind=Label`) 헤더 톤 자동 칠하기,
+열 병합 내부 세로선 생략. 폼마다 `CellPaint` 커스텀 페인트 코드를 들고 다닐
+필요가 없다.
+
+```csharp
+// .Designer.cs: 타입만 바꾸면 끝 (CellPaint 연결·핸들러는 삭제)
+this.tblDetail = new Modern.Lab.WinForms.Controls.Layout.ModernDetailTable();
+// 캡션 = ModernLabel(Kind=Label), 값 = ModernLabel(Kind=Body)로 셀에 배치
+```
+
+자세한 교체 예시는 `migration/ModernDetailTable.md`.
 
 ---
 
