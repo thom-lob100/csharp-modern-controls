@@ -161,7 +161,8 @@ this.gridEmployee = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
 ### 3-6단계. 완료 기준 (Definition of Done)
 
 - [ ] 빌드 성공 (경고 증가 없음)
-- [ ] 대상 폼 외의 파일 수정 없음 (`git diff` 파일 목록으로 확인)
+- [ ] 대상 폼 외의 파일 수정 없음 — 수정 파일 목록으로 확인
+      (git 환경이면 `git diff`, 아니면 `_backup` 사본과 대조)
 - [ ] 서버 요청/응답·업무 로직 코드 무변경 (diff에 해당 줄이 없어야 함)
 - [ ] 배치 컨테이너 구조·Dock/Anchor 무변경
 - [ ] 색/폰트 하드코딩 새로 추가 없음
