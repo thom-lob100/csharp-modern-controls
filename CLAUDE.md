@@ -49,6 +49,7 @@ Wrappers derive from a common `WpfElementHostBase<TWpf>` marked `[Designer(Contr
 - **Passive data model**: forms fetch and assign data. Never add `DataRequested`-style events or `IDataProvider` interfaces to controls.
 - **Layout stays WinForms**: area layout uses `Panel`/`TableLayoutPanel`/`SplitContainer`; modern controls are leaf widgets only. Do not build modern layout containers (ElementHost cannot host WinForms children).
 - **Migration doc per control**: when a control is done, write `docs/migration/<control>.md` (matching WinForms control, compatible members, unsupported members + alternatives, `.Designer.cs` swap example).
+- **Docs stay in sync with control changes**: whenever a control's public API/behavior changes, update `docs/migration/<control>.md` and `docs/controls-reference.md` in the same commit. When a new control is added, also add a row to the mapping table in `docs/codex/form-conversion-guide.md` §2. The docs ship to the company as the AI-conversion knowledge base — stale docs mislead the conversion agent.
 
 ## Absolute rules
 
