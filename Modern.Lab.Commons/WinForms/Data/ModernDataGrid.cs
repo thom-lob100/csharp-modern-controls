@@ -35,6 +35,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         // 동작하도록 하는 폴백 저장소.
         private bool fallbackAutoGenerateColumns;
         private bool fallbackAutoFitColumns;
+        private bool fallbackAlternatingRowColors;
         private bool fallbackShowStatusBar;
         private string fallbackStatusText;
         private string fallbackStatusCountFormat;
@@ -60,6 +61,7 @@ namespace Modern.Lab.WinForms.Controls.Data
             this.Size = new Size(480, 240);
             this.fallbackAutoGenerateColumns = true;
             this.fallbackAutoFitColumns = false;
+            this.fallbackAlternatingRowColors = false;
             this.fallbackShowStatusBar = false;
             this.fallbackStatusText = string.Empty;
             this.fallbackStatusCountFormat = "{0:N0} rows";
@@ -206,6 +208,36 @@ namespace Modern.Lab.WinForms.Controls.Data
             }
         }
 
+        /// <summary>
+        /// 교차 행 배경(줄무늬) 표시 여부. 켜면 홀수 행이 테마 교차색
+        /// (Brush.GridRowAlt)으로 칠해진다. 기본 false — 수평 구분선만으로 행이
+        /// 구분되므로 줄무늬는 행이 많고 가로로 긴 그리드에서만 켜는 것을 권장.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("교차 행 배경(줄무늬) 표시 여부 — 켜면 홀수 행이 테마 교차색으로 칠해진다")]
+        [DefaultValue(false)]
+        public bool AlternatingRowColors
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.AlternatingRowColors;
+                }
+
+                return this.fallbackAlternatingRowColors;
+            }
+            set
+            {
+                this.fallbackAlternatingRowColors = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.AlternatingRowColors = value;
+                }
+            }
+        }
+
         /// <summary>그리드 하단 상태바 표시 여부 (행 수 자동 표기 + StatusText).</summary>
         [Category("모던 컨트롤")]
         [Description("그리드 하단 상태바 표시 여부 — 왼쪽 행 수 자동 표기, 오른쪽 StatusText")]
@@ -294,11 +326,11 @@ namespace Modern.Lab.WinForms.Controls.Data
 
         /// <summary>
         /// 행 배경색으로 쓸 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2" 같은 색
-        /// 문자열 또는 색 이름. 비었거나 해석 불가한 행은 기본 교차색을 유지한다.
+        /// 문자열 또는 색 이름. 비었거나 해석 불가한 행은 기본 배경을 유지한다.
         /// 상태(Scrap 등)에 따라 행을 색으로 구분할 때 쓴다.
         /// </summary>
         [Category("모던 컨트롤")]
-        [Description("행 배경색으로 사용할 컬럼/속성 이름 — 값은 #RRGGBB 색 문자열(비우면 교차색 유지)")]
+        [Description("행 배경색으로 사용할 컬럼/속성 이름 — 값은 #RRGGBB 색 문자열(비우면 기본 배경 유지)")]
         [DefaultValue("")]
         public string RowColorMember
         {

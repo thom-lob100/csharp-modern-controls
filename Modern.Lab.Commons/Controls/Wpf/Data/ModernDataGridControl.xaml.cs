@@ -85,8 +85,20 @@ namespace Modern.Lab.Controls.Wpf.Data
                 new PropertyMetadata("{0:N0} rows", OnStatusBarAppearanceChanged));
 
         /// <summary>
+        /// 교차 행 배경(줄무늬) 표시 여부. 켜면 홀수 행이 테마 교차색
+        /// (Brush.GridRowAlt)으로 칠해진다. 기본 꺼짐 — 행 높이·수평 구분선만으로
+        /// 행이 구분되는 밀도에서는 줄무늬가 시각적 소음이 되기 쉽다.
+        /// </summary>
+        public static readonly DependencyProperty AlternatingRowColorsProperty =
+            DependencyProperty.Register(
+                "AlternatingRowColors",
+                typeof(bool),
+                typeof(ModernDataGridControl),
+                new PropertyMetadata(false, OnAlternatingRowColorsChanged));
+
+        /// <summary>
         /// 행 배경색으로 쓸 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2" 같은 색
-        /// 문자열 또는 색 이름. 비어 있거나 해석 불가한 행은 기본 배경(교차색)을
+        /// 문자열 또는 색 이름. 비어 있거나 해석 불가한 행은 기본 배경을
         /// 유지한다. 상태(Scrap 등)에 따라 행을 색으로 구분할 때 쓴다.
         /// </summary>
         public static readonly DependencyProperty RowColorMemberPathProperty =
@@ -199,6 +211,13 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             get { return (string)this.GetValue(StatusCountFormatProperty); }
             set { this.SetValue(StatusCountFormatProperty, value); }
+        }
+
+        /// <summary>교차 행 배경(줄무늬) 표시 여부. 기본 꺼짐.</summary>
+        public bool AlternatingRowColors
+        {
+            get { return (bool)this.GetValue(AlternatingRowColorsProperty); }
+            set { this.SetValue(AlternatingRowColorsProperty, value); }
         }
 
         /// <summary>행 배경색으로 쓸 컬럼/속성 이름 (선택 사항).</summary>
@@ -1010,6 +1029,22 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.RefreshStatusBar();
         }
 
+        // 교차색은 테마 전환을 따라가도록 리소스 참조로 걸고, 끌 때는 로컬 값을
+        // 지워 XAML 기본(RowBackground 단색)으로 되돌린다.
+        private static void OnAlternatingRowColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ModernDataGridControl control = (ModernDataGridControl)d;
+
+            if ((bool)e.NewValue)
+            {
+                control.InnerDataGrid.SetResourceReference(DataGrid.AlternatingRowBackgroundProperty, "Brush.GridRowAlt");
+            }
+            else
+            {
+                control.InnerDataGrid.ClearValue(DataGrid.AlternatingRowBackgroundProperty);
+            }
+        }
+
         private static void OnRowColorMemberPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ModernDataGridControl control = (ModernDataGridControl)d;
@@ -1022,7 +1057,7 @@ namespace Modern.Lab.Controls.Wpf.Data
         }
 
         // 각 행이 화면에 실체화될 때 배경을 칠한다. RowColorMember 값이 유효한 색이면
-        // 그 색으로, 아니면 로컬 배경을 지워 그리드 기본 교차색을 유지한다.
+        // 그 색으로, 아니면 로컬 배경을 지워 그리드 기본 배경을 유지한다.
         // (경로가 비어 있으면 기존 동작 그대로 — 배경을 건드리지 않는다.)
         private void OnLoadingRow(object sender, DataGridRowEventArgs e)
         {

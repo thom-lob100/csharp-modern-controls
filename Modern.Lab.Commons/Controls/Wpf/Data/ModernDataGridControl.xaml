@@ -84,8 +84,9 @@
                 </Setter>
             </Style>
 
-            <!-- 행: hover/선택 배경만 지정; 기본 배경은
-                 RowBackground/AlternatingRowBackground에서 온다. -->
+            <!-- 행: hover/선택 배경만 지정; 기본 배경은 RowBackground에서 오고,
+                 AlternatingRowColors 옵션이 켜지면 코드비하인드가
+                 AlternatingRowBackground(교차색)를 추가로 설정한다. -->
             <Style x:Key="ModernGridRowStyle" TargetType="DataGridRow">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -174,7 +175,6 @@
                   GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="{StaticResource Brush.BorderSubtle}"
                   RowBackground="{StaticResource Brush.Surface}"
-                  AlternatingRowBackground="{StaticResource Brush.GridRowAlt}"
                   RowHeight="{StaticResource Size.RowHeight}"
                   ColumnHeaderHeight="{StaticResource Size.GridHeaderHeight}"
                   ColumnHeaderStyle="{StaticResource ModernGridColumnHeaderStyle}"

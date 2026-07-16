@@ -557,7 +557,8 @@ this.treeOrg.SelectedValueChanged += this.OnOrgTreeSelectionChanged;
 | `ShowStatusBar` | bool | 기본 false. true면 그리드 하단에 상태바 표시 — 왼쪽에 행 수 자동 표기 |
 | `StatusCountFormat` | string | 상태바 행 수 형식. 기본 `"{0:N0} rows"` — `{0}`에 현재 행 수 |
 | `StatusText` | string | 상태바 오른쪽 자유 텍스트 (선택 대상·조회 조건 등) |
-| `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 교차색 유지. 상태별 행 강조(예: Scrap 빨강)용. 트리 `ForeColorMember`와 짝 |
+| `AlternatingRowColors` | bool | 기본 false. true면 홀수 행이 테마 교차색(`Brush.GridRowAlt`)으로 칠해진다 — 행이 많고 가로로 긴 그리드에서 시선 유지용. `ModernSpreadGrid`에도 동명 속성이 있다(그쪽은 기존 화면 보존을 위해 기본 true) |
+| `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 배경 유지. 상태별 행 강조(예: Scrap 빨강)용. 트리 `ForeColorMember`와 짝 |
 | `CellButtonClick` | 이벤트 | 버튼 컬럼(`Kind = Button`) 셀 클릭 시. `e.Item`이 클릭 행(`DataRowView`), `e.DataPropertyName`이 버튼 컬럼 이름 |
 
 ### 예제 — 컬럼 정의와 선택 행 사용
