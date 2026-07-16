@@ -46,6 +46,10 @@ Claude Code 작업 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있습니다.
 - [`docs/migration/`](docs/migration/) — 컨트롤별 **교체 가이드**: 기존 WinForms 컨트롤 대비
   호환 멤버, 미지원 멤버와 대체 방법, `.Designer.cs` 교체 예시
 - [`docs/design-notes.md`](docs/design-notes.md) — 설계 근거와 계약 전문
+- [`docs/codex/`](docs/codex/) — **기존 폼 일괄 변환 키트** (AI 코딩 에이전트용):
+  회사 솔루션 루트에 복사할 `AGENTS.md` 템플릿, 에이전트가 따를
+  `form-conversion-guide.md` 절차서, 비개발자용 `operator-guide.md`
+  (복사–붙여넣기 프롬프트 포함)
 
 ## 문서/코드 언어 규칙
 
