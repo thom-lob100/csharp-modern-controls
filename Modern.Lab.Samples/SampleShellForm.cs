@@ -118,6 +118,7 @@ namespace Modern.Lab.Samples
             this.AddSample("Item History", () => new ItemHistoryForm());
             this.AddSample("Pending Requests", () => new PendingRequestForm());
             this.AddSample("직원관리", () => new EmployeeManagementForm());
+            this.AddSample("Step Indicator", () => new StepFlowDemoForm());
         }
 
         private void AddSample(string title, Func<Form> factory)
@@ -140,6 +141,14 @@ namespace Modern.Lab.Samples
 
         private void ShowFirstSample()
         {
+            // "--sample=<제목>" 인자로 특정 샘플을 바로 열 수 있다 (테스트/시연용).
+            if (!string.IsNullOrEmpty(Program.StartupSample)
+                    && this.sampleFactories.ContainsKey(Program.StartupSample))
+            {
+                this.ShowSample(Program.StartupSample);
+                return;
+            }
+
             foreach (KeyValuePair<string, Func<Form>> entry in this.sampleFactories)
             {
                 this.ShowSample(entry.Key);

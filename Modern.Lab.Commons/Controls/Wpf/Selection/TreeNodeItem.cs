@@ -31,6 +31,39 @@ namespace Modern.Lab.Controls.Wpf.Selection
             get { return this.Foreground != null; }
         }
 
+        /// <summary>노드 앞 글리프 문자 (IconMemberPath 해석 결과; 빈 값 = 아이콘 없음).</summary>
+        public string IconGlyph { get; internal set; }
+
+        /// <summary>아이콘 표시 여부 — XAML Visibility 바인딩 키.</summary>
+        public System.Windows.Visibility IconVisibility
+        {
+            get { return string.IsNullOrEmpty(this.IconGlyph) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible; }
+        }
+
+        /// <summary>주 텍스트 뒤에 흐린 색으로 붙는 보조 텍스트 (빈 값 = 없음).</summary>
+        public string SubText { get; internal set; }
+
+        /// <summary>보조 텍스트 표시 여부 — XAML Visibility 바인딩 키.</summary>
+        public System.Windows.Visibility SubTextVisibility
+        {
+            get { return string.IsNullOrEmpty(this.SubText) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible; }
+        }
+
+        /// <summary>행 오른쪽 끝 상태 배지 텍스트 (빈 값 = 배지 없음).</summary>
+        public string BadgeText { get; internal set; }
+
+        /// <summary>배지 표시 여부 — XAML Visibility 바인딩 키.</summary>
+        public System.Windows.Visibility BadgeVisibility
+        {
+            get { return string.IsNullOrEmpty(this.BadgeText) ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible; }
+        }
+
+        /// <summary>배지 배경 브러시 (BadgeColorMemberPath 해석; null = 중립 회색 배지).</summary>
+        public Brush BadgeBackground { get; internal set; }
+
+        /// <summary>배지 글자 브러시 — 배경에서 자동 유도(ChipColorHelper).</summary>
+        public Brush BadgeForeground { get; internal set; }
+
         /// <summary>노드 값 (IdMemberPath 기준).</summary>
         public object Value { get; private set; }
 

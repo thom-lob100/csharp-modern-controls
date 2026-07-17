@@ -67,6 +67,64 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernTreeViewControl),
                 new PropertyMetadata(string.Empty, OnDataShapeChanged));
 
+        /// <summary>
+        /// 노드 글리프 컬럼/속성 이름 (선택 사항). 값은 프리셋 이름
+        /// (Disc/Chip/Slice/Stack/Box/Folder/Dot, 대소문자 무시) 또는
+        /// Segoe MDL2 Assets 글리프 16진 코드("E950"). 비었거나 해석 불가하면
+        /// 아이콘 없이 표시한다.
+        /// </summary>
+        public static readonly DependencyProperty IconMemberPathProperty =
+            DependencyProperty.Register(
+                "IconMemberPath",
+                typeof(string),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata(string.Empty, OnDataShapeChanged));
+
+        /// <summary>
+        /// 보조 텍스트 컬럼/속성 이름 (선택 사항). 주 텍스트 뒤에 흐린 색으로
+        /// 붙는다 — 모델/분류처럼 ID만으로 부족한 문맥 한 조각.
+        /// </summary>
+        public static readonly DependencyProperty SubTextMemberPathProperty =
+            DependencyProperty.Register(
+                "SubTextMemberPath",
+                typeof(string),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata(string.Empty, OnDataShapeChanged));
+
+        /// <summary>
+        /// 행 오른쪽 끝 상태 배지 텍스트 컬럼/속성 이름 (선택 사항).
+        /// 값이 빈 행은 배지를 그리지 않는다.
+        /// </summary>
+        public static readonly DependencyProperty BadgeMemberPathProperty =
+            DependencyProperty.Register(
+                "BadgeMemberPath",
+                typeof(string),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata(string.Empty, OnDataShapeChanged));
+
+        /// <summary>
+        /// 배지 배경색 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2" 같은 색
+        /// 문자열이고 글자색은 배경에서 자동 유도된다(그리드 배지와 동일 규칙).
+        /// 비었거나 해석 불가하면 중립 회색 배지.
+        /// </summary>
+        public static readonly DependencyProperty BadgeColorMemberPathProperty =
+            DependencyProperty.Register(
+                "BadgeColorMemberPath",
+                typeof(string),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata(string.Empty, OnDataShapeChanged));
+
+        /// <summary>
+        /// 들여쓰기 레벨마다 옅은 세로 가이드라인을 그린다 (기본 false).
+        /// 3단 이상 깊은 계보에서 부모-자식 소속을 또렷하게 한다.
+        /// </summary>
+        public static readonly DependencyProperty ShowGuideLinesProperty =
+            DependencyProperty.Register(
+                "ShowGuideLines",
+                typeof(bool),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata(false));
+
         /// <summary>선택 노드의 키. null은 미선택을 의미한다.</summary>
         public static readonly DependencyProperty SelectedValueProperty =
             DependencyProperty.Register(
@@ -128,6 +186,41 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (string)this.GetValue(ForeColorMemberPathProperty); }
             set { this.SetValue(ForeColorMemberPathProperty, value); }
+        }
+
+        /// <summary>노드 글리프 컬럼/속성 이름 (선택 사항).</summary>
+        public string IconMemberPath
+        {
+            get { return (string)this.GetValue(IconMemberPathProperty); }
+            set { this.SetValue(IconMemberPathProperty, value); }
+        }
+
+        /// <summary>보조 텍스트 컬럼/속성 이름 (선택 사항).</summary>
+        public string SubTextMemberPath
+        {
+            get { return (string)this.GetValue(SubTextMemberPathProperty); }
+            set { this.SetValue(SubTextMemberPathProperty, value); }
+        }
+
+        /// <summary>상태 배지 텍스트 컬럼/속성 이름 (선택 사항).</summary>
+        public string BadgeMemberPath
+        {
+            get { return (string)this.GetValue(BadgeMemberPathProperty); }
+            set { this.SetValue(BadgeMemberPathProperty, value); }
+        }
+
+        /// <summary>배지 배경색 컬럼/속성 이름 (선택 사항).</summary>
+        public string BadgeColorMemberPath
+        {
+            get { return (string)this.GetValue(BadgeColorMemberPathProperty); }
+            set { this.SetValue(BadgeColorMemberPathProperty, value); }
+        }
+
+        /// <summary>들여쓰기 가이드라인 표시 여부 (기본 false).</summary>
+        public bool ShowGuideLines
+        {
+            get { return (bool)this.GetValue(ShowGuideLinesProperty); }
+            set { this.SetValue(ShowGuideLinesProperty, value); }
         }
 
         /// <summary>선택 노드의 키. null은 미선택.</summary>
@@ -223,6 +316,26 @@ namespace Modern.Lab.Controls.Wpf.Selection
                     if (!string.IsNullOrEmpty(this.ForeColorMemberPath))
                     {
                         node.Foreground = CreateForegroundBrush(MemberPathReader.Read(row, this.ForeColorMemberPath));
+                    }
+
+                    if (!string.IsNullOrEmpty(this.IconMemberPath))
+                    {
+                        node.IconGlyph = ResolveIconGlyph(MemberPathReader.Read(row, this.IconMemberPath));
+                    }
+
+                    if (!string.IsNullOrEmpty(this.SubTextMemberPath))
+                    {
+                        node.SubText = ToKeyString(MemberPathReader.Read(row, this.SubTextMemberPath));
+                    }
+
+                    if (!string.IsNullOrEmpty(this.BadgeMemberPath))
+                    {
+                        node.BadgeText = ToKeyString(MemberPathReader.Read(row, this.BadgeMemberPath));
+
+                        if (!string.IsNullOrEmpty(node.BadgeText))
+                        {
+                            this.ApplyBadgeBrushes(node, row);
+                        }
                     }
 
                     nodesByKey.Add(key, node);
@@ -335,6 +448,81 @@ namespace Modern.Lab.Controls.Wpf.Selection
             }
 
             return null;
+        }
+
+        // ===== 노드 글리프 프리셋 =====
+        // 이름은 도메인 중립(공개 라이브러리)으로 두고, 앱이 자기 도메인 용어를
+        // 프리셋에 매핑해 쓴다. Segoe MDL2 Assets 글리프는 대조표 렌더로 선정:
+        // Disc = 얇은 원 테두리(원판형 소재), Chip = 핀 달린 IC(칩/다이),
+        // Slice = 모서리 잘린 얇은 사각(절단 박편/시편), Stack = 적층(묶음/로트),
+        // Box = 보관 상자(캐리어), Folder = 분류, Dot = 중립 마커.
+        private static readonly Dictionary<string, string> iconPresets =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Disc", "" },
+                { "Chip", "" },
+                { "Slice", "" },
+                { "Stack", "" },
+                { "Box", "" },
+                { "Folder", "" },
+                { "Dot", "" }
+            };
+
+        // 아이콘 값 해석: 프리셋 이름(대소문자 무시) 또는 4자리 16진 글리프 코드.
+        // 빈 값/해석 불가는 빈 문자열 — 아이콘 없이 표시한다(예외 없음).
+        private static string ResolveIconGlyph(object iconValue)
+        {
+            string text = ToKeyString(iconValue);
+
+            if (text.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            string preset;
+
+            if (iconPresets.TryGetValue(text, out preset))
+            {
+                return preset;
+            }
+
+            int code;
+
+            if (text.Length == 4 && int.TryParse(
+                    text,
+                    System.Globalization.NumberStyles.HexNumber,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out code))
+            {
+                return ((char)code).ToString();
+            }
+
+            return string.Empty;
+        }
+
+        // 배지 배경/글자 브러시: 그리드 배지와 동일 규칙 — 색 문자열이 있으면
+        // 그 배경 + 자동 유도 글자색(ChipColorHelper), 없으면 중립 회색 배지.
+        private void ApplyBadgeBrushes(TreeNodeItem node, object row)
+        {
+            Color background;
+            string colorText = string.IsNullOrEmpty(this.BadgeColorMemberPath)
+                    ? string.Empty
+                    : ToKeyString(MemberPathReader.Read(row, this.BadgeColorMemberPath));
+
+            if (colorText.Length > 0 && ChipColorHelper.TryParseColor(colorText, out background))
+            {
+                SolidColorBrush backgroundBrush = new SolidColorBrush(background);
+                backgroundBrush.Freeze();
+                SolidColorBrush foregroundBrush = new SolidColorBrush(ChipColorHelper.DeriveForeground(background));
+                foregroundBrush.Freeze();
+
+                node.BadgeBackground = backgroundBrush;
+                node.BadgeForeground = foregroundBrush;
+                return;
+            }
+
+            node.BadgeBackground = (Brush)this.FindResource("Brush.HoverBackground");
+            node.BadgeForeground = (Brush)this.FindResource("Brush.TextSecondary");
         }
 
         // 색 문자열("#DC2626", "Red" 등)을 고정(Frozen) Brush로 해석한다.

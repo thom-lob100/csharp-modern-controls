@@ -25,6 +25,11 @@ namespace Modern.Lab.WinForms.Controls.Selection
         private string fallbackParentIdMember;
         private string fallbackDisplayMember;
         private string fallbackForeColorMember;
+        private string fallbackIconMember;
+        private string fallbackSubTextMember;
+        private string fallbackBadgeMember;
+        private string fallbackBadgeColorMember;
+        private bool fallbackShowGuideLines;
 
         /// <summary>선택 노드가 바뀔 때 발생한다.</summary>
         public event EventHandler SelectedValueChanged;
@@ -37,6 +42,11 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.fallbackParentIdMember = string.Empty;
             this.fallbackDisplayMember = string.Empty;
             this.fallbackForeColorMember = string.Empty;
+            this.fallbackIconMember = string.Empty;
+            this.fallbackSubTextMember = string.Empty;
+            this.fallbackBadgeMember = string.Empty;
+            this.fallbackBadgeColorMember = string.Empty;
+            this.fallbackShowGuideLines = false;
 
             if (this.Wpf != null)
             {
@@ -65,7 +75,8 @@ namespace Modern.Lab.WinForms.Controls.Selection
 
                 DataSourceConverter.EnsureColumns(value, new string[]
                 {
-                    this.IdMember, this.ParentIdMember, this.DisplayMember, this.ForeColorMember
+                    this.IdMember, this.ParentIdMember, this.DisplayMember, this.ForeColorMember,
+                    this.IconMember, this.SubTextMember, this.BadgeMember, this.BadgeColorMember
                 });
 
                 if (this.Wpf != null)
@@ -179,6 +190,153 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 if (this.Wpf != null)
                 {
                     this.Wpf.ForeColorMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 노드 글리프로 사용할 컬럼/속성 이름 (선택 사항). 값은 프리셋 이름
+        /// (Disc/Chip/Slice/Stack/Box/Folder/Dot, 대소문자 무시) 또는 Segoe MDL2
+        /// Assets 글리프 16진 코드("E950"). 비었거나 해석 불가하면 아이콘 없음.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("노드 글리프 컬럼/속성 이름 — 값은 프리셋(Disc/Chip/Slice/Stack/Box/Folder/Dot) 또는 MDL2 16진 코드")]
+        [DefaultValue("")]
+        public string IconMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.IconMemberPath;
+                }
+
+                return this.fallbackIconMember;
+            }
+            set
+            {
+                this.fallbackIconMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.IconMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 보조 텍스트로 사용할 컬럼/속성 이름 (선택 사항). 주 텍스트 뒤에
+        /// 흐린 색으로 붙는다 — 모델/분류처럼 ID만으로 부족한 문맥 한 조각.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("보조 텍스트 컬럼/속성 이름 — 주 텍스트 뒤에 흐린 색으로 표시")]
+        [DefaultValue("")]
+        public string SubTextMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.SubTextMemberPath;
+                }
+
+                return this.fallbackSubTextMember;
+            }
+            set
+            {
+                this.fallbackSubTextMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.SubTextMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 행 오른쪽 끝 상태 배지 텍스트로 사용할 컬럼/속성 이름 (선택 사항).
+        /// 값이 빈 행은 배지를 그리지 않는다. BadgeColorMember와 짝.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("상태 배지 텍스트 컬럼/속성 이름 — 행 오른쪽 끝 알약으로 표시")]
+        [DefaultValue("")]
+        public string BadgeMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.BadgeMemberPath;
+                }
+
+                return this.fallbackBadgeMember;
+            }
+            set
+            {
+                this.fallbackBadgeMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.BadgeMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 배지 배경색으로 사용할 컬럼/속성 이름 (선택 사항). 값은 "#FEE2E2"
+        /// 같은 색 문자열 — 글자색은 배경에서 자동 유도(그리드 배지와 동일 규칙).
+        /// 비었거나 해석 불가하면 중립 회색 배지.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("배지 배경색 컬럼/속성 이름 — 값은 #RRGGBB 색 문자열, 글자색 자동")]
+        [DefaultValue("")]
+        public string BadgeColorMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.BadgeColorMemberPath;
+                }
+
+                return this.fallbackBadgeColorMember;
+            }
+            set
+            {
+                this.fallbackBadgeColorMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.BadgeColorMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 들여쓰기 레벨마다 옅은 세로 가이드라인을 그린다 (기본 false).
+        /// 3단 이상 깊은 계보에서 부모-자식 소속을 또렷하게 한다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("들여쓰기 가이드라인 표시 여부 (기본 false)")]
+        [DefaultValue(false)]
+        public bool ShowGuideLines
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.ShowGuideLines;
+                }
+
+                return this.fallbackShowGuideLines;
+            }
+            set
+            {
+                this.fallbackShowGuideLines = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.ShowGuideLines = value;
                 }
             }
         }

@@ -6,6 +6,9 @@ namespace Modern.Lab.Samples
     /// <summary>샘플 진입점. WPF 호스팅을 위해 STA 스레드에서 실행된다.</summary>
     public static class Program
     {
+        /// <summary>"--sample=&lt;제목&gt;" 인자로 지정한 시작 샘플 (테스트/시연용).</summary>
+        internal static string StartupSample { get; private set; }
+
         [STAThread]
         public static void Main(string[] args)
         {
@@ -42,6 +45,11 @@ namespace Modern.Lab.Samples
                     {
                         Modern.Lab.Theming.ModernTheme.Mode = mode;
                     }
+                }
+                else if (arg.StartsWith("--sample=", StringComparison.OrdinalIgnoreCase))
+                {
+                    // 시작 시 특정 샘플을 바로 연다: --sample="Step Indicator"
+                    StartupSample = arg.Substring("--sample=".Length);
                 }
                 else if (arg.StartsWith("--fontwidth=", StringComparison.OrdinalIgnoreCase))
                 {

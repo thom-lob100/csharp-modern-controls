@@ -20,7 +20,9 @@
     </UserControl.Resources>
 
     <!-- 단계들을 가로로 배치. 각 단계 = [왼쪽 연결선][노드][오른쪽 연결선] + 아래 레이블.
-         연결선은 * 열을 채워 인접 단계의 연결선과 맞닿아 하나의 진행선을 이룬다. -->
+         연결선은 * 열을 채워 인접 단계의 연결선과 맞닿아 하나의 진행선을 이룬다.
+         셀 폭(CellWidth)·레이블 표시(LabelVisibility)는 가용 폭에 따라 코드가
+         계산한다 — 균등 축소 → 컴팩트(현재만 레이블) → 중간 접기(··· 노드). -->
     <ItemsControl x:Name="StepItemsControl"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center">
@@ -31,7 +33,9 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Grid Width="118">
+                <Grid Width="{Binding CellWidth}"
+                      Background="Transparent"
+                      ToolTipService.ToolTip="{Binding ToolTipText}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="28" />
                         <RowDefinition Height="Auto" />
@@ -77,12 +81,14 @@
                                    Visibility="{Binding RightConnectorVisibility}" />
                     </Grid>
 
-                    <!-- 레이블 행: 노드 아래 가운데 정렬 -->
+                    <!-- 레이블 행: 노드 아래 가운데 정렬. 컴팩트/접힘 모드에서는
+                         현재 단계만 보이고 나머지는 툴팁으로 확인한다. -->
                     <TextBlock Grid.Row="1"
                                Text="{Binding Label}"
                                Margin="4,4,4,0"
                                HorizontalAlignment="Center"
-                               MaxWidth="112"
+                               MaxWidth="{Binding LabelMaxWidth}"
+                               Visibility="{Binding LabelVisibility}"
                                TextAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}"

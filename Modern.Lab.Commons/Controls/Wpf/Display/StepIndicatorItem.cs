@@ -45,5 +45,17 @@ namespace Modern.Lab.Controls.Wpf.Display
 
         /// <summary>마지막 단계는 오른쪽 연결선을 숨긴다.</summary>
         public Visibility RightConnectorVisibility { get; set; }
+
+        /// <summary>셀(단계 하나) 폭 — 가용 폭에 따라 컨트롤이 계산해 넣는다.</summary>
+        public double CellWidth { get; set; }
+
+        /// <summary>레이블 최대 폭(셀 폭 - 여백). 넘치면 말줄임된다.</summary>
+        public double LabelMaxWidth { get; set; }
+
+        /// <summary>레이블 표시 여부 — 컴팩트/접힘 모드에서는 현재 단계만 보인다.</summary>
+        public Visibility LabelVisibility { get; set; }
+
+        /// <summary>셀 전체 툴팁 — 말줄임/레이블 숨김에 대비한 전체 텍스트.</summary>
+        public string ToolTipText { get; set; }
     }
 }

@@ -18,6 +18,11 @@
 | `SelectedValue` | 선택 노드의 키. **`null` = 미선택**. `DataSource`보다 먼저 설정 가능, 설정 시 조상 자동 펼침 |
 | `SelectedItem` | 선택 노드의 원본 행 (`DataRowView` 등, 읽기 전용) |
 | `SelectedValueChanged` | 선택이 바뀔 때 1회 발생 |
+| `ForeColorMember` | 노드 텍스트 색 컬럼 (선택). 값은 `"#DC2626"` 같은 색 문자열 — 상태 강조용 |
+| `IconMember` | 노드 글리프 컬럼 (선택). 값은 프리셋(`Disc`/`Chip`/`Slice`/`Stack`/`Box`/`Folder`/`Dot`) 또는 MDL2 16진 코드(`"E950"`). `TreeView.ImageList`+`ImageIndex`의 대체 — 이미지 리스트 관리 없이 행 값으로 지정 |
+| `SubTextMember` | 보조 텍스트 컬럼 (선택). 주 텍스트 뒤에 흐린 색으로 표시 |
+| `BadgeMember` / `BadgeColorMember` | 행 오른쪽 끝 상태 배지 텍스트/배경색 컬럼 (선택). 글자색은 배경에서 자동 유도 |
+| `ShowGuideLines` | 들여쓰기 세로 가이드라인 (기본 false). `TreeView.ShowLines`의 대체 |
 | `ExpandAll()` / `CollapseAll()` | 전체 펼침/접기 |
 | `Enabled` | 전파됨 |
 
@@ -58,5 +63,7 @@ this.treeOrg.SelectedValue = null;
 | 노드 체크박스 | 미지원 — 다중 조직 선택이 필요하면 별도 요청 |
 | 지연 로딩(대용량) | 미지원 — 전체 테이블을 한 번에 구성. 수천 노드 수준까지 적합 |
 | 노드 편집/드래그 | 미지원 — 선택 전용 |
+| `ImageList`/`ImageIndex` | 대체: `IconMember` — 행 값으로 프리셋/글리프 코드 지정 (이미지 파일 불필요) |
+| `ShowLines` | 대체: `ShowGuideLines` |
 
-권장 배치: 그리드 왼쪽 `Dock = Left` 카드 안, 폭 180~240.
+권장 배치: 그리드 왼쪽 `Dock = Left` 카드 안, 폭 180~240 (배지/보조 텍스트 사용 시 260~340).

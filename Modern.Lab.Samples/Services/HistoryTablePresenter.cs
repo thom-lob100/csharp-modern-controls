@@ -55,6 +55,28 @@ namespace Modern.Lab.Samples.Services
             }
         }
 
+        // 상태(STAT_TYP)별 배지 배경색 — Selection 카드 상태 배지가 쓴다.
+        // Create는 빈 값 = 중립 회색 배지.
+        private static readonly System.Collections.Generic.Dictionary<string, string> statBadgeColors =
+            new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "Create", "" },
+                { "Release", "#DCFCE7" },
+                { "Run", "#DBEAFE" },
+                { "Move", "#E0E7FF" },
+                { "Hold", "#FEF3C7" },
+                { "Store", "#D1FAE5" },
+                { "Scrap", "#FEE2E2" }
+            };
+
+        /// <summary>상태(STAT_TYP)별 배지 배경색. 미지정 상태는 빈 값(중립 배지).</summary>
+        internal static string StatBadgeColor(string statTyp)
+        {
+            string color;
+            return statBadgeColors.TryGetValue(statTyp, out color) ? color : string.Empty;
+        }
+
+
         /// <summary>
         /// 소요시간 파생 컬럼. 이력은 최신순(TIMEKEY DESC)이므로 각 행의
         /// DURATION = 이 이벤트 시각 − 바로 이전(더 오래된) 이벤트 시각.

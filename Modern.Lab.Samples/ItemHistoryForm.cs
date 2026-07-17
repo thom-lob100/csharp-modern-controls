@@ -60,6 +60,14 @@ namespace Modern.Lab.Samples
         // Unit 이력 조회 버전 — 빠른 재선택 시 오래된 응답을 버린다.
         private int unitHistoryVersion;
 
+        // Lifecycle 스텝은 활성 탭을 따른다 — Item History 탭이면 Item 여정,
+        // Unit History 탭이면 마지막으로 조회한 Unit 여정. 두 여정을 캐시해 두고
+        // 탭 전환·조회 완료 시점에 활성 탭 것을 카드에 표시한다.
+        private DataTable itemStepTable;
+        private string itemStepOwner;
+        private DataTable unitStepTable;
+        private string unitStepOwner;
+
         // 상세 표의 (값 라벨 ↔ 응답 컬럼) 매핑 — 채우기/비우기를 루프 하나로 처리한다.
         // 항목을 추가하려면 .Designer.cs에 라벨을 놓고 여기 한 줄만 더하면 된다.
         private readonly KeyValuePair<ModernLabel, string>[] detailBindings;
@@ -79,16 +87,12 @@ namespace Modern.Lab.Samples
             { "PartB", "#E0E7FF" }
         };
 
-        private static readonly Dictionary<string, string> statBadgeColors = new Dictionary<string, string>
-        {
-            { "Release", "#DCFCE7" },
-            { "Scrap", "#FEE2E2" },
-            { "Create", "" }
-        };
-
         public ItemHistoryForm()
         {
             this.InitializeComponent();
+
+            // 탭 전환 시 Lifecycle 스텝을 그 탭의 여정(Item/Unit)으로 바꾼다.
+            this.tabHistory.SelectedIndexChanged += this.OnHistoryTabChanged;
 
             this.detailBindings = new KeyValuePair<ModernLabel, string>[]
             {
@@ -548,7 +552,7 @@ namespace Modern.Lab.Samples
             this.badgeType.Text = typeText.Length > 0 ? typeText : "-";
             this.badgeType.Color = typeBadgeColors.ContainsKey(subType) ? typeBadgeColors[subType] : string.Empty;
             this.badgeStat.Text = stat.Length > 0 ? stat : "-";
-            this.badgeStat.Color = statBadgeColors.ContainsKey(stat) ? statBadgeColors[stat] : string.Empty;
+            this.badgeStat.Color = HistoryTablePresenter.StatBadgeColor(stat);
 
             // 상세 표: (값 라벨 ↔ 컬럼) 매핑을 돌며 채운다 (MES_ITEM_MAS 현재 상태).
             foreach (KeyValuePair<ModernLabel, string> binding in this.detailBindings)
@@ -587,9 +591,19 @@ namespace Modern.Lab.Samples
                 HistoryTablePresenter.AddRowColor(history);
                 this.gridHistory.DataSource = history;
                 this.gridHistory.StatusText = itemId + HistoryTablePresenter.CycleTimeSuffix(history);
-                this.stepIndicator.DataSource = HistoryTablePresenter.BuildStepTable(history);
+                this.tabHistory.SetTabTitle(0, "Item History — " + itemId);
+
+                // Item 여정 캐시 갱신 + 이전 Item의 Unit 여정 캐시는 비운다 —
+                // 새 Item의 Unit 여정은 아래 Units 자동 선택이 다시 채운다.
+                this.itemStepTable = HistoryTablePresenter.BuildStepTable(history);
+                this.itemStepOwner = itemId;
+                this.unitStepTable = null;
+                this.unitStepOwner = null;
+                this.ApplyLifecycleForActiveTab();
 
                 // ---- 웨이퍼 목록 ----
+                // 할당이 첫 행을 자동 선택하며 SelectionChanged를 1회 일으켜
+                // Unit History 탭(과 Unit 여정 캐시)이 첫 Unit으로 채워진다.
                 HistoryTablePresenter.AddUnitRowColor(units);
                 this.gridUnits.DataSource = units;
                 this.unitCard.Text = "Units — " + itemId;
@@ -606,6 +620,26 @@ namespace Modern.Lab.Samples
                 this.busyMain.Busy = false;
                 this.toastMain.Show("Server call failed: " + ex.Message, ToastKind.Error);
             }
+        }
+
+        // ===== Lifecycle 스텝 (활성 탭 연동) =====
+
+        // 활성 탭의 여정을 Lifecycle 카드에 표시한다:
+        // Item History 탭 = Item 여정, Unit History 탭 = 선택 Unit 여정.
+        // 캐시가 아직 없으면(조회 전) 빈 표시 + 기본 제목.
+        private void ApplyLifecycleForActiveTab()
+        {
+            bool unitTab = this.tabHistory.SelectedIndex == 1;
+            DataTable steps = unitTab ? this.unitStepTable : this.itemStepTable;
+            string owner = unitTab ? this.unitStepOwner : this.itemStepOwner;
+
+            this.stepIndicator.DataSource = steps;
+            this.stepCard.Text = string.IsNullOrEmpty(owner) ? "Lifecycle" : "Lifecycle — " + owner;
+        }
+
+        private void OnHistoryTabChanged(object sender, EventArgs e)
+        {
+            this.ApplyLifecycleForActiveTab();
         }
 
         // ===== Unit 이력 (하단 탭) =====
@@ -631,7 +665,8 @@ namespace Modern.Lab.Samples
             this.LoadUnitHistoryAsync(unitId);
         }
 
-        // 선택 Unit의 이력을 백그라운드에서 불러와 Unit History 탭 그리드에 채운다.
+        // 선택 Unit의 이력을 백그라운드에서 불러와 Unit History 탭 그리드와
+        // Unit 여정 캐시를 채운다 (Lifecycle 표시는 활성 탭이 결정한다).
         private async void LoadUnitHistoryAsync(string unitId)
         {
             this.unitHistoryVersion = this.unitHistoryVersion + 1;
@@ -652,6 +687,11 @@ namespace Modern.Lab.Samples
                 this.gridUnitHistory.DataSource = history;
                 this.gridUnitHistory.StatusText = unitId + HistoryTablePresenter.CycleTimeSuffix(history);
                 this.tabHistory.SetTabTitle(1, "Unit History — " + unitId);
+
+                // Unit 여정 캐시 갱신 — Unit History 탭이 활성일 때만 표시된다.
+                this.unitStepTable = HistoryTablePresenter.BuildStepTable(history);
+                this.unitStepOwner = unitId;
+                this.ApplyLifecycleForActiveTab();
             }
             catch (Exception ex)
             {
@@ -681,12 +721,18 @@ namespace Modern.Lab.Samples
             this.unitCard.Text = "Units";
             this.gridHistory.DataSource = null;
             this.gridHistory.StatusText = string.Empty;
-            this.stepIndicator.DataSource = null;
 
-            // Unit History 탭도 함께 비운다.
+            this.itemStepTable = null;
+            this.itemStepOwner = null;
+            this.unitStepTable = null;
+            this.unitStepOwner = null;
+            this.ApplyLifecycleForActiveTab();
+
+            // Unit History 탭도 함께 비운다. 탭 제목은 대상 ID 표기 전 기본값으로.
             this.unitHistoryVersion = this.unitHistoryVersion + 1;
             this.gridUnitHistory.DataSource = null;
             this.gridUnitHistory.StatusText = string.Empty;
+            this.tabHistory.SetTabTitle(0, "Item History");
             this.tabHistory.SetTabTitle(1, "Unit History");
         }
     }

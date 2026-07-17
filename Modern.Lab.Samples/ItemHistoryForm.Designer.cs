@@ -660,6 +660,8 @@ namespace Modern.Lab.Samples
             this.treeItemUnit.Location = new System.Drawing.Point(8, 40);
             this.treeItemUnit.Name = "treeItemUnit";
             this.treeItemUnit.ParentIdMember = "PARENT_ITEM_ID";
+            this.treeItemUnit.ShowGuideLines = true;
+            this.treeItemUnit.SubTextMember = "SUB_TYP";
             this.treeItemUnit.Size = new System.Drawing.Size(324, 380);
             this.treeItemUnit.TabIndex = 0;
             this.treeItemUnit.SelectedValueChanged += new System.EventHandler(this.OnTreeSelectionChanged);
