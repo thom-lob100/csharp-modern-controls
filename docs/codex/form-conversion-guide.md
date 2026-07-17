@@ -140,6 +140,9 @@ this.gridEmployee = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
 1. 컴파일 오류가 나는 멤버 사용부를 마이그레이션 문서의
    **"미지원 멤버와 대체 방법"** 표에 있는 대체로 바꾼다. 표에 없는 멤버는
    임의 구현하지 말고 보류 항목으로 보고한다.
+   **같은 멤버에 대해 서로 다른 해법을 2회 시도해도 해결되지 않으면** 추가
+   시도를 멈추고, 그 멤버 관련 변경을 되돌린 뒤 보류 항목으로 보고한다 —
+   표에 없는 우회를 계속 발명하지 않는다.
 2. 대표 패턴:
    - `grid.CurrentRow.DataBoundItem` → `grid.SelectedItem`
    - `grid.Rows[i].Cells["X"].Value` → `((DataRowView)grid.SelectedItem)["X"]`
@@ -174,7 +177,9 @@ this.gridEmployee = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
 - [ ] 색/폰트 하드코딩 새로 추가 없음
 - [ ] 보류 항목이 전부 보고서에 기재됨
 - [ ] AGENTS.md의 "완료 보고 형식"으로 보고 작성 — 특히 **"실행 확인 필요 항목"**에
-      화면에서 사람이 눌러봐야 할 동작(조회, 선택, 저장, 콤보 변경 등)을 구체적으로 나열
+      화면에서 사람이 눌러봐야 할 동작(조회, 선택, 저장, 콤보 변경 등)을 구체적으로 나열.
+      **교체한 컨트롤마다 최소 1개 이상** 써야 하며, 화면 전체에서 항목이 5개
+      미만이면 부실로 간주하고 다시 작성한다
 
 ## 4. 실행 검증은 사람이 한다
 

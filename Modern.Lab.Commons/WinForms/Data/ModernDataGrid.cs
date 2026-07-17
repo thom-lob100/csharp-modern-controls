@@ -40,6 +40,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         private string fallbackStatusText;
         private string fallbackStatusCountFormat;
         private string fallbackRowColorMember;
+        private string fallbackEmptyText = "No data";
         private double fallbackFontWidthRatio;
 
         /// <summary>행 선택이 바뀔 때 발생한다(WinForms 호환 이름).</summary>
@@ -467,6 +468,37 @@ namespace Modern.Lab.WinForms.Controls.Data
                 ModernDataGridColumn[] copy = new ModernDataGridColumn[this.configuredColumns.Length];
                 this.configuredColumns.CopyTo(copy, 0);
                 return copy;
+            }
+        }
+
+        /// <summary>
+        /// 데이터가 0건일 때 데이터 영역 가운데에 표시할 안내 문구.
+        /// 기본 "No data" — 화면 문맥에 맞게 바꾸거나("Search by Item ID" 등)
+        /// 빈 문자열로 끈다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("데이터 0건일 때 표시할 안내 문구 (빈 문자열 = 표시 안 함)")]
+        [DefaultValue("No data")]
+        [Localizable(true)]
+        public string EmptyText
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.EmptyText;
+                }
+
+                return this.fallbackEmptyText;
+            }
+            set
+            {
+                this.fallbackEmptyText = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.EmptyText = value;
+                }
             }
         }
 

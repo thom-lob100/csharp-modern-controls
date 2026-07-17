@@ -23,6 +23,7 @@
 | `SubTextMember` | 보조 텍스트 컬럼 (선택). 주 텍스트 뒤에 흐린 색으로 표시 |
 | `BadgeMember` / `BadgeColorMember` | 행 오른쪽 끝 상태 배지 텍스트/배경색 컬럼 (선택). 글자색은 배경에서 자동 유도 |
 | `ShowGuideLines` | 들여쓰기 세로 가이드라인 (기본 false). `TreeView.ShowLines`의 대체 |
+| `EmptyText` | 노드 0개일 때 가운데 표시할 안내 문구 (기본 `"No data"`, 빈 문자열 = 끔) |
 | `ExpandAll()` / `CollapseAll()` | 전체 펼침/접기 |
 | `Enabled` | 전파됨 |
 

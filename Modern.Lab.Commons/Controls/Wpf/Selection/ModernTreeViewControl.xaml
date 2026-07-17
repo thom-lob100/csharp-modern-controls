@@ -118,7 +118,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <TreeView x:Name="InnerTreeView"
+    <Grid>
+        <TreeView x:Name="InnerTreeView"
               Background="Transparent"
               BorderThickness="0"
               ItemContainerStyle="{StaticResource ModernTreeViewItemStyle}"
@@ -182,4 +183,16 @@
             </HierarchicalDataTemplate>
         </TreeView.ItemTemplate>
     </TreeView>
+
+        <!-- 빈 상태 안내: 노드가 하나도 없을 때 가운데에 흐린 글씨로 표시한다
+             (EmptyText, 빈 문자열이면 끔). -->
+        <TextBlock x:Name="EmptyLabel"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="{StaticResource Font.Size.Body}"
+                   Foreground="{StaticResource Brush.TextSecondary}"
+                   IsHitTestVisible="False"
+                   Visibility="Collapsed"
+                   LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
+    </Grid>
 </UserControl>

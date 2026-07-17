@@ -529,6 +529,7 @@ this.radioSort.SelectedValueChanged += this.OnSortChanged;
 | `SubTextMember` | 보조 텍스트 컬럼 (선택). 주 텍스트 뒤에 흐린 색으로 표시 — 모델/분류처럼 ID만으로 부족한 문맥 |
 | `BadgeMember` / `BadgeColorMember` | 행 오른쪽 끝 상태 배지 (선택). 텍스트 컬럼 + 배경색 컬럼(색 문자열, 글자색 자동 유도 — 그리드 배지와 동일 규칙). 색이 비면 중립 회색 배지, 텍스트가 빈 행은 배지 없음 |
 | `ShowGuideLines` | 들여쓰기 세로 가이드라인 (기본 false). 3단 이상 깊은 계보에서 부모-자식 소속 명확화 |
+| `EmptyText` | 노드 0개일 때 가운데 표시할 안내 문구. 기본 `"No data"` — 문맥에 맞게 변경하거나 빈 문자열로 끔 |
 | `ExpandAll()` / `CollapseAll()` | 전체 펼침/접기 |
 
 ```csharp
@@ -572,7 +573,8 @@ this.treeItem.ShowGuideLines = true;
 | `StatusCountFormat` | string | 상태바 행 수 형식. 기본 `"{0:N0} rows"` — `{0}`에 현재 행 수 |
 | `StatusText` | string | 상태바 오른쪽 자유 텍스트 (선택 대상·조회 조건 등) |
 | `AlternatingRowColors` | bool | 기본 false. true면 홀수 행이 테마 교차색(`Brush.GridRowAlt`)으로 칠해진다 — 행이 많고 가로로 긴 그리드에서 시선 유지용. `ModernSpreadGrid`에도 동명 속성이 있다(그쪽은 기존 화면 보존을 위해 기본 true) |
-| `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 배경 유지. 상태별 행 강조(예: Scrap 빨강)용. 트리 `ForeColorMember`와 짝 |
+| `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 배경 유지. 상태별 행 강조용 (상태 표시가 한 컬럼으로 충분하면 `Kind = Badge` 컬럼도 대안) |
+| `EmptyText` | string | 데이터 0건일 때 데이터 영역 가운데 표시할 안내 문구. 기본 `"No data"` — 화면 문맥에 맞게 변경(`"Search by Item ID"` 등)하거나 빈 문자열로 끔 |
 | `CellButtonClick` | 이벤트 | 버튼 컬럼(`Kind = Button`) 셀 클릭 시. `e.Item`이 클릭 행(`DataRowView`), `e.DataPropertyName`이 버튼 컬럼 이름 |
 
 ### 예제 — 컬럼 정의와 선택 행 사용

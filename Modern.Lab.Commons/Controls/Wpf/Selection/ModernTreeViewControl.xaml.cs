@@ -125,6 +125,17 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernTreeViewControl),
                 new PropertyMetadata(false));
 
+        /// <summary>
+        /// 노드가 하나도 없을 때 가운데에 표시할 안내 문구.
+        /// 기본 "No data" — 화면 문맥에 맞게 바꾸거나 빈 문자열로 끈다.
+        /// </summary>
+        public static readonly DependencyProperty EmptyTextProperty =
+            DependencyProperty.Register(
+                "EmptyText",
+                typeof(string),
+                typeof(ModernTreeViewControl),
+                new PropertyMetadata("No data", OnEmptyTextChanged));
+
         /// <summary>선택 노드의 키. null은 미선택을 의미한다.</summary>
         public static readonly DependencyProperty SelectedValueProperty =
             DependencyProperty.Register(
@@ -151,6 +162,24 @@ namespace Modern.Lab.Controls.Wpf.Selection
             this.allNodes = new List<TreeNodeItem>();
             this.InitializeComponent();
             this.InnerTreeView.ItemsSource = this.rootNodes;
+
+            // 초기(데이터 할당 전) 빈 상태 안내를 바로 표시한다.
+            this.RefreshEmptyLabel();
+        }
+
+        // 빈 상태 안내: 노드 0개 + EmptyText 비어있지 않을 때만 표시한다.
+        private void RefreshEmptyLabel()
+        {
+            string text = this.EmptyText;
+            bool show = this.rootNodes.Count == 0 && !string.IsNullOrEmpty(text);
+
+            this.EmptyLabel.Text = text;
+            this.EmptyLabel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static void OnEmptyTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernTreeViewControl)d).RefreshEmptyLabel();
         }
 
         /// <summary>트리를 구성할 행 목록.</summary>
@@ -221,6 +250,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (bool)this.GetValue(ShowGuideLinesProperty); }
             set { this.SetValue(ShowGuideLinesProperty, value); }
+        }
+
+        /// <summary>노드 0개일 때의 안내 문구 (기본 "No data", 빈 문자열 = 끔).</summary>
+        public string EmptyText
+        {
+            get { return (string)this.GetValue(EmptyTextProperty); }
+            set { this.SetValue(EmptyTextProperty, value); }
         }
 
         /// <summary>선택 노드의 키. null은 미선택.</summary>
@@ -364,6 +400,8 @@ namespace Modern.Lab.Controls.Wpf.Selection
                     }
                 }
             }
+
+            this.RefreshEmptyLabel();
 
             // 보류/기존 SelectedValue 적용. 새 트리에 없는 값이면 미선택으로 정리.
             this.ApplySelectedValueToNodes();

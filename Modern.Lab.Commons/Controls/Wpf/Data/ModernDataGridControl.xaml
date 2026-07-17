@@ -158,7 +158,8 @@
                                LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
                 </DockPanel>
             </Border>
-            <DataGrid x:Name="InnerDataGrid"
+            <Grid>
+                <DataGrid x:Name="InnerDataGrid"
                   Background="Transparent"
                   BorderThickness="0"
                   ItemsSource="{Binding ItemsSource, ElementName=RootControl}"
@@ -186,6 +187,20 @@
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Auto"
                   SelectionChanged="InnerDataGrid_SelectionChanged" />
+
+                <!-- 빈 상태 안내: 데이터가 0건일 때 데이터 영역 가운데에 흐린
+                     글씨로 표시한다 (EmptyText, 빈 문자열이면 끔). 헤더는 그대로
+                     보이도록 헤더 높이만큼 아래에서 가운데 정렬한다. -->
+                <TextBlock x:Name="EmptyLabel"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,34,0,0"
+                           FontSize="{StaticResource Font.Size.Body}"
+                           Foreground="{StaticResource Brush.TextSecondary}"
+                           IsHitTestVisible="False"
+                           Visibility="Collapsed"
+                           LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
+            </Grid>
         </DockPanel>
     </Border>
 </UserControl>

@@ -22,17 +22,6 @@ namespace Modern.Lab.Samples.Services
             get { return Modern.Lab.Theming.ModernTheme.IsDarkBased ? "#FF99A4" : "#C42B1C"; }
         }
 
-        // 그리드 행 배경색 (Win11 시맨틱 면 색과 동일 계열) — 어두운 테마는 어두운 톤.
-        private static string ScrapRowColor
-        {
-            get { return Modern.Lab.Theming.ModernTheme.IsDarkBased ? "#4C2B2C" : "#FDE7E9"; }
-        }
-
-        private static string DoneRowColor
-        {
-            get { return Modern.Lab.Theming.ModernTheme.IsDarkBased ? "#39412A" : "#DFF6DD"; }
-        }
-
         /// <summary>Scrap 상태 Item에 트리 텍스트 색 컬럼(NODE_COLOR)을 채운다.</summary>
         internal static void ApplyScrapColor(DataTable tree)
         {
@@ -48,7 +37,7 @@ namespace Modern.Lab.Samples.Services
 
             foreach (DataRow row in tree.Rows)
             {
-                if (CellText(row, "STAT_TYP") == "Scrap")
+                if (CellText(row, "STAT_TYP") == "Scrapped")
                 {
                     row["NODE_COLOR"] = ScrapForeColor;   // 트리 텍스트 빨강
                 }
@@ -56,17 +45,17 @@ namespace Modern.Lab.Samples.Services
         }
 
         // 상태(STAT_TYP)별 배지 배경색 — Selection 카드 상태 배지가 쓴다.
-        // Create는 빈 값 = 중립 회색 배지.
+        // Created는 빈 값 = 중립 회색 배지.
         private static readonly System.Collections.Generic.Dictionary<string, string> statBadgeColors =
             new System.Collections.Generic.Dictionary<string, string>
             {
-                { "Create", "" },
-                { "Release", "#DCFCE7" },
+                { "Created", "" },
+                { "Released", "#DCFCE7" },
                 { "Run", "#DBEAFE" },
                 { "Move", "#E0E7FF" },
                 { "Hold", "#FEF3C7" },
                 { "Store", "#D1FAE5" },
-                { "Scrap", "#FEE2E2" }
+                { "Scrapped", "#FEE2E2" }
             };
 
         /// <summary>상태(STAT_TYP)별 배지 배경색. 미지정 상태는 빈 값(중립 배지).</summary>
@@ -108,58 +97,6 @@ namespace Modern.Lab.Samples.Services
             }
         }
 
-        /// <summary>
-        /// 이력 행 배경색 컬럼(ROW_COLOR)을 이벤트로 채운다:
-        /// Scrapped=빨강, JobEnd(완료)=초록, 그 외는 빈칸(기본 교차색 유지).
-        /// </summary>
-        internal static void AddRowColor(DataTable history)
-        {
-            if (history == null)
-            {
-                return;
-            }
-
-            if (!history.Columns.Contains("ROW_COLOR"))
-            {
-                history.Columns.Add("ROW_COLOR", typeof(string));
-            }
-
-            foreach (DataRow row in history.Rows)
-            {
-                string eventCd = CellText(row, "EVENT_CD");
-
-                if (eventCd == "Scrapped")
-                {
-                    row["ROW_COLOR"] = ScrapRowColor;
-                }
-                else if (eventCd == "JobEnd")
-                {
-                    row["ROW_COLOR"] = DoneRowColor;
-                }
-            }
-        }
-
-        /// <summary>웨이퍼 목록의 Scrap 행 배경(옅은 빨강) 컬럼을 채운다.</summary>
-        internal static void AddUnitRowColor(DataTable units)
-        {
-            if (units == null)
-            {
-                return;
-            }
-
-            if (!units.Columns.Contains("ROW_COLOR"))
-            {
-                units.Columns.Add("ROW_COLOR", typeof(string));
-            }
-
-            foreach (DataRow row in units.Rows)
-            {
-                if (CellText(row, "STAT_TYP") == "Scrap")
-                {
-                    row["ROW_COLOR"] = ScrapRowColor;
-                }
-            }
-        }
 
         /// <summary>상태바 우측에 붙일 총 사이클타임(가장 오래된 → 가장 최근 이벤트) 접미어.</summary>
         internal static string CycleTimeSuffix(DataTable history)
@@ -203,7 +140,7 @@ namespace Modern.Lab.Samples.Services
                 string eventCd = CellText(history.Rows[index], "EVENT_CD");
                 bool isCurrent = index == 0; // 최신 = 현재 단계
                 string state = isCurrent
-                    ? (eventCd == "Scrapped" ? "Failed" : "Current")
+                    ? (eventCd == "Scrap" ? "Failed" : "Current")
                     : "Completed";
 
                 steps.Rows.Add(eventCd, state);

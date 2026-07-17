@@ -30,6 +30,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         private string fallbackBadgeMember;
         private string fallbackBadgeColorMember;
         private bool fallbackShowGuideLines;
+        private string fallbackEmptyText = "No data";
 
         /// <summary>선택 노드가 바뀔 때 발생한다.</summary>
         public event EventHandler SelectedValueChanged;
@@ -337,6 +338,36 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 if (this.Wpf != null)
                 {
                     this.Wpf.ShowGuideLines = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 노드가 하나도 없을 때 가운데에 표시할 안내 문구.
+        /// 기본 "No data" — 화면 문맥에 맞게 바꾸거나 빈 문자열로 끈다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("노드 0개일 때 표시할 안내 문구 (빈 문자열 = 표시 안 함)")]
+        [DefaultValue("No data")]
+        [Localizable(true)]
+        public string EmptyText
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.EmptyText;
+                }
+
+                return this.fallbackEmptyText;
+            }
+            set
+            {
+                this.fallbackEmptyText = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.EmptyText = value;
                 }
             }
         }

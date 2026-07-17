@@ -537,7 +537,6 @@ namespace Modern.Lab.Samples
 
         private void FillDetail(DataRowView row)
         {
-            string prodType = HistoryTablePresenter.CellText(row, "ITEM_TYP");
             string subType = HistoryTablePresenter.CellText(row, "SUB_TYP");
             string stat = HistoryTablePresenter.CellText(row, "STAT_TYP");
 
@@ -545,11 +544,8 @@ namespace Modern.Lab.Samples
             string itemId = HistoryTablePresenter.CellText(row, "ITEM_ID");
             this.detailCard.Text = itemId.Length > 0 ? itemId : "Selection";
 
-            // 타입 배지: "Prod Type - Sub Type" 결합 표기 (색은 Sub Type 기준).
-            string typeText = prodType.Length > 0 && subType.Length > 0
-                    ? prodType + " - " + subType
-                    : (subType.Length > 0 ? subType : prodType);
-            this.badgeType.Text = typeText.Length > 0 ? typeText : "-";
+            // 타입 배지: Sub Type만 표기 (색도 Sub Type 기준).
+            this.badgeType.Text = subType.Length > 0 ? subType : "-";
             this.badgeType.Color = typeBadgeColors.ContainsKey(subType) ? typeBadgeColors[subType] : string.Empty;
             this.badgeStat.Text = stat.Length > 0 ? stat : "-";
             this.badgeStat.Color = HistoryTablePresenter.StatBadgeColor(stat);
@@ -588,7 +584,6 @@ namespace Modern.Lab.Samples
 
                 // ---- 이력 그리드 (ITEM_HIS 전체 컬럼; 누락 컬럼은 그리드가 보장) ----
                 HistoryTablePresenter.AddDurationColumn(history);
-                HistoryTablePresenter.AddRowColor(history);
                 this.gridHistory.DataSource = history;
                 this.gridHistory.StatusText = itemId + HistoryTablePresenter.CycleTimeSuffix(history);
                 this.tabHistory.SetTabTitle(0, "Item History — " + itemId);
@@ -604,7 +599,6 @@ namespace Modern.Lab.Samples
                 // ---- 웨이퍼 목록 ----
                 // 할당이 첫 행을 자동 선택하며 SelectionChanged를 1회 일으켜
                 // Unit History 탭(과 Unit 여정 캐시)이 첫 Unit으로 채워진다.
-                HistoryTablePresenter.AddUnitRowColor(units);
                 this.gridUnits.DataSource = units;
                 this.unitCard.Text = "Units — " + itemId;
 
@@ -683,7 +677,6 @@ namespace Modern.Lab.Samples
                 }
 
                 HistoryTablePresenter.AddDurationColumn(history);
-                HistoryTablePresenter.AddRowColor(history);
                 this.gridUnitHistory.DataSource = history;
                 this.gridUnitHistory.StatusText = unitId + HistoryTablePresenter.CycleTimeSuffix(history);
                 this.tabHistory.SetTabTitle(1, "Unit History — " + unitId);

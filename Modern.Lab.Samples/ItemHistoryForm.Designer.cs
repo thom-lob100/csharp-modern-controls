@@ -52,7 +52,6 @@ namespace Modern.Lab.Samples
             this.badgeStat = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.capProduct = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.valProduct = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
-            this.capDescription = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.valDescription = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.capFlow = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.valFlow = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
@@ -287,9 +286,9 @@ namespace Modern.Lab.Samples
             //
             this.gridHistory.AutoFitColumns = true;
             this.gridHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridHistory.EmptyText = "Search by Item ID";
             this.gridHistory.Location = new System.Drawing.Point(0, 0);
             this.gridHistory.Name = "gridHistory";
-            this.gridHistory.RowColorMember = "ROW_COLOR";
             this.gridHistory.ShowStatusBar = true;
             this.gridHistory.Size = new System.Drawing.Size(1164, 390);
             this.gridHistory.StatusCountFormat = "{0:N0} events";
@@ -309,9 +308,9 @@ namespace Modern.Lab.Samples
             //
             this.gridUnitHistory.AutoFitColumns = true;
             this.gridUnitHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridUnitHistory.EmptyText = "Select a unit";
             this.gridUnitHistory.Location = new System.Drawing.Point(0, 0);
             this.gridUnitHistory.Name = "gridUnitHistory";
-            this.gridUnitHistory.RowColorMember = "ROW_COLOR";
             this.gridUnitHistory.ShowStatusBar = true;
             this.gridUnitHistory.Size = new System.Drawing.Size(1164, 390);
             this.gridUnitHistory.StatusCountFormat = "{0:N0} events";
@@ -331,12 +330,13 @@ namespace Modern.Lab.Samples
             this.detailCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.detailCard.Controls.Add(this.badgeType);
             this.detailCard.Controls.Add(this.badgeStat);
+            this.detailCard.Controls.Add(this.valDescription);
             this.detailCard.Controls.Add(this.tblDetail);
             this.detailCard.Dock = System.Windows.Forms.DockStyle.Top;
             this.detailCard.Location = new System.Drawing.Point(0, 106);
             this.detailCard.Name = "detailCard";
             this.detailCard.Padding = new System.Windows.Forms.Padding(12, 40, 12, 8);
-            this.detailCard.Size = new System.Drawing.Size(1164, 190);
+            this.detailCard.Size = new System.Drawing.Size(1164, 152);
             this.detailCard.TabIndex = 0;
             this.detailCard.Text = "Selection";
             this.detailCard.TitleAccent = true;
@@ -374,16 +374,12 @@ namespace Modern.Lab.Samples
             this.tblDetail.Controls.Add(this.valFlow, 5, 1);
             this.tblDetail.Controls.Add(this.capOper, 6, 1);
             this.tblDetail.Controls.Add(this.valOper, 7, 1);
-            this.tblDetail.Controls.Add(this.capDescription, 0, 2);
-            this.tblDetail.Controls.Add(this.valDescription, 1, 2);
-            this.tblDetail.SetColumnSpan(this.valDescription, 7);
             this.tblDetail.Location = new System.Drawing.Point(12, 76);
             this.tblDetail.Name = "tblDetail";
-            this.tblDetail.RowCount = 3;
+            this.tblDetail.RowCount = 2;
             this.tblDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tblDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tblDetail.Size = new System.Drawing.Size(1140, 97);
+            this.tblDetail.Size = new System.Drawing.Size(1140, 65);
             this.tblDetail.TabIndex = 3;
             //
             // badgeType
@@ -464,21 +460,14 @@ namespace Modern.Lab.Samples
             this.valProduct.Text = "-";
             this.valProduct.Child = null;
             //
-            // capDescription
-            //
-            this.capDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.capDescription.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
-            this.capDescription.Margin = new System.Windows.Forms.Padding(10, 5, 3, 5);
-            this.capDescription.Name = "capDescription";
-            this.capDescription.TabIndex = 20;
-            this.capDescription.Text = "Description";
-            this.capDescription.Child = null;
-            //
             // valDescription
             //
-            this.valDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.valDescription.Margin = new System.Windows.Forms.Padding(10, 5, 3, 5);
+            this.valDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.valDescription.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
+            this.valDescription.Location = new System.Drawing.Point(290, 42);
             this.valDescription.Name = "valDescription";
+            this.valDescription.Size = new System.Drawing.Size(862, 20);
             this.valDescription.TabIndex = 21;
             this.valDescription.Text = "-";
             this.valDescription.Child = null;
@@ -655,12 +644,12 @@ namespace Modern.Lab.Samples
             //
             this.treeItemUnit.DisplayMember = "ITEM_ID";
             this.treeItemUnit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeItemUnit.EmptyText = "Search by Item ID";
             this.treeItemUnit.ForeColorMember = "NODE_COLOR";
             this.treeItemUnit.IdMember = "ITEM_ID";
             this.treeItemUnit.Location = new System.Drawing.Point(8, 40);
             this.treeItemUnit.Name = "treeItemUnit";
             this.treeItemUnit.ParentIdMember = "PARENT_ITEM_ID";
-            this.treeItemUnit.ShowGuideLines = true;
             this.treeItemUnit.SubTextMember = "SUB_TYP";
             this.treeItemUnit.Size = new System.Drawing.Size(324, 380);
             this.treeItemUnit.TabIndex = 0;
@@ -691,9 +680,9 @@ namespace Modern.Lab.Samples
             //
             this.gridUnits.AutoFitColumns = true;
             this.gridUnits.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridUnits.EmptyText = "No units";
             this.gridUnits.Location = new System.Drawing.Point(8, 40);
             this.gridUnits.Name = "gridUnits";
-            this.gridUnits.RowColorMember = "ROW_COLOR";
             this.gridUnits.Size = new System.Drawing.Size(324, 192);
             this.gridUnits.TabIndex = 0;
             this.gridUnits.SelectionChanged += new System.EventHandler(this.OnUnitSelectionChanged);
@@ -786,7 +775,6 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeType;
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeStat;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel capProduct;
-        private Modern.Lab.WinForms.Controls.Display.ModernLabel capDescription;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel valDescription;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel capEvent;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel valEvent;

@@ -31,6 +31,17 @@ namespace Modern.Lab.Controls.Wpf.Data
                 new PropertyMetadata(null, OnItemsSourcePropertyChanged));
 
         /// <summary>
+        /// 데이터가 0건일 때 데이터 영역 가운데에 표시할 안내 문구.
+        /// 기본 "No data" — 화면 문맥에 맞게 바꾸거나 빈 문자열로 끈다.
+        /// </summary>
+        public static readonly DependencyProperty EmptyTextProperty =
+            DependencyProperty.Register(
+                "EmptyText",
+                typeof(string),
+                typeof(ModernDataGridControl),
+                new PropertyMetadata("No data", OnEmptyTextChanged));
+
+        /// <summary>
         /// 컬럼 너비를 헤더 캡션과 데이터 내용 중 더 넓은 쪽에 맞춰 자동 계산할지
         /// 여부. ApplyColumns로 정의된 컬럼에만 적용되며, 켜져 있으면 데이터가
         /// 바뀔 때마다 각 컬럼이 잘림 없이 표시되는 최소 너비로 재계산된다
@@ -160,6 +171,9 @@ namespace Modern.Lab.Controls.Wpf.Data
             // 상태바의 카운트 텍스트를 다시 쓴다.
             ((INotifyCollectionChanged)this.InnerDataGrid.Items).CollectionChanged += this.OnItemsCollectionChanged;
 
+            // 초기(데이터 할당 전) 빈 상태 안내를 바로 표시한다.
+            this.RefreshEmptyLabel();
+
             // 행 색상: 행이 화면에 실체화될 때마다 RowColorMember 값으로 배경을 칠한다.
             this.InnerDataGrid.LoadingRow += this.OnLoadingRow;
         }
@@ -169,6 +183,13 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             get { return (IEnumerable)this.GetValue(ItemsSourceProperty); }
             set { this.SetValue(ItemsSourceProperty, value); }
+        }
+
+        /// <summary>데이터 0건일 때의 안내 문구 (기본 "No data", 빈 문자열 = 끔).</summary>
+        public string EmptyText
+        {
+            get { return (string)this.GetValue(EmptyTextProperty); }
+            set { this.SetValue(EmptyTextProperty, value); }
         }
 
         /// <summary>현재 선택된 행 항목.</summary>
@@ -1027,6 +1048,22 @@ namespace Modern.Lab.Controls.Wpf.Data
         private void OnItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             this.RefreshStatusBar();
+            this.RefreshEmptyLabel();
+        }
+
+        // 빈 상태 안내: 데이터 0건 + EmptyText 비어있지 않을 때만 표시한다.
+        private void RefreshEmptyLabel()
+        {
+            string text = this.EmptyText;
+            bool show = this.InnerDataGrid.Items.Count == 0 && !string.IsNullOrEmpty(text);
+
+            this.EmptyLabel.Text = text;
+            this.EmptyLabel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static void OnEmptyTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernDataGridControl)d).RefreshEmptyLabel();
         }
 
         // 교차색은 테마 전환을 따라가도록 리소스 참조로 걸고, 끌 때는 로컬 값을
