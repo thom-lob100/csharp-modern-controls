@@ -31,14 +31,19 @@ namespace Modern.Lab.WinForms.Controls.Display
         // Font.Size.Helper 12 DIU = 9pt, 배지 텍스트는 SemiBold.
         private static readonly Font BadgeFont = new Font("Segoe UI Semibold", 9f);
 
-        // pill 안쪽 패딩 (WPF 버전 Padding 10,2와 동일).
+        // 배지 안쪽 패딩 — 세로 4px로 그리드 셀 배지(2px)보다 한 단계 여유를 줘
+        // 폼 위 단독 배지가 답답하지 않게 한다.
         private const int pillPaddingX = 10;
-        private const int pillPaddingY = 2;
+        private const int pillPaddingY = 4;
+
+        // Rounded 모양의 모서리 반경 (Radius.Sm 4 미러).
+        private const int roundedRadius = 4;
 
         private string colorText;
         private Color pillBackground;
         private Color pillForeground;
         private double fontWidthRatio;
+        private BadgeShape shape;
 
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernStatusBadge()
@@ -51,12 +56,30 @@ namespace Modern.Lab.WinForms.Controls.Display
                 | ControlStyles.SupportsTransparentBackColor,
                 true);
 
-            this.Size = new Size(70, 24);
+            this.Size = new Size(70, 26);
             this.BackColor = System.Drawing.Color.Transparent;
             this.colorText = string.Empty;
             this.pillBackground = NeutralBackground;
             this.pillForeground = NeutralText;
+            this.shape = BadgeShape.Pill;
             this.Text = "상태";
+        }
+
+        /// <summary>배지 모양 — 알약(Pill, 기본) 또는 둥근 사각(Rounded).</summary>
+        [Category("모던 컨트롤")]
+        [Description("배지 모양 (Pill = 알약, Rounded = 둥근 사각)")]
+        [DefaultValue(BadgeShape.Pill)]
+        public BadgeShape Shape
+        {
+            get
+            {
+                return this.shape;
+            }
+            set
+            {
+                this.shape = value;
+                this.Invalidate();
+            }
         }
 
         /// <summary>
@@ -150,7 +173,9 @@ namespace Modern.Lab.WinForms.Controls.Display
             SmoothingMode originalMode = e.Graphics.SmoothingMode;
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
-            using (GraphicsPath path = CreateCapsulePath(pill))
+            using (GraphicsPath path = this.shape == BadgeShape.Rounded
+                    ? CreateRoundedPath(pill, roundedRadius)
+                    : CreateCapsulePath(pill))
             using (SolidBrush fillBrush = new SolidBrush(this.pillBackground))
             {
                 e.Graphics.FillPath(fillBrush, path);
@@ -195,6 +220,26 @@ namespace Modern.Lab.WinForms.Controls.Display
                 color = System.Drawing.Color.Empty;
                 return false;
             }
+        }
+
+        // 모서리만 둥근 사각 경로 (Radius.Sm과 동일한 인상).
+        private static GraphicsPath CreateRoundedPath(Rectangle bounds, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            int diameter = Math.Min(radius * 2, Math.Min(bounds.Height, bounds.Width));
+
+            if (diameter <= 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+
+            path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180f, 90f);
+            path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270f, 90f);
+            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0f, 90f);
+            path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90f, 90f);
+            path.CloseFigure();
+            return path;
         }
 
         // 좌우가 반원인 캡슐 모양 경로 (Radius.Pill과 동일한 인상).

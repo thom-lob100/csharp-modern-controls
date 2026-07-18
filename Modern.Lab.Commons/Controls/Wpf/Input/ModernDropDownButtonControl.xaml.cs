@@ -47,6 +47,25 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernDropDownButtonControl),
                 new PropertyMetadata(string.Empty, OnDataShapeChanged));
 
+        /// <summary>항목 실행 가능 여부로 쓸 컬럼/속성 이름 (bool 또는
+        /// "Y"/"true"/"1"). 비우면 모든 항목이 활성이다. 비활성 항목은
+        /// 회색으로 표시되고 클릭되지 않는다.</summary>
+        public static readonly DependencyProperty EnabledMemberPathProperty =
+            DependencyProperty.Register(
+                "EnabledMemberPath",
+                typeof(string),
+                typeof(ModernDropDownButtonControl),
+                new PropertyMetadata(string.Empty, OnDataShapeChanged));
+
+        /// <summary>버튼 시각 종류 — ModernButton과 같은 문법(Secondary 기본,
+        /// Execute = Success 초록 채움 등).</summary>
+        public static readonly DependencyProperty KindProperty =
+            DependencyProperty.Register(
+                "Kind",
+                typeof(ButtonKind),
+                typeof(ModernDropDownButtonControl),
+                new PropertyMetadata(ButtonKind.Secondary));
+
         private readonly ObservableCollection<DropDownButtonItem> menuItems;
 
         /// <summary>메뉴 항목이 클릭될 때 발생한다.</summary>
@@ -87,6 +106,20 @@ namespace Modern.Lab.Controls.Wpf.Input
             set { this.SetValue(ValueMemberPathProperty, value); }
         }
 
+        /// <summary>항목 실행 가능 여부로 쓸 컬럼/속성 이름 (비우면 전부 활성).</summary>
+        public string EnabledMemberPath
+        {
+            get { return (string)this.GetValue(EnabledMemberPathProperty); }
+            set { this.SetValue(EnabledMemberPathProperty, value); }
+        }
+
+        /// <summary>버튼 시각 종류 (Secondary 기본, Execute = 초록 채움).</summary>
+        public ButtonKind Kind
+        {
+            get { return (ButtonKind)this.GetValue(KindProperty); }
+            set { this.SetValue(KindProperty, value); }
+        }
+
         private static void OnDataShapeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((ModernDropDownButtonControl)d).RebuildItems();
@@ -112,8 +145,30 @@ namespace Modern.Lab.Controls.Wpf.Input
                     : MemberPathReader.Read(row, this.ValueMemberPath);
 
                 string displayText = MemberPathReader.ReadDisplayText(row, this.DisplayMemberPath);
-                this.menuItems.Add(new DropDownButtonItem(value, displayText));
+                this.menuItems.Add(new DropDownButtonItem(value, displayText, this.ReadEnabled(row)));
             }
+        }
+
+        // 항목 실행 가능 여부를 관용적으로 읽는다 — bool 또는 "Y"/"true"/"1"
+        // 문자열을 허용하고, 경로가 비어 있으면 항상 활성이다.
+        private bool ReadEnabled(object row)
+        {
+            if (string.IsNullOrEmpty(this.EnabledMemberPath))
+            {
+                return true;
+            }
+
+            object value = MemberPathReader.Read(row, this.EnabledMemberPath);
+
+            if (value is bool)
+            {
+                return (bool)value;
+            }
+
+            string text = value == null ? string.Empty : value.ToString().Trim();
+            return string.Equals(text, "Y", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(text, "true", StringComparison.OrdinalIgnoreCase)
+                    || text == "1";
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

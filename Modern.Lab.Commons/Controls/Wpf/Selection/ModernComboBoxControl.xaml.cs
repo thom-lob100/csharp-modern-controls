@@ -92,6 +92,15 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(false));
 
+        /// <summary>강조 표시 — 주목이 필요한 핵심 선택 필드에 액센트색
+        /// 테두리를 덧그린다 (Required의 빨간 바와 별개로 함께 쓸 수 있다).</summary>
+        public static readonly DependencyProperty HighlightProperty =
+            DependencyProperty.Register(
+                "Highlight",
+                typeof(bool),
+                typeof(ModernComboBoxControl),
+                new PropertyMetadata(false));
+
         private readonly ObservableCollection<object> filteredItems;
         private TextBox editableTextBox;
         private bool isRebuildingItems;
@@ -124,6 +133,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (bool)this.GetValue(RequiredProperty); }
             set { this.SetValue(RequiredProperty, value); }
+        }
+
+        /// <summary>강조 표시 — 액센트색 테두리로 필드에 주목을 준다.</summary>
+        public bool Highlight
+        {
+            get { return (bool)this.GetValue(HighlightProperty); }
+            set { this.SetValue(HighlightProperty, value); }
         }
 
         /// <summary>현재 선택된 항목.</summary>

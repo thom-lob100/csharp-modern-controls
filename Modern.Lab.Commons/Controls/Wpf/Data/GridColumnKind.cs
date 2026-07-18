@@ -24,6 +24,14 @@ namespace Modern.Lab.Controls.Wpf.Data
         /// CellButtonClick 이벤트가 발생한다. ButtonEnabledMember 컬럼 값으로
         /// 행별 활성/비활성을 제어할 수 있다.
         /// </summary>
-        Button
+        Button,
+
+        /// <summary>
+        /// 콤보 입력 셀 — ComboItems의 고정 선택지 중 하나를 고르면 원본 행
+        /// 컬럼 값이 즉시 갱신된다 (양방향, 판정/등급 입력용). 그리드가 읽기
+        /// 전용이어도 콤보는 동작한다. ComboEnabledMember 컬럼 값(bool/Y/N)으로
+        /// 행별 입력 가능 여부를 제어한다 (비활성 행은 회색 잠금 표시).
+        /// </summary>
+        Combo
     }
 }

@@ -152,6 +152,120 @@
         </Setter>
     </Style>
 
+    <!-- 그리드 셀 콤보 항목 (GridColumnKind.Combo 전용) — ModernComboBox
+         항목과 같은 문법의 컴팩트 버전. -->
+    <Style x:Key="Parts.GridComboBoxItemStyle" TargetType="ComboBoxItem">
+        <Setter Property="Padding" Value="10,4,10,4" />
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Label}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="ItemBorder"
+                            Background="Transparent"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.HoverBackground}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.SelectedBackground}" />
+                            <Setter Property="Foreground" Value="{StaticResource Brush.SelectedText}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 그리드 셀 콤보의 필드 표면 + 셰브런 — Parts.FieldToggleTemplate과
+         같은 문법이지만 배경을 TemplateBinding으로 받아, 배지형 콤보가 선택
+         값의 배지 색으로 필드 전체를 칠할 수 있다 (기본은 스타일의 Surface). -->
+    <ControlTemplate x:Key="Parts.GridComboToggleTemplate" TargetType="ToggleButton">
+        <Border x:Name="FieldBorder"
+                CornerRadius="{StaticResource Radius.Sm}"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1">
+            <TextBlock Text="&#xE70D;"
+                       FontFamily="{StaticResource Font.Family.Icon}"
+                       FontSize="{StaticResource Font.Size.IconSm}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       Foreground="{StaticResource Brush.TextSecondary}" />
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource Brush.BorderHover}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource Brush.FocusBorder}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="FieldBorder" Property="Background" Value="{StaticResource Brush.DisabledBackground}" />
+                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource Brush.BorderSubtle}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- 그리드 셀 콤보 (GridColumnKind.Combo 전용): 24px 컴팩트 필드 —
+         행 높이(32) 안에 세로 중앙으로 앉는다. 필드 배경은 ComboBox의
+         Background를 따른다(기본 Surface) — 배지형 콤보는 이 값을 선택 값의
+         배지 색으로 바인딩해 필드 전체가 배지처럼 칠해진다. -->
+    <Style x:Key="Parts.GridComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Height" Value="24" />
+        <Setter Property="FontSize" Value="{StaticResource Font.Size.Label}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}" />
+        <Setter Property="Background" Value="{StaticResource Brush.Surface}" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource Parts.GridComboBoxItemStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="DropToggle"
+                                      Focusable="False"
+                                      ClickMode="Press"
+                                      Background="{TemplateBinding Background}"
+                                      Template="{StaticResource Parts.GridComboToggleTemplate}"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <ContentPresenter x:Name="ContentSite"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          Margin="10,0,26,0"
+                                          VerticalAlignment="Center"
+                                          IsHitTestVisible="False" />
+                        <Popup x:Name="PART_Popup"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Slide">
+                            <Border Background="{StaticResource Brush.Surface}"
+                                    BorderBrush="{StaticResource Brush.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="{StaticResource Radius.Sm}"
+                                    Margin="0,2,0,0"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource Brush.DisabledText}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- 둥근 필드 표면(OuterBorder) 공용 스타일: 테두리 색은 hover/포커스에
          반응하고, 배경은 비활성 상태에 반응한다. hover/포커스/비활성 판정이
          모두 루트(RootControl) 기준인 컨트롤(Numeric/Date/Month)에서 쓴다 —

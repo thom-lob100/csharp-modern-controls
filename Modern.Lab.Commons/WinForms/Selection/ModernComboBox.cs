@@ -45,6 +45,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         private string fallbackPlaceholder;
         private ComboBoxStyle fallbackDropDownStyle;
         private bool fallbackRequired;
+        private bool fallbackHighlight;
 
         /// <summary>선택이 바뀔 때 발생한다(WinForms 호환 이름).</summary>
         public event EventHandler SelectedIndexChanged;
@@ -147,6 +148,35 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 }
 
                 this.InvalidateDesignTimePreview();
+            }
+        }
+
+        /// <summary>
+        /// 강조 표시 — 주목이 필요한 핵심 선택 필드에 액센트색 테두리를
+        /// 덧그린다 (Required의 빨간 바와 별개로 함께 쓸 수 있다).
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("강조 표시(액센트색 테두리) — 주목이 필요한 핵심 필드용")]
+        [DefaultValue(false)]
+        public bool Highlight
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Highlight;
+                }
+
+                return this.fallbackHighlight;
+            }
+            set
+            {
+                this.fallbackHighlight = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Highlight = value;
+                }
             }
         }
 

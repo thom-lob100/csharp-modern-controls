@@ -187,3 +187,56 @@ this.gridEmployee = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
 충실히 작성해 사람이 프로그램을 켜고 그대로 따라 확인할 수 있게 한다.
 항목은 "◯◯ 콤보에서 값을 바꾸면 그리드가 다시 조회된다"처럼
 **동작 단위**로 쓴다.
+
+## 5. 메인 프레임 통합 — 화면 오픈 지점
+
+데모 갤러리의 셸(`SampleShellForm`)은 **회사로 가져가지 않는다** — 홈 데모
+전용이다. 회사에는 이미 화면 폼을 여는 메인 프레임(메뉴/MDI)이 있고, 변환한
+폼은 평범한 `Form`이라 기존 오픈 방식(`Show()`/`ShowDialog()`, 또는
+`TopLevel=false` 임베드) 그대로 동작한다. 오픈 흐름 자체는 바꾸지 않는다
+(§1 원칙).
+
+다만 셸에서 검증한 두 패턴은 회사 프레임의 **폼 오픈 지점**에 이식할 가치가
+있다.
+
+### 5-1. 테마 적용 한 줄 (선택 — 다크/색상 테마를 쓸 때만)
+
+폼 생성자에서 `InitializeComponent()` 직후 한 줄. 라이트 모드에서는 no-op이라
+넣어 두어도 무해하다.
+
+```csharp
+public PendingRequestForm()
+{
+    this.InitializeComponent();
+    Modern.Lab.Theming.ModernThemeWinForms.Apply(this);   // 테마 한 줄 적용
+}
+```
+
+### 5-2. 로딩 커버 한 줄 (선택 — 폼이 열릴 때 깜빡이면)
+
+폼이 **보이는 상태로** 열리면(특히 패널 임베드), ElementHost의 WPF 콘텐츠
+생성과 그리드 AutoFit 컬럼 계산이 화면에 노출되어 컨트롤들이 크기를 잡아가는
+중간 레이아웃이 그대로 깜빡인다.
+
+라이브러리의 `ModernLoadCover` 헬퍼가 이를 한 줄로 가린다 — 폼 배경색 커버
+패널을 덮어 두었다가 폼 표시 후 WPF 초기 레이아웃이 끝나는 시점(디스패처
+유휴)에 걷어서, 완성된 화면만 한 번에 보이게 한다. **폼 스스로 커버를 덮는
+방식이라 메인 프레임(폼을 여는 쪽)을 고칠 수 없어도 적용된다** — 별도
+창(`Show`/`ShowDialog`)이든 패널 임베드(`TopLevel=false`)든 여는 방식과
+무관하다.
+
+폼 생성자에서 `InitializeComponent()` 직후 한 줄:
+
+```csharp
+public PendingRequestForm()
+{
+    this.InitializeComponent();
+
+    // 로딩 커버 한 줄 — 오픈 시 깜빡임을 폼 스스로 가린다.
+    Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+}
+```
+
+별도 창으로 여는 폼은 창 표시 전에 Load와 바인딩이 끝나 깜빡임이 거의 없다 —
+그 경우 커버는 무해하게 곧바로 걷히므로, 여는 방식을 모르면 그냥 넣어 둔다.
+참조 구현: 데모 갤러리의 모든 샘플 폼 생성자.

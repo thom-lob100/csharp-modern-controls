@@ -3,10 +3,11 @@ namespace Modern.Lab.Controls.Wpf.Input
     /// <summary>ModernDropDownButtonControl의 메뉴 항목 하나를 나타내는 UI 항목 모델.</summary>
     public class DropDownButtonItem
     {
-        public DropDownButtonItem(object value, string displayText)
+        public DropDownButtonItem(object value, string displayText, bool isEnabled)
         {
             this.Value = value;
             this.DisplayText = displayText;
+            this.IsEnabled = isEnabled;
         }
 
         /// <summary>항목 값 (ValueMemberPath 기준).</summary>
@@ -14,5 +15,9 @@ namespace Modern.Lab.Controls.Wpf.Input
 
         /// <summary>메뉴에 표시되는 텍스트.</summary>
         public string DisplayText { get; private set; }
+
+        /// <summary>항목 실행 가능 여부 (EnabledMemberPath 기준) — 비활성이면
+        /// 회색으로 표시되고 클릭되지 않는다.</summary>
+        public bool IsEnabled { get; private set; }
     }
 }

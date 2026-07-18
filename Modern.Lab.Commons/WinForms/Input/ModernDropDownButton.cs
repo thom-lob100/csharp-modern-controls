@@ -24,9 +24,68 @@ namespace Modern.Lab.WinForms.Controls.Input
         private string fallbackText;
         private string fallbackDisplayMember;
         private string fallbackValueMember;
+        private string fallbackEnabledMember;
+        private Modern.Lab.Controls.Wpf.Input.ButtonKind fallbackKind;
 
         /// <summary>메뉴 항목이 클릭될 때 발생한다.</summary>
         public event EventHandler<Modern.Lab.Controls.Wpf.Input.DropDownItemClickedEventArgs> ItemClicked;
+
+        /// <summary>버튼 시각 종류 — ModernButton과 같은 문법
+        /// (Secondary 기본, Execute = Success 초록 채움).</summary>
+        [Category("모던 컨트롤")]
+        [Description("버튼 시각 종류 (Secondary 기본, Execute = 초록 채움)")]
+        [DefaultValue(Modern.Lab.Controls.Wpf.Input.ButtonKind.Secondary)]
+        public Modern.Lab.Controls.Wpf.Input.ButtonKind Kind
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.Kind;
+                }
+
+                return this.fallbackKind;
+            }
+            set
+            {
+                this.fallbackKind = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.Kind = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 항목 실행 가능 여부로 쓸 컬럼/속성 이름 (bool 또는 "Y"/"true"/"1").
+        /// 비우면 모든 항목이 활성이다. 비활성 항목은 회색으로 표시되고
+        /// 클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와 같은 의미.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("항목 실행 가능 여부 컬럼/속성 이름 (비우면 전부 활성)")]
+        [DefaultValue("")]
+        public string EnabledMember
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.EnabledMemberPath;
+                }
+
+                return this.fallbackEnabledMember;
+            }
+            set
+            {
+                this.fallbackEnabledMember = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.EnabledMemberPath = value;
+                }
+            }
+        }
 
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernDropDownButton()
@@ -35,6 +94,8 @@ namespace Modern.Lab.WinForms.Controls.Input
             this.fallbackText = "메뉴";
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
+            this.fallbackEnabledMember = string.Empty;
+            this.fallbackKind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Secondary;
 
             if (this.Wpf != null)
             {

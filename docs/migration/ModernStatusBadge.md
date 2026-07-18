@@ -13,6 +13,7 @@
 |---|---|
 | `Text` | 배지 텍스트. `Control.Text` override, `[Localizable(true)]` |
 | `Color` | 배경색 문자열 (`"#DCFCE7"` hex 또는 `"SkyBlue"` 색 이름). 비우거나 파싱 불가면 중립 회색 |
+| `Shape` | 모양 — `Pill`(알약, 기본) / `Rounded`(둥근 사각). 상태 강조는 알약, 수치/코드 표시는 둥근 사각 권장 |
 | `Enabled` | 전파됨 |
 
 ## 사용 예시

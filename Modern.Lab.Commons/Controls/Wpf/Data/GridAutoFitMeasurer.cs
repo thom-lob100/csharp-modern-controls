@@ -33,6 +33,8 @@ namespace Modern.Lab.Controls.Wpf.Data
         private const double autoFitBadgeReserve = 22d;
         // 버튼 셀 추가 여유: 버튼 좌우 패딩(14+14) + 테두리(1+1).
         private const double autoFitButtonChromeReserve = 30d;
+        // 콤보 셀 추가 여유: 좌 패딩(10) + 셰브런 예약(26) + 테두리/여백.
+        private const double autoFitComboChromeReserve = 44d;
 
         /// <summary>
         /// 각 컬럼 너비를 max(헤더 캡션 폭 + 글리프 여유, 데이터 최대 폭)으로
@@ -74,7 +76,32 @@ namespace Modern.Lab.Controls.Wpf.Data
                 double width = (MeasureText(definition.HeaderText, headerTypeface, headerFontSize, pixelsPerDip) * widthRatio)
                     + autoFitCellPadding + autoFitSortGlyphReserve;
 
-                if (definition.Kind == GridColumnKind.Button)
+                if (definition.Kind == GridColumnKind.Combo)
+                {
+                    // 콤보 컬럼은 정의 폭 우선 — 없으면 선택지 중 최장 텍스트 폭 +
+                    // 콤보 크롬(패딩/셰브런) 기준으로 잰다. 데이터 값은 선택지의
+                    // 부분집합이라 따로 측정하지 않는다.
+                    if (definition.Width > 0d)
+                    {
+                        grid.Columns[index].Width = new DataGridLength(definition.Width);
+                        continue;
+                    }
+
+                    if (definition.ComboItems != null)
+                    {
+                        foreach (string item in definition.ComboItems)
+                        {
+                            double itemWidth = (MeasureText(item, bodyTypeface, bodyFontSize, pixelsPerDip) * widthRatio)
+                                + autoFitCellPadding + autoFitComboChromeReserve;
+
+                            if (itemWidth > width)
+                            {
+                                width = itemWidth;
+                            }
+                        }
+                    }
+                }
+                else if (definition.Kind == GridColumnKind.Button)
                 {
                     // 버튼 컬럼은 캡션 폭 기준 — 데이터 내용은 측정하지 않는다.
                     // 캡션이 SemiBold로 그려지므로 측정도 SemiBold 폭으로 한다.

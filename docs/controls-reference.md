@@ -153,7 +153,8 @@ this.lblPageTitle.Text = "직원관리";
 | `Execute` | 초록 채움 | 중요 실행 동작 (실행/승인) |
 | `Secondary` | 흰 배경 + 회색 외곽선 | 일반 동작 (신규/저장/수정) |
 | `Danger` | 빨강 글자·외곽선 | 파괴적 동작 (삭제) |
-| `Subtle` | 테두리 없는 텍스트 | 저강조 동작 (초기화/엑셀) |
+| `Subtle` | 테두리 없는 텍스트 | 저강조 동작 (초기화) |
+| `Excel` | 초록 글자·외곽선 (hover 시 옅은 초록 채움; 테마별 `Brush.Excel*` 토큰) | 엑셀 내보내기 전용 포인트 |
 
 ### 예제
 
@@ -180,6 +181,8 @@ this.btnDelete.Text = "삭제";
 |---|---|
 | `Text` | 버튼 캡션 (`Control.Text` override, localizable) |
 | `DataSource` / `DisplayMember` / `ValueMember` | 메뉴 항목 — 공통 데이터 계약과 동일 |
+| `EnabledMember` | 항목 실행 가능 여부 컬럼/속성 이름 (bool 또는 `"Y"`/`"true"`/`"1"`). 비우면 전부 활성. 비활성 항목은 회색으로 표시되고 클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와 같은 의미. 활성 판정이 상태에 따라 변하면 값 갱신 후 `DataSource`를 다시 할당한다 |
+| `Kind` | 버튼 시각 종류 — `ButtonKind.Secondary`(기본, 흰 배경) / `Execute`(Success 초록 채움; 실행 버튼 강조) / `Excel`(초록 아웃라인; 엑셀 내보내기 포인트) |
 | `ItemClicked` | 항목 클릭 시 발생. `e.Value`(코드) / `e.DisplayText`(명칭) 제공 |
 
 ```csharp
@@ -384,6 +387,7 @@ this.monthHire.Value = null;   // 초기화
 | `DropDownStyle` | `ComboBoxStyle` | `DropDown`(기본) = 검색형: 타이핑으로 필터(초성 포함), **입력을 지우면 선택 해제**. `DropDownList` = 선택 전용 |
 | `PlaceholderText` | string | 미선택/미입력 시 힌트 — "전체" 더미 행 대신 사용 권장 |
 | `Text` | string | 현재 선택/입력 텍스트 (쓰기는 DropDown 모드만) |
+| `Highlight` | bool | 강조 표시 — 필드에 액센트색 테두리를 덧그린다. 한 화면에서 특별히 주목이 필요한 핵심 선택 필드에만 사용 (`Required`와 별개) |
 | `SelectedIndexChanged` | 이벤트 | `DataSource` 할당 시 1회 + 사용자 선택 변경 시 |
 | `ConfigureDropDownColumns(...)` | 메서드 | 멀티컬럼 드롭다운 구성 (아래) |
 
@@ -576,6 +580,9 @@ this.treeItem.ShowGuideLines = true;
 | `RowColorMember` | string | 행 배경색 컬럼 (선택). 값은 `"#FEE2E2"` 같은 색 문자열 — 비었거나 해석 불가한 행은 기본 배경 유지. 상태별 행 강조용 (상태 표시가 한 컬럼으로 충분하면 `Kind = Badge` 컬럼도 대안) |
 | `EmptyText` | string | 데이터 0건일 때 데이터 영역 가운데 표시할 안내 문구. 기본 `"No data"` — 화면 문맥에 맞게 변경(`"Search by Item ID"` 등)하거나 빈 문자열로 끔 |
 | `CellButtonClick` | 이벤트 | 버튼 컬럼(`Kind = Button`) 셀 클릭 시. `e.Item`이 클릭 행(`DataRowView`), `e.DataPropertyName`이 버튼 컬럼 이름 |
+| 콤보 컬럼 | 컬럼 정의 | `Kind = GridColumnKind.Combo` — 셀 콤보로 `ComboItems`(고정 선택지 `string[]`) 중 하나를 고르면 원본 행 컬럼 값이 즉시 갱신된다(양방향, 판정/등급 입력용). `ComboEnabledMember` 컬럼 값(bool/`"Y"`)으로 행별 입력 가능 제어 — 비활성 행은 회색 잠금. `ComboItemColors`(선택지와 같은 순서의 색 배열)를 주면 선택 값/드롭다운 항목이 레티클(둥근 사각) 배지로 표시되고 필드 표면도 선택 값의 배지 색으로 칠해진다. 입력분만 전송하려면 바인딩 직전 `AcceptChanges()` 후 `GetChanges()` 사용 |
+| `ContextMenuStrip` | 속성(표준) | 지정하면 **행 우클릭 시 그 행을 먼저 현재 행으로 선택**한 뒤 메뉴가 커서 위치에 뜬다 — 메뉴 핸들러는 `SelectedItem` 기준으로 처리. 행 밖(헤더/빈 영역) 우클릭에는 뜨지 않는다. 행 단위 부가 처리가 많아 버튼 컬럼으로 다 담기 어려울 때 사용 |
+| `AllowColumnFilters` | bool | 기본 true. 켜져 있으면 텍스트/배지 컬럼 헤더에 **깔때기 버튼**이 붙고, 클릭 시 그 컬럼의 고유 값 체크리스트 팝업으로 행을 거른다(엑셀식 값 필터 — 체크 즉시 반영, `(All)`/`Clear Filter` 포함). 필터는 화면 뷰에만 적용되고 원본 데이터는 그대로이며, 필터가 걸린 컬럼은 깔때기가 액센트색으로 표시된다. 선택 상태는 `DataSource` 재할당(재조회) 후에도 유지된다. 상태바 행 수/EmptyText는 필터 결과를 따라간다 |
 
 ### 예제 — 컬럼 정의와 선택 행 사용
 
@@ -774,13 +781,15 @@ this.stepFlow.DataSource = steps;         // → ●─●─◎ 진행 바
 |---|---|
 | `Text` | 배지 텍스트 (`Control.Text` override, localizable) |
 | `Color` | 배경색 (hex/색 이름 문자열; 비우면 중립 회색) |
+| `Shape` | 모양 — `Pill`(알약, 기본) / `Rounded`(둥근 사각). 상태 강조는 알약, 수치/코드 표시는 둥근 사각이 어울린다 |
 
 ```csharp
 this.badgeStatus.Text = "승인";
 this.badgeStatus.Color = "#DCFCE7";   // 연초록 배경 + 진초록 글씨(자동)
+this.badgeCount.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
 ```
 
-권장 크기: 텍스트에 맞는 폭 × 24.
+권장 크기: 텍스트에 맞는 폭 × 26 (배지 세로 패딩 4px 기준).
 
 ---
 

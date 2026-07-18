@@ -35,6 +35,7 @@ namespace Modern.Lab.WinForms.Controls.Data
         // 동작하도록 하는 폴백 저장소.
         private bool fallbackAutoGenerateColumns;
         private bool fallbackAutoFitColumns;
+        private bool fallbackAllowColumnFilters;
         private bool fallbackAlternatingRowColors;
         private bool fallbackShowStatusBar;
         private string fallbackStatusText;
@@ -56,12 +57,20 @@ namespace Modern.Lab.WinForms.Controls.Data
         /// <summary>높이 변화로 표시 가능 행 수(VisibleRowCapacity)가 바뀔 때 발생한다.</summary>
         public event EventHandler VisibleRowCapacityChanged;
 
+        /// <summary>
+        /// 컬럼 값 필터 상태가 바뀔 때(체크/해제/Clear) 발생한다 — 페이지
+        /// 슬라이스를 바인딩하는 화면이 전체 결과에 같은 필터를 적용해
+        /// (MatchesColumnFilters) 페이지를 재계산할 때 쓴다.
+        /// </summary>
+        public event EventHandler ColumnFiltersChanged;
+
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernDataGrid()
         {
             this.Size = new Size(480, 240);
             this.fallbackAutoGenerateColumns = true;
             this.fallbackAutoFitColumns = false;
+            this.fallbackAllowColumnFilters = true;
             this.fallbackAlternatingRowColors = false;
             this.fallbackShowStatusBar = false;
             this.fallbackStatusText = string.Empty;
@@ -73,6 +82,56 @@ namespace Modern.Lab.WinForms.Controls.Data
                 this.Wpf.SelectionChanged += this.OnWpfSelectionChanged;
                 this.Wpf.VisibleRowCapacityChanged += this.OnWpfVisibleRowCapacityChanged;
                 this.Wpf.CellButtonClick += this.OnWpfCellButtonClick;
+                this.Wpf.RowRightClick += this.OnWpfRowRightClick;
+                this.Wpf.ColumnFiltersChanged += this.OnWpfColumnFiltersChanged;
+            }
+        }
+
+        private void OnWpfColumnFiltersChanged(object sender, EventArgs e)
+        {
+            if (this.ColumnFiltersChanged != null)
+            {
+                this.ColumnFiltersChanged(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// 필터 팝업의 고유 값 원천 — 페이지 슬라이스를 바인딩하는 화면은
+        /// 전체 결과(DataTable)를 지정해 체크리스트에 전체 값이 나오게 한다.
+        /// null이면 현재 DataSource에서 모은다.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public object FilterValueSource
+        {
+            get
+            {
+                return this.Wpf != null ? this.Wpf.FilterValueSource : null;
+            }
+            set
+            {
+                if (this.Wpf != null)
+                {
+                    this.Wpf.FilterValueSource = value;
+                }
+            }
+        }
+
+        /// <summary>행(DataRow/DataRowView 등)이 현재 컬럼 필터를 전부
+        /// 통과하는지 판정한다 (필터 없으면 항상 true).</summary>
+        public bool MatchesColumnFilters(object item)
+        {
+            return this.Wpf == null || this.Wpf.MatchesColumnFilters(item);
+        }
+
+        // 행 우클릭: WPF 쪽이 우클릭한 행을 현재 행으로 선택한 뒤 알려주면,
+        // 표준 WinForms 방식대로 이 컨트롤에 지정된 ContextMenuStrip을 커서
+        // 위치에 띄운다 — DataGridView + ContextMenuStrip 조합과 같은 사용법이다.
+        private void OnWpfRowRightClick(object sender, EventArgs e)
+        {
+            if (this.ContextMenuStrip != null)
+            {
+                this.ContextMenuStrip.Show(System.Windows.Forms.Control.MousePosition);
             }
         }
 
@@ -205,6 +264,38 @@ namespace Modern.Lab.WinForms.Controls.Data
                 if (this.Wpf != null)
                 {
                     this.Wpf.AutoFitColumns = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 컬럼 값 필터(헤더 깔때기) 사용 여부 (기본 true). ConfigureColumns로
+        /// 정의한 텍스트/배지 컬럼 헤더에 깔때기 버튼이 붙고, 클릭 시 고유 값
+        /// 체크리스트로 행을 거른다 (엑셀식 값 필터 — 화면 뷰에만 적용되고
+        /// 원본 데이터는 그대로다). 필터 선택은 DataSource 재할당(재조회)
+        /// 후에도 유지된다. 어울리지 않는 그리드는 false로 끈다.
+        /// </summary>
+        [Category("모던 컨트롤")]
+        [Description("컬럼 헤더 깔때기 값 필터 사용 여부 (텍스트/배지 컬럼, 기본 true)")]
+        [DefaultValue(true)]
+        public bool AllowColumnFilters
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.AllowColumnFilters;
+                }
+
+                return this.fallbackAllowColumnFilters;
+            }
+            set
+            {
+                this.fallbackAllowColumnFilters = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.AllowColumnFilters = value;
                 }
             }
         }

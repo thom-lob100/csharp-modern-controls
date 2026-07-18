@@ -35,12 +35,14 @@
                             BorderBrush="{StaticResource Brush.Border}"
                             BorderThickness="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Text, ElementName=RootControl}"
+                            <TextBlock x:Name="CaptionText"
+                                       Text="{Binding Text, ElementName=RootControl}"
                                        FontSize="{StaticResource Font.Size.Body}"
                                        Foreground="{StaticResource Brush.TextPrimary}"
                                        VerticalAlignment="Center"
                                        LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
-                            <TextBlock Text="&#xE70D;"
+                            <TextBlock x:Name="ChevronText"
+                                       Text="&#xE70D;"
                                        FontFamily="{StaticResource Font.Family.Icon}"
                                        FontSize="{StaticResource Font.Size.IconSm}"
                                        Margin="6,0,0,0"
@@ -55,9 +57,62 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.FocusBorder}" />
                         </Trigger>
+                        <!-- Execute: 중요 실행 액션용 Success 초록 채움 (ModernButton과
+                             같은 문법). 기본 트리거보다 뒤에 둬 hover/열림 상태도
+                             초록 계열로 덮는다. -->
+                        <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Execute">
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.Success}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.Success}" />
+                            <Setter TargetName="CaptionText" Property="Foreground" Value="{StaticResource Brush.OnAccent}" />
+                            <Setter TargetName="ChevronText" Property="Foreground" Value="{StaticResource Brush.OnAccent}" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Execute" />
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.SuccessHover}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.SuccessHover}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Execute" />
+                                <Condition Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.SuccessPressed}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.SuccessPressed}" />
+                        </MultiDataTrigger>
+                        <!-- Excel: 내보내기 전용 초록 아웃라인 (ModernButton과 같은
+                             문법 — Brush.Excel* 토큰이라 테마별로 다르게 정의된다). -->
+                        <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Excel">
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.Surface}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.ExcelBorderSoft}" />
+                            <Setter TargetName="CaptionText" Property="Foreground" Value="{StaticResource Brush.ExcelText}" />
+                            <Setter TargetName="ChevronText" Property="Foreground" Value="{StaticResource Brush.ExcelText}" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Excel" />
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.ExcelBackground}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.ExcelBorder}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Excel" />
+                                <Condition Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.ExcelBorderSoft}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.ExcelPressed}" />
+                            <Setter TargetName="CaptionText" Property="Foreground" Value="{StaticResource Brush.ExcelPressed}" />
+                            <Setter TargetName="ChevronText" Property="Foreground" Value="{StaticResource Brush.ExcelPressed}" />
+                        </MultiDataTrigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="ButtonBorder" Property="Background" Value="{StaticResource Brush.DisabledBackground}" />
                             <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{StaticResource Brush.BorderSubtle}" />
+                            <Setter TargetName="CaptionText" Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
+                            <Setter TargetName="ChevronText" Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -81,13 +136,20 @@
                 <ItemsControl x:Name="MenuItemsControl">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Click="MenuItem_Click" Focusable="False" Cursor="Hand">
+                            <!-- 비활성 항목(IsEnabled=false)은 회색으로 구분되고
+                                 클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와
+                                 같은 의미다. -->
+                            <Button Click="MenuItem_Click"
+                                    Focusable="False"
+                                    Cursor="Hand"
+                                    IsEnabled="{Binding IsEnabled}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="ItemBorder"
                                                 Background="Transparent"
                                                 Padding="{StaticResource Pad.Item}">
-                                            <TextBlock Text="{Binding DisplayText}"
+                                            <TextBlock x:Name="ItemText"
+                                                       Text="{Binding DisplayText}"
                                                        FontSize="{StaticResource Font.Size.Body}"
                                                        Foreground="{StaticResource Brush.TextPrimary}"
                                                        VerticalAlignment="Center"
@@ -96,6 +158,10 @@
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.HoverBackground}" />
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="Transparent" />
+                                                <Setter TargetName="ItemText" Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>

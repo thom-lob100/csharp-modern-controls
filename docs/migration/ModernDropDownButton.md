@@ -13,6 +13,8 @@
 | `Text` | 버튼 캡션. 셰브런(▼)은 자동. `Control.Text` override, `[Localizable(true)]` |
 | `DataSource` | 메뉴 항목: `DataTable`/`DataView`/`IList`/`IEnumerable` |
 | `DisplayMember` / `ValueMember` | 메뉴 표시 텍스트 / 항목 값 컬럼 |
+| `EnabledMember` | 항목 실행 가능 여부 컬럼 (bool 또는 `"Y"`/`"true"`/`"1"`; 비우면 전부 활성). 비활성 항목은 회색 + 클릭 불가 — `ToolStripMenuItem.Enabled` 대체 |
+| `Kind` | 버튼 시각 종류 — `Secondary`(기본) / `Execute`(초록 채움) / `Excel`(초록 아웃라인; 엑셀 내보내기 포인트) — `ModernButton.Kind`와 같은 문법 |
 | `ItemClicked` | 항목 클릭 시 발생 — `DropDownItemClickedEventArgs.Value`/`DisplayText` |
 | `Enabled` | 전파됨 |
 

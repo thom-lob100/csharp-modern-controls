@@ -20,6 +20,14 @@ namespace Modern.Lab.Controls.Wpf.Input
         /// Primary와 같은 강조 무게지만 조회 액션과 시각적으로 구분된다.
         /// 화면당 하나, 최대 하나의 Primary와 함께 배치한다.
         /// </summary>
-        Execute
+        Execute,
+
+        /// <summary>
+        /// Excel 내보내기 전용. Excel을 연상시키는 초록 아웃라인(Surface 배경 +
+        /// 초록 텍스트/테두리, hover 시 옅은 초록 채움) — 채움형(Primary/
+        /// Execute)보다 가볍게 포인트만 준다. 색은 Brush.Excel* 토큰이라
+        /// 테마별로 다르게 정의된다 (다크 테마는 밝은 초록).
+        /// </summary>
+        Excel
     }
 }

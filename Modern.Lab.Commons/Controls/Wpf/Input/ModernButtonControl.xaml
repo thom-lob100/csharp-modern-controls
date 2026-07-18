@@ -78,6 +78,14 @@
                         <Setter Property="Foreground" Value="{StaticResource Brush.OnAccent}" />
                         <Setter Property="BorderBrush" Value="{StaticResource Brush.Success}" />
                     </DataTrigger>
+                    <!-- Excel: 내보내기 전용 초록 아웃라인 — Surface 배경에 Excel
+                         초록 텍스트/옅은 테두리. 색은 Brush.Excel* 토큰이라
+                         테마별로 다르게 정의된다 (다크 테마는 밝은 초록). -->
+                    <DataTrigger Binding="{Binding Kind, ElementName=RootControl}" Value="Excel">
+                        <Setter Property="Background" Value="{StaticResource Brush.Surface}" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.ExcelText}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.ExcelBorderSoft}" />
+                    </DataTrigger>
 
                     <!-- Primary: hover = 더 진한 파랑, pressed = 가장 진한 파랑 -->
                     <MultiDataTrigger>
@@ -171,6 +179,25 @@
                         </MultiDataTrigger.Conditions>
                         <Setter Property="Background" Value="{StaticResource Brush.SuccessPressed}" />
                         <Setter Property="BorderBrush" Value="{StaticResource Brush.SuccessPressed}" />
+                    </MultiDataTrigger>
+
+                    <!-- Excel: hover = 옅은 초록 채움 + 진한 테두리, pressed = 더 진하게 -->
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Excel" />
+                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background" Value="{StaticResource Brush.ExcelBackground}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.ExcelBorder}" />
+                    </MultiDataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Kind, ElementName=RootControl}" Value="Excel" />
+                            <Condition Binding="{Binding IsPressed, RelativeSource={RelativeSource Self}}" Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background" Value="{StaticResource Brush.ExcelBorderSoft}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush.ExcelPressed}" />
+                        <Setter Property="Foreground" Value="{StaticResource Brush.ExcelPressed}" />
                     </MultiDataTrigger>
 
                     <!-- Disabled: 종류와 무관하게 동일한 회색. 위의 종류별 트리거를

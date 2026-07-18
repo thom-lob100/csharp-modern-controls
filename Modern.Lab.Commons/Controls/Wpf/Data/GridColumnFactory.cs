@@ -49,6 +49,8 @@ namespace Modern.Lab.Controls.Wpf.Data
                     return CreateBadgeColumn(definition, widthRatio, resourceSource);
                 case GridColumnKind.Button:
                     return CreateButtonColumn(definition, widthRatio, resourceSource, cellButtonClick);
+                case GridColumnKind.Combo:
+                    return CreateComboColumn(definition, resourceSource);
                 default:
                     return CreateTextColumn(definition, widthRatio);
             }
@@ -298,6 +300,103 @@ namespace Modern.Lab.Controls.Wpf.Data
             return column;
         }
 
+        // 콤보 입력 컬럼: ComboItems의 고정 선택지 중 하나를 고르면 원본 행
+        // 컬럼 값이 즉시 갱신된다 (체크박스 컬럼과 같은 양방향 규칙 — 그리드가
+        // 읽기 전용이어도 CellTemplate 안의 콤보는 살아 있다). 행별 입력 가능
+        // 여부는 ComboEnabledMember 컬럼 값(bool/Y/N)이 제어한다.
+        private static DataGridColumn CreateComboColumn(
+            ModernDataGridColumn definition,
+            FrameworkElement resourceSource)
+        {
+            DataGridTemplateColumn column = new DataGridTemplateColumn();
+            column.Header = definition.HeaderText;
+            column.SortMemberPath = definition.DataPropertyName;
+
+            FrameworkElementFactory combo = new FrameworkElementFactory(typeof(ComboBox));
+            combo.SetValue(FrameworkElement.StyleProperty, resourceSource.FindResource("Parts.GridComboBoxStyle"));
+            combo.SetValue(ItemsControl.ItemsSourceProperty, definition.ComboItems ?? new string[0]);
+            combo.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            combo.SetValue(FrameworkElement.MarginProperty, new Thickness(2d, 0d, 2d, 0d));
+
+            // 배지형 콤보 — 선택지별 색이 지정되면 선택 값과 드롭다운 항목을
+            // 레티클 배지로 그리고 (배지 컬럼과 같은 글자색 유도 규칙),
+            // **필드 표면 전체**도 선택 값의 배지 색으로 칠한다 — 미선택이면
+            // 기본 필드(Surface)로 떨어진다.
+            if (definition.ComboItemColors != null && definition.ComboItemColors.Length > 0)
+            {
+                combo.SetValue(
+                        ItemsControl.ItemTemplateProperty,
+                        BuildComboBadgeTemplate(definition, resourceSource));
+
+                Binding surfaceBinding = new Binding(definition.DataPropertyName);
+                surfaceBinding.Converter = new ComboItemBadgeConverter(
+                        definition.ComboItems, definition.ComboItemColors, false);
+                surfaceBinding.FallbackValue = resourceSource.FindResource("Brush.Surface");
+                combo.SetBinding(Control.BackgroundProperty, surfaceBinding);
+            }
+
+            Binding valueBinding = new Binding(definition.DataPropertyName);
+            valueBinding.Mode = BindingMode.TwoWay;
+            valueBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            combo.SetBinding(Selector.SelectedItemProperty, valueBinding);
+
+            if (!string.IsNullOrEmpty(definition.ComboEnabledMember))
+            {
+                Binding enabledBinding = new Binding(definition.ComboEnabledMember);
+                enabledBinding.Converter = truthyConverter;
+                combo.SetBinding(UIElement.IsEnabledProperty, enabledBinding);
+            }
+
+            DataTemplate template = new DataTemplate();
+            template.VisualTree = combo;
+            column.CellTemplate = template;
+
+            ApplyColumnWidth(column, definition);
+            return column;
+        }
+
+        // 배지형 콤보의 항목 템플릿 — 항목 문자열을 (ComboItems ↔
+        // ComboItemColors) 매핑 색의 레티클(둥근 사각, Radius.Sm) 배지로
+        // 감싼다. 배지는 행 전체 폭을 채워(가운데 텍스트) 필드 표면 색과
+        // 이어져 보인다. ItemTemplate 하나로 선택 값 표시(SelectionBox)와
+        // 드롭다운 항목이 함께 배지가 된다.
+        private static DataTemplate BuildComboBadgeTemplate(
+            ModernDataGridColumn definition,
+            FrameworkElement resourceSource)
+        {
+            IValueConverter backgroundConverter = new ComboItemBadgeConverter(
+                    definition.ComboItems, definition.ComboItemColors, false);
+            IValueConverter foregroundConverter = new ComboItemBadgeConverter(
+                    definition.ComboItems, definition.ComboItemColors, true);
+
+            FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
+            border.SetValue(Border.CornerRadiusProperty, resourceSource.FindResource("Radius.Sm"));
+            border.SetValue(Border.PaddingProperty, new Thickness(10d, 1d, 10d, 1d));
+            border.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Stretch);
+            border.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            Binding backgroundBinding = new Binding();
+            backgroundBinding.Converter = backgroundConverter;
+            border.SetBinding(Border.BackgroundProperty, backgroundBinding);
+
+            FrameworkElementFactory text = new FrameworkElementFactory(typeof(TextBlock));
+            text.SetBinding(TextBlock.TextProperty, new Binding());
+            text.SetValue(TextBlock.FontSizeProperty, resourceSource.FindResource("Font.Size.Label"));
+            text.SetValue(TextBlock.FontWeightProperty, FontWeights.SemiBold);
+            text.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            text.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            Binding foregroundBinding = new Binding();
+            foregroundBinding.Converter = foregroundConverter;
+            text.SetBinding(TextBlock.ForegroundProperty, foregroundBinding);
+
+            border.AppendChild(text);
+
+            DataTemplate template = new DataTemplate();
+            template.VisualTree = border;
+            return template;
+        }
+
         // 셀 안 버튼: ModernButton Secondary와 같은 문법의 차분한 버튼 —
         // 평상시 흰 배경 + 회색 테두리 + 진한 글자, hover는 옅은 파랑 틴트 +
         // 액센트 테두리/글자, pressed는 한 단계 진한 틴트. 행마다 반복 노출되는
@@ -312,7 +411,9 @@ namespace Modern.Lab.Controls.Wpf.Data
             style.Setters.Add(new Setter(Control.BorderBrushProperty, resourceSource.FindResource("Brush.Border")));
             style.Setters.Add(new Setter(Control.FontSizeProperty, resourceSource.FindResource("Font.Size.Label")));
             style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.SemiBold));
-            style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(14d, 4d, 14d, 4d)));
+            // 좌우 10px — 행마다 반복되는 버튼이라 컬럼 폭을 잡아먹지 않게
+            // 일반 버튼(14px)보다 한 단계 좁힌다.
+            style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(10d, 4d, 10d, 4d)));
             style.Setters.Add(new Setter(FrameworkElement.CursorProperty, System.Windows.Input.Cursors.Hand));
 
             ControlTemplate template = new ControlTemplate(typeof(Button));

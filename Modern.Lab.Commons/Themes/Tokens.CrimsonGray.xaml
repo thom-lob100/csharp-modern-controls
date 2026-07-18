@@ -47,6 +47,13 @@
     <SolidColorBrush x:Key="Brush.SuccessBackground" Color="#FF4E5834" />
     <SolidColorBrush x:Key="Brush.SuccessBorder" Color="#FF66743F" />
     <SolidColorBrush x:Key="Brush.SuccessText" Color="#FF9FE295" />
+    <!-- Excel 내보내기 버튼(ButtonKind.Excel) — 어두운 배경 위 밝은 초록
+         아웃라인 (hover 채움은 어두운 초록 면). -->
+    <SolidColorBrush x:Key="Brush.ExcelText" Color="#FF74CDA0" />
+    <SolidColorBrush x:Key="Brush.ExcelBorderSoft" Color="#FF3C5F4D" />
+    <SolidColorBrush x:Key="Brush.ExcelBackground" Color="#FF263C31" />
+    <SolidColorBrush x:Key="Brush.ExcelBorder" Color="#FF528568" />
+    <SolidColorBrush x:Key="Brush.ExcelPressed" Color="#FF95E0BB" />
     <SolidColorBrush x:Key="Brush.Warning" Color="#FFEDBD53" />
     <SolidColorBrush x:Key="Brush.WarningBackground" Color="#FF5C4E2C" />
     <SolidColorBrush x:Key="Brush.WarningBorder" Color="#FF7C693B" />

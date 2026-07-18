@@ -52,6 +52,20 @@ namespace Modern.Lab.Controls.Wpf.Data
                 typeof(ModernDataGridControl),
                 new PropertyMetadata(false, OnAutoFitColumnsChanged));
 
+        /// <summary>
+        /// 컬럼 값 필터(헤더 깔때기) 사용 여부 (기본 true). ApplyColumns로
+        /// 정의한 텍스트/배지 컬럼 헤더에 깔때기 버튼이 붙고, 클릭 시 고유 값
+        /// 체크리스트로 행을 거른다 (엑셀식 값 필터 — 뷰에만 적용, 원본
+        /// 데이터는 그대로). 선택 상태는 DataSource 재할당 후에도 유지된다.
+        /// 필터가 어울리지 않는 그리드(짧은 고정 목록 등)는 끄면 된다.
+        /// </summary>
+        public static readonly DependencyProperty AllowColumnFiltersProperty =
+            DependencyProperty.Register(
+                "AllowColumnFilters",
+                typeof(bool),
+                typeof(ModernDataGridControl),
+                new PropertyMetadata(true, OnAllowColumnFiltersChanged));
+
         /// <summary>현재 선택된 행 항목. 기본적으로 양방향 바인딩.</summary>
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(
@@ -137,6 +151,38 @@ namespace Modern.Lab.Controls.Wpf.Data
         /// <summary>높이 변화로 표시 가능 행 수(VisibleRowCapacity)가 바뀔 때 발생한다.</summary>
         public event EventHandler VisibleRowCapacityChanged;
 
+        /// <summary>
+        /// 행 위에서 우클릭할 때 발생한다 — 그 행이 먼저 현재 행(SelectedItem)으로
+        /// 선택된 뒤 발생하므로, 호스트는 SelectedItem을 대상으로 컨텍스트 메뉴를
+        /// 띄우면 된다. 행 밖(헤더/빈 영역) 우클릭에는 발생하지 않는다.
+        /// </summary>
+        public event EventHandler RowRightClick;
+
+        /// <summary>
+        /// 컬럼 값 필터 상태가 바뀔 때(체크/해제/Clear) 발생한다 — 페이지
+        /// 슬라이스를 바인딩하는 화면이 전체 결과에 같은 필터를 적용해
+        /// (MatchesColumnFilters) 페이지를 재계산할 때 쓴다.
+        /// </summary>
+        public event EventHandler ColumnFiltersChanged;
+
+        /// <summary>
+        /// 필터 팝업의 고유 값 원천 — 페이지 슬라이스를 바인딩하는 화면은
+        /// 전체 결과(DataTable)를 지정해 체크리스트에 전체 값이 나오게 한다.
+        /// null이면 현재 ItemsSource에서 모은다.
+        /// </summary>
+        public object FilterValueSource
+        {
+            get { return this.filterController.ValueSource; }
+            set { this.filterController.ValueSource = value; }
+        }
+
+        /// <summary>행(DataRow/DataRowView/POCO)이 현재 컬럼 필터를 전부
+        /// 통과하는지 판정한다 (필터 없으면 항상 true).</summary>
+        public bool MatchesColumnFilters(object item)
+        {
+            return this.filterController.Matches(item);
+        }
+
         // 마지막으로 통지한 표시 가능 행 수 — 같은 값이면 이벤트를 삼킨다.
         private int lastCapacity;
 
@@ -147,9 +193,16 @@ namespace Modern.Lab.Controls.Wpf.Data
         // 행 값 변화(전체/일부/없음)에 맞춰 상태를 갱신하기 위해 들고 있는다.
         private readonly List<CheckBox> headerCheckBoxes = new List<CheckBox>();
 
+        // 컬럼 값 필터(헤더 깔때기) 상태/팝업 담당 — AllowColumnFilters가 켜진
+        // 동안 헤더에 버튼을 붙이고 뷰 필터를 적용한다.
+        private readonly GridFilterController filterController;
+
         public ModernDataGridControl()
         {
             this.InitializeComponent();
+            this.filterController = new GridFilterController(
+                this.InnerDataGrid, this, delegate { return this.ItemsSource; });
+            this.filterController.FiltersChanged += this.OnFilterControllerChanged;
             this.SizeChanged += this.OnControlSizeChanged;
 
             // 행 수 자동 갱신: 소스 교체/필터 변경 등으로 Items가 바뀔 때마다
@@ -161,6 +214,39 @@ namespace Modern.Lab.Controls.Wpf.Data
 
             // 행 색상: 행이 화면에 실체화될 때마다 RowColorMember 값으로 배경을 칠한다.
             this.InnerDataGrid.LoadingRow += this.OnLoadingRow;
+
+            // 행 우클릭: 그 행을 먼저 선택하고 RowRightClick을 알린다 —
+            // "우클릭 → 그 행 대상 컨텍스트 메뉴" 동선(DataGridView 관례).
+            this.InnerDataGrid.PreviewMouseRightButtonDown += this.OnGridRightButtonDown;
+        }
+
+        // 우클릭 지점에서 시각/논리 트리를 거슬러 행(DataGridRow)을 찾아 현재
+        // 행으로 선택한 뒤 RowRightClick을 발생시킨다. 행 밖 우클릭은 무시한다.
+        private void OnGridRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DependencyObject source = e.OriginalSource as DependencyObject;
+
+            while (source != null && !(source is DataGridRow))
+            {
+                source = source is Visual
+                        ? VisualTreeHelper.GetParent(source)
+                        : LogicalTreeHelper.GetParent(source);
+            }
+
+            DataGridRow row = source as DataGridRow;
+
+            if (row == null)
+            {
+                return;
+            }
+
+            this.InnerDataGrid.SelectedItem = row.Item;
+            e.Handled = true;
+
+            if (this.RowRightClick != null)
+            {
+                this.RowRightClick(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>표시할 행 목록.</summary>
@@ -196,6 +282,13 @@ namespace Modern.Lab.Controls.Wpf.Data
         {
             get { return (bool)this.GetValue(AutoFitColumnsProperty); }
             set { this.SetValue(AutoFitColumnsProperty, value); }
+        }
+
+        /// <summary>컬럼 값 필터(헤더 깔때기) 사용 여부.</summary>
+        public bool AllowColumnFilters
+        {
+            get { return (bool)this.GetValue(AllowColumnFiltersProperty); }
+            set { this.SetValue(AllowColumnFiltersProperty, value); }
         }
 
         /// <summary>그리드 하단 상태바 표시 여부.</summary>
@@ -317,6 +410,7 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.InnerDataGrid.Columns.Clear();
             this.columnDefinitions = null;
             this.headerCheckBoxes.Clear();
+            this.filterController.OnColumnsRebuilt();
 
             if (columns == null)
             {
@@ -351,6 +445,13 @@ namespace Modern.Lab.Controls.Wpf.Data
                     headerText.Text = definition.HeaderText;
                     headerText.LayoutTransform = GridColumnFactory.CreateWidthTransform(widthRatio);
                     column.Header = headerText;
+                }
+
+                // 컬럼 값 필터: 헤더 오른쪽에 깔때기 버튼을 붙인다 (텍스트/배지
+                // 컬럼만 — 체크박스/버튼 컬럼은 컨트롤러가 알아서 건너뛴다).
+                if (this.AllowColumnFilters)
+                {
+                    this.filterController.AttachHeader(column, definition);
                 }
 
                 this.InnerDataGrid.Columns.Add(column);
@@ -471,12 +572,58 @@ namespace Modern.Lab.Controls.Wpf.Data
 
         private static void OnItemsSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((ModernDataGridControl)d).AutoFitColumnWidths();
+            ModernDataGridControl control = (ModernDataGridControl)d;
+            control.AutoFitColumnWidths();
+
+            // 유지 중인 컬럼 필터를 새 소스의 뷰에 다시 적용한다 (재조회 내성).
+            control.filterController.OnItemsSourceChanged();
         }
 
         private static void OnAutoFitColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((ModernDataGridControl)d).AutoFitColumnWidths();
+        }
+
+        private void OnFilterControllerChanged(object sender, EventArgs e)
+        {
+            if (this.ColumnFiltersChanged != null)
+            {
+                this.ColumnFiltersChanged(this, EventArgs.Empty);
+            }
+        }
+
+        // 헤더 깔때기 버튼 클릭 — 헤더 템플릿의 필터 버튼에서 올라온다. 버튼이
+        // 속한 헤더의 컬럼을 찾아 값 필터 팝업을 연다 (헤더 클릭 정렬과 분리).
+        private void OnHeaderFilterClick(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            DependencyObject source = sender as DependencyObject;
+
+            while (source != null
+                    && !(source is System.Windows.Controls.Primitives.DataGridColumnHeader))
+            {
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            System.Windows.Controls.Primitives.DataGridColumnHeader header =
+                    source as System.Windows.Controls.Primitives.DataGridColumnHeader;
+
+            if (header != null)
+            {
+                this.filterController.OpenPopupFor(header.Column, (UIElement)sender);
+            }
+        }
+
+        // 필터 사용 여부가 바뀌면 헤더(깔때기 유무)를 다시 만든다.
+        private static void OnAllowColumnFiltersChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ModernDataGridControl control = (ModernDataGridControl)d;
+
+            if (control.columnDefinitions != null)
+            {
+                control.ApplyColumns(new List<ModernDataGridColumn>(control.columnDefinitions));
+            }
         }
 
         // ===== 컬럼 자동 맞춤 (헤더 + 데이터 최대 폭) =====

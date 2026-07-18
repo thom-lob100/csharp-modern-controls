@@ -55,6 +55,7 @@ this.cboDept.DataSource = deptTable;        // DataSource 할당 전에 구성
 |---|---|
 | `PlaceholderText` | 미선택/미입력 상태에서 표시할 힌트 텍스트 — **`ModernTextBox`와 동일한 속성명**. "전체" 더미 행 대신 미선택(`SelectedIndex = -1`) + 플레이스홀더 패턴 권장: `DataSource` 할당 후 `SelectedIndex = -1`로 초기화하면 미선택 상태가 유지되고, 폼 조회 코드에서 `SelectedValue == null`을 "전체"로 처리 |
 | `Required` | 필수 입력 표시 — 값이 비어 있는 동안 필드 오른쪽에 빨간 점, 선택하면 사라짐 (입력 컨트롤 공통 속성) |
+| `Highlight` | 강조 표시 — 필드에 액센트색 테두리를 덧그린다. 한 화면에서 특별히 주목이 필요한 핵심 선택 필드(예: 배정 대상 선택)에만 쓴다. `Required`와 별개로 함께 사용 가능 |
 
 ## 미지원 멤버와 대체 방법
 

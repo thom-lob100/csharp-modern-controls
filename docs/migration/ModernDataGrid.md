@@ -33,6 +33,9 @@
 | `ModernDataGridColumn.Kind` | 셀 표시 종류 — `Text`(기본) / `CheckBox`(bool 양방향 체크박스, 벌크 대상 지정; OS 기본 룩이 아닌 모던 비주얼 — 둥근 사각 + 액센트 채움 + 흰 체크 글리프, ModernCheckBox와 동일) / `Badge`(`BadgeColorMember` 색 알약) / `Button`(`ButtonText` 캡션, `ButtonEnabledMember`로 행별 활성 제어; ModernButton Secondary와 같은 문법 — 평상시 흰 배경 + 회색 테두리, hover 시 옅은 파랑 틴트 + 액센트 테두리/글자) |
 | `ModernDataGridColumn.HeaderCheckBox` | CheckBox 컬럼 전용 (기본 false). true면 헤더 캡션 대신 **전체 선택/해제 체크박스**가 올라간다 — 클릭 시 현재 그리드에 표시 중인 모든 행(페이지 화면이면 현재 페이지)의 값을 일괄 설정하고, 행 값 상태에 따라 체크(전체)/해제(없음)/중간(일부)으로 자동 갱신. `DataGridView` 헤더 체크박스 커스텀 그리기 코드 대체 |
 | `CellButtonClick` | 버튼 컬럼 셀 클릭 이벤트 — `e.Item`(클릭 행 `DataRowView`) + `e.DataPropertyName`(버튼 컬럼 이름). `DataGridView`의 `CellContentClick` + 버튼 컬럼 대체 |
+| 행 우클릭 + `ContextMenuStrip` | 행 위에서 우클릭하면 **그 행이 먼저 현재 행으로 선택**된 뒤 컨트롤에 지정한 `ContextMenuStrip`이 커서 위치에 뜬다 — 메뉴 핸들러는 `SelectedItem`을 대상으로 처리하면 된다. 행 밖(헤더/빈 영역) 우클릭에는 뜨지 않는다 |
+| `AllowColumnFilters` | 컬럼 헤더 깔때기 값 필터(엑셀식 고유 값 체크리스트, **기본 true**). 화면 뷰만 거르고 원본 데이터는 그대로 — `DataGridView`에서 직접 구현하던 헤더 필터 커스텀 코드 대체. 재조회(`DataSource` 재할당) 후에도 필터 선택 유지. 깔때기는 헤더 셀 맨 오른쪽 고정, 정렬 글리프가 그 왼쪽 |
+| `FilterValueSource` / `ColumnFiltersChanged` / `MatchesColumnFilters(row)` | **페이지 슬라이스 화면의 필터 연동 3종** — 페이지 조각을 바인딩하는 화면은 ① `FilterValueSource`에 전체 결과 `DataTable`을 지정해 깔때기 체크리스트에 전체 값이 나오게 하고, ② `ColumnFiltersChanged` 이벤트에서 전체 결과를 `MatchesColumnFilters(row)`로 걸러 표시 행 목록과 페이지 수를 재계산한다 (Samples의 `PendingRequestForm` 참고). 페이징 없는 화면은 셋 다 필요 없다 |
 | `SelectedItem` | 선택 행 (`DataTable` 소스일 때 `DataRowView`) — 기존 `CurrentRow.DataBoundItem` 대체 |
 | `AutoFitColumns` | true면 각 컬럼 너비를 **헤더 캡션과 데이터 내용 중 더 넓은 쪽**에 맞춰 자동 계산 (`ConfigureColumns` 컬럼에만 적용, 컬럼 정의의 `Width`는 무시 — 단 CheckBox/Button/Badge 컬럼은 정의 폭·캡션 기준). `DataSource`가 바뀔 때마다 재계산되며 하한 48px / 상한 600px. 사용자의 마우스 폭 조절은 그대로 가능 |
 
@@ -45,9 +48,10 @@
 |---|---|
 | `CurrentRow`, `SelectedRows`, `Rows[i].Cells[...]` | `SelectedItem`(`DataRowView`)으로 값 접근: `((DataRowView)grid.SelectedItem)["EMP_NO"]` |
 | `Columns` 컬렉션 (디자이너 정의 포함) | `ConfigureColumns(...)` 코드 정의 |
-| 셀 편집 (`ReadOnly = false`, `CellValueChanged`) | 일반 셀 편집은 미지원(읽기 전용 조회 전용). 단 **체크박스 컬럼**(`Kind = CheckBox`)은 예외로 양방향 토글된다 |
+| 셀 편집 (`ReadOnly = false`, `CellValueChanged`) | 일반 셀 편집은 미지원(읽기 전용 조회 전용). 단 **체크박스 컬럼**(`Kind = CheckBox`)과 **콤보 컬럼**(`Kind = Combo`)은 예외로 양방향 갱신된다 |
 | `DataGridViewCheckBoxColumn` | `ConfigureColumns`에 `Kind = GridColumnKind.CheckBox` 컬럼 (bool 컬럼 바인딩) |
 | `DataGridViewButtonColumn` + `CellContentClick` | `Kind = GridColumnKind.Button` 컬럼 + `CellButtonClick` 이벤트 |
+| `DataGridViewComboBoxColumn` | `Kind = GridColumnKind.Combo` 컬럼 — `ComboItems`(고정 선택지 `string[]`, 예: `{"SUCC","FAIL"}`) 중 하나를 고르면 원본 행 컬럼 값이 즉시 갱신된다. `ComboEnabledMember` 컬럼 값(bool/`"Y"`/`"true"`/`"1"`)으로 행별 입력 가능 여부 제어 (비활성 행은 회색 잠금). `ComboItemColors`(선택지와 같은 순서의 색 배열)를 주면 선택 값/드롭다운 항목이 **레티클(둥근 사각) 배지**로 표시되고 필드 표면 전체도 선택 값의 배지 색으로 칠해진다 (미선택은 기본 필드). 입력분만 서버로 보내려면 바인딩 직전 `table.AcceptChanges()` 후 `table.GetChanges()`를 전송. 판정/등급 입력용 |
 | `CellClick`/`CellDoubleClick` | `SelectionChanged`로 선택 처리. 더블클릭 이벤트가 필요하면 별도 요청 |
 | `MultiSelect` | 단일 행 선택만 지원 — 벌크 작업 대상은 체크박스 컬럼으로 지정 |
 | `DefaultCellStyle`, `Font`, 색상 계열 | 없음 — 토큰이 결정 |

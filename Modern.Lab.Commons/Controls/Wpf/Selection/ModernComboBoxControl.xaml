@@ -18,6 +18,8 @@
                 <common:SharedResourceDictionary Source="/Modern.Lab.Commons;component/Themes/ControlParts.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
             <!-- 드롭다운 항목: hover/선택 상태는 토큰에서 가져온다 -->
             <Style x:Key="ModernComboBoxItemStyle" TargetType="ComboBoxItem">
                 <Setter Property="Padding" Value="{StaticResource Pad.Item}" />
@@ -176,6 +178,24 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
+        </Border>
+
+        <!-- 강조(Highlight) 오버레이: 이 필드에 주목이 필요할 때 액센트색
+             테두리 + 은은한 액센트 틴트(8%)를 덧그린다 — 핵심 선택 필드
+             (예: 캐리어 배정)를 다른 필드보다 도드라지게 하는 용도다.
+             틴트는 반투명이라 아래 텍스트/셰브런 가독성을 해치지 않고,
+             히트 테스트도 막지 않는다. -->
+        <Border Height="{StaticResource Size.ControlHeight}"
+                VerticalAlignment="Center"
+                BorderBrush="{StaticResource Brush.Accent}"
+                BorderThickness="1.5"
+                CornerRadius="{StaticResource Radius.Sm}"
+                IsHitTestVisible="False"
+                Visibility="{Binding Highlight, ElementName=RootControl, Converter={StaticResource BoolToVisibility}}">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding Color, Source={StaticResource Brush.Accent}}"
+                                 Opacity="0.08" />
+            </Border.Background>
         </Border>
     </Grid>
 </UserControl>

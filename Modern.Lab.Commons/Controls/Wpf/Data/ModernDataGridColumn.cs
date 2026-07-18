@@ -46,6 +46,9 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.ButtonText = string.Empty;
             this.ButtonEnabledMember = string.Empty;
             this.HeaderCheckBox = false;
+            this.ComboItems = null;
+            this.ComboItemColors = null;
+            this.ComboEnabledMember = string.Empty;
         }
 
         /// <summary>
@@ -127,6 +130,27 @@ namespace Modern.Lab.Controls.Wpf.Data
         /// 비워 두면 모든 행에서 버튼이 활성화된다.
         /// </summary>
         public string ButtonEnabledMember { get; set; }
+
+        /// <summary>
+        /// Combo 전용: 셀 콤보의 고정 선택지 (예: {"SUCC", "FAIL"}). 선택하면
+        /// 원본 행 컬럼 값이 즉시 그 문자열로 갱신된다. 비워 두면 빈 콤보가 된다.
+        /// </summary>
+        public string[] ComboItems { get; set; }
+
+        /// <summary>
+        /// Combo 전용: 선택지별 배지 색 (선택 사항) — ComboItems와 같은 순서의
+        /// "#DCFCE7" 같은 색 문자열 배열. 지정하면 선택 값과 드롭다운 항목이
+        /// 알약 배지로 표시된다 (글자색은 배경에서 자동 유도 — 배지 컬럼과
+        /// 같은 규칙). 비워 두면 일반 텍스트 콤보다.
+        /// </summary>
+        public string[] ComboItemColors { get; set; }
+
+        /// <summary>
+        /// Combo 전용: 행별 입력 가능 여부로 쓸 컬럼/속성 이름 (선택 사항).
+        /// bool 컬럼 또는 "Y"/"true"/"1" 계열 문자열을 참으로 해석한다.
+        /// 비워 두면 모든 행에서 입력할 수 있다.
+        /// </summary>
+        public string ComboEnabledMember { get; set; }
 
         /// <summary>
         /// CheckBox 전용: 헤더에 전체 선택/해제 체크박스를 표시할지 여부
