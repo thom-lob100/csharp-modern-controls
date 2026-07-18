@@ -109,11 +109,12 @@ namespace Modern.Lab.Samples
             // badgeEnv
             //
             this.badgeEnv.Color = "#DCFCE7";
+            this.badgeEnv.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeEnv.Dock = System.Windows.Forms.DockStyle.Right;
             this.badgeEnv.Name = "badgeEnv";
             this.badgeEnv.Size = new System.Drawing.Size(64, 28);
             this.badgeEnv.TabIndex = 1;
-            this.badgeEnv.Text = "운영";
+            this.badgeEnv.Text = "AOS";
             this.badgeEnv.Child = null;
             //
             // spacerTitleGap
@@ -591,6 +592,7 @@ namespace Modern.Lab.Samples
             //
             // ddExcel
             //
+            this.ddExcel.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Excel;
             this.ddExcel.Location = new System.Drawing.Point(100, 68);
             this.ddExcel.Name = "ddExcel";
             this.ddExcel.Size = new System.Drawing.Size(84, 32);

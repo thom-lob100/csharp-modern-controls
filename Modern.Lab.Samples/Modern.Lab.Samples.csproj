@@ -76,6 +76,24 @@
     <Compile Include="CreateDialogForm.Designer.cs">
       <DependentUpon>CreateDialogForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EquipmentLotForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EquipmentLotForm.Designer.cs">
+      <DependentUpon>EquipmentLotForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PrepareDialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PrepareDialogForm.Designer.cs">
+      <DependentUpon>PrepareDialogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EndJobDialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EndJobDialogForm.Designer.cs">
+      <DependentUpon>EndJobDialogForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ItemHistoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +106,8 @@
     <Compile Include="StepFlowDemoForm.Designer.cs">
       <DependentUpon>StepFlowDemoForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Services\EquipmentLotSimulator.cs" />
+    <Compile Include="Services\EquipmentTablePresenter.cs" />
     <Compile Include="Services\GridCaptionDictionary.cs" />
     <Compile Include="Services\HistoryTablePresenter.cs" />
     <Compile Include="Services\JsonTableConverter.cs" />

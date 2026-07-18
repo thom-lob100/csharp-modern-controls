@@ -91,8 +91,15 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
+            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
+            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+
             // 탭 전환 시 Lifecycle 스텝을 그 탭의 여정(Item/Unit)으로 바꾼다.
             this.tabHistory.SelectedIndexChanged += this.OnHistoryTabChanged;
+
+            // Excel 버튼은 탭 헤더 스트립(런타임 내부 자식이라 z-순서상 항상
+            // 앞)과 겹쳐 있어, 앞으로 올려야 보이고 클릭이 닿는다.
+            this.btnExcel.BringToFront();
 
             this.detailBindings = new KeyValuePair<ModernLabel, string>[]
             {
@@ -694,6 +701,53 @@ namespace Modern.Lab.Samples
                 }
 
                 this.toastMain.Show("Server call failed: " + ex.Message, ToastKind.Error);
+            }
+        }
+
+        // ===== 내보내기 =====
+
+        // Excel: 활성 탭의 이력을 진짜 Excel 파일(.xlsx, Open XML)로 저장한다 —
+        // Item History 탭이면 Item 이력, Unit History 탭이면 Unit 이력. 컬럼
+        // 순서·캡션·형식은 그리드 컬럼 정의(화면 표시와 동일)를 그대로 쓴다.
+        private void OnExportClick(object sender, EventArgs e)
+        {
+            bool unitTab = this.tabHistory.SelectedIndex == 1;
+            Modern.Lab.WinForms.Controls.Data.ModernDataGrid grid =
+                    unitTab ? this.gridUnitHistory : this.gridHistory;
+            DataTable data = grid.DataSource as DataTable;
+
+            if (data == null || data.Rows.Count == 0)
+            {
+                this.toastMain.Show("Nothing to export. Search first.", ToastKind.Warning);
+                return;
+            }
+
+            // 파일명에 조회 대상 ID(Item/Unit)를 넣어 무엇의 이력인지 남긴다.
+            string sheetName = unitTab ? "Unit History" : "Item History";
+            string owner = unitTab ? this.unitStepOwner : this.itemStepOwner;
+
+            using (SaveFileDialog dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "Excel Workbook|*.xlsx";
+                dialog.FileName = sheetName.Replace(" ", string.Empty)
+                        + (string.IsNullOrEmpty(owner) ? string.Empty : "_" + owner)
+                        + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx";
+
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                try
+                {
+                    grid.ExportXlsx(dialog.FileName, sheetName, data);
+                    this.toastMain.Show(
+                            data.Rows.Count.ToString("N0") + " rows exported.", ToastKind.Success);
+                }
+                catch (Exception ex)
+                {
+                    this.toastMain.Show("Export failed: " + ex.Message, ToastKind.Error);
+                }
             }
         }
 

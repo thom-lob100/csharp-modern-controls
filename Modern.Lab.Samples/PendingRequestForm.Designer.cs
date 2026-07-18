@@ -109,12 +109,13 @@ namespace Modern.Lab.Samples
             // badgeEnv
             //
             this.badgeEnv.Color = "#DBEAFE";
+            this.badgeEnv.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeEnv.Dock = System.Windows.Forms.DockStyle.Right;
             this.badgeEnv.Location = new System.Drawing.Point(1456, 0);
             this.badgeEnv.Name = "badgeEnv";
             this.badgeEnv.Size = new System.Drawing.Size(60, 28);
             this.badgeEnv.TabIndex = 1;
-            this.badgeEnv.Text = "MES";
+            this.badgeEnv.Text = "AOS";
             this.badgeEnv.Child = null;
             //
             // spTitle
@@ -298,6 +299,7 @@ namespace Modern.Lab.Samples
             this.gridBoard.Name = "gridBoard";
             this.gridBoard.Size = new System.Drawing.Size(1114, 528);
             this.gridBoard.TabIndex = 0;
+            this.gridBoard.ColumnFiltersChanged += new System.EventHandler(this.OnBoardColumnFiltersChanged);
             this.gridBoard.SelectionChanged += new System.EventHandler(this.OnBoardSelectionChanged);
             this.gridBoard.CellButtonClick += new System.EventHandler<Modern.Lab.Controls.Wpf.Data.GridButtonClickEventArgs>(this.OnGridCellButtonClick);
             this.gridBoard.VisibleRowCapacityChanged += new System.EventHandler(this.OnGridCapacityChanged);
@@ -505,7 +507,7 @@ namespace Modern.Lab.Samples
             //
             // btnExport
             //
-            this.btnExport.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Subtle;
+            this.btnExport.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Excel;
             this.btnExport.Location = new System.Drawing.Point(12, 12);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(80, 32);

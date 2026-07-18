@@ -45,6 +45,9 @@ namespace Modern.Lab.Samples
         public EmployeeManagementForm()
         {
             this.InitializeComponent();
+
+            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
+            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
         }
 
         private void OnFormLoad(object sender, EventArgs e)

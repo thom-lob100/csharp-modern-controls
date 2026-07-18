@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Net;
@@ -73,8 +74,13 @@ namespace Modern.Lab.Samples
 
         // ===== 상태 필드 =====
 
-        // 마지막 조회의 현황판 필터 결과 전체 (페이지 슬라이스/KPI/엑셀의 원천).
+        // 마지막 조회의 현황판 필터 결과 전체 (KPI/엑셀의 원천).
         private DataTable resultData;
+
+        // resultData에 그리드 컬럼 필터(헤더 깔때기)를 적용한 표시 행 목록 —
+        // 페이지 슬라이스와 포커스 복원은 이 목록 기준이다. 원본 행을 그대로
+        // 참조하므로 체크 상태 동기화가 유지된다.
+        private List<DataRow> viewRows;
 
         // 코드로 CurrentPage를 되돌릴 때 PageChanged 재진입을 막는다.
         private bool suppressPageEvent;
@@ -88,6 +94,10 @@ namespace Modern.Lab.Samples
         public PendingRequestForm()
         {
             this.InitializeComponent();
+
+            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임(WPF 콘텐츠 생성·컬럼
+            // AutoFit 중간 레이아웃)을 가린다. 메인 프레임(여는 쪽) 수정 불필요.
+            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
         }
 
         /// <summary>제한 시간을 적용한 WebClient (홈 환경 전용 헬퍼).</summary>
@@ -356,6 +366,11 @@ namespace Modern.Lab.Samples
                         this.resultData = PendingTablePresenter.Filter(
                                 board, statusFilter, sendFilter, minDays);
 
+                        // 그리드 컬럼 필터: 값 체크리스트는 페이지 조각이 아니라
+                        // 조회 결과 전체에서 모으고, 표시 행 목록에 필터를 반영한다.
+                        this.gridBoard.FilterValueSource = this.resultData;
+                        this.RefreshViewRows();
+
                         this.boardCard.TitleRightText =
                                 "Days as of " + daysBasis.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
@@ -367,10 +382,10 @@ namespace Modern.Lab.Samples
                         try
                         {
                             this.pagination.PageSize = this.gridBoard.VisibleRowCapacity;
-                            this.pagination.TotalCount = this.resultData.Rows.Count;
+                            this.pagination.TotalCount = this.viewRows.Count;
 
                             int pageSize = Math.Max(1, this.pagination.PageSize);
-                            int pageCount = ((this.resultData.Rows.Count - 1) / pageSize) + 1;
+                            int pageCount = ((this.viewRows.Count - 1) / pageSize) + 1;
 
                             if (pageCount < 1)
                             {
@@ -466,10 +481,55 @@ namespace Modern.Lab.Samples
             this.BindCurrentPage();
         }
 
-        // 조회 결과에서 현재 페이지 구간만 잘라 그리드에 바인딩한다 (로컬 슬라이스).
+        // 그리드 컬럼 필터를 통과한 표시 행 목록을 다시 만든다 — 원본 행을
+        // 그대로 참조해 체크 토글이 원본과 어긋나지 않는다.
+        private void RefreshViewRows()
+        {
+            this.viewRows = new List<DataRow>();
+
+            if (this.resultData == null)
+            {
+                return;
+            }
+
+            foreach (DataRow row in this.resultData.Rows)
+            {
+                if (this.gridBoard.MatchesColumnFilters(row))
+                {
+                    this.viewRows.Add(row);
+                }
+            }
+        }
+
+        // 컬럼 필터(헤더 깔때기)가 바뀌면 표시 행 목록과 페이지를 재계산한다 —
+        // 필터는 현재 페이지 조각이 아니라 조회 결과 전체에 적용된다.
+        private void OnBoardColumnFiltersChanged(object sender, EventArgs e)
+        {
+            this.RefreshViewRows();
+
+            this.suppressPageEvent = true;
+
+            try
+            {
+                this.pagination.TotalCount = this.viewRows.Count;
+
+                int pageSize = Math.Max(1, this.pagination.PageSize);
+                int pageCount = ((this.viewRows.Count - 1) / pageSize) + 1;
+                this.pagination.CurrentPage =
+                        Math.Max(1, Math.Min(this.pagination.CurrentPage, pageCount));
+            }
+            finally
+            {
+                this.suppressPageEvent = false;
+            }
+
+            this.BindCurrentPage();
+        }
+
+        // 표시 행 목록에서 현재 페이지 구간만 잘라 그리드에 바인딩한다 (로컬 슬라이스).
         private void BindCurrentPage()
         {
-            if (this.resultData == null)
+            if (this.resultData == null || this.viewRows == null)
             {
                 this.gridBoard.DataSource = null;
                 return;
@@ -478,11 +538,11 @@ namespace Modern.Lab.Samples
             int pageSize = this.pagination.PageSize;
             DataTable page = this.resultData.Clone();
             int start = (this.pagination.CurrentPage - 1) * pageSize;
-            int end = Math.Min(start + pageSize, this.resultData.Rows.Count);
+            int end = Math.Min(start + pageSize, this.viewRows.Count);
 
             for (int index = start; index < end; index++)
             {
-                page.ImportRow(this.resultData.Rows[index]);
+                page.ImportRow(this.viewRows[index]);
             }
 
             // 페이지 조각은 원본의 복사본이라, 체크박스 토글을 원본(resultData)에
@@ -515,19 +575,19 @@ namespace Modern.Lab.Samples
             return row == null ? string.Empty : PendingTablePresenter.CellText(row.Row, "ITEM_ID");
         }
 
-        // 재조회 후 행 포커스를 복원한다 — Item ID를 조회 결과 전체에서 찾아
+        // 재조회 후 행 포커스를 복원한다 — Item ID를 표시 행 목록 전체에서 찾아
         // 다른 페이지에 있으면 그 페이지로 이동해 선택한다 (매뉴얼 Receive로
         // 새로 올라온 행도 이걸로 찾아간다). 필터로 사라졌으면 현재 페이지의
         // 같은 위치(fallbackIndex) 행을 대신 선택한다.
         private void FocusBoardRow(string itemId, int fallbackIndex)
         {
-            if (!string.IsNullOrEmpty(itemId) && this.resultData != null)
+            if (!string.IsNullOrEmpty(itemId) && this.viewRows != null)
             {
                 int pageSize = Math.Max(1, this.pagination.PageSize);
 
-                for (int index = 0; index < this.resultData.Rows.Count; index++)
+                for (int index = 0; index < this.viewRows.Count; index++)
                 {
-                    if (PendingTablePresenter.CellText(this.resultData.Rows[index], "ITEM_ID") != itemId)
+                    if (PendingTablePresenter.CellText(this.viewRows[index], "ITEM_ID") != itemId)
                     {
                         continue;
                     }

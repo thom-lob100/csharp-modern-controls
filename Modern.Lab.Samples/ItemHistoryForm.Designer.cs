@@ -43,6 +43,7 @@ namespace Modern.Lab.Samples
             this.gridHistory = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
             this.gridUnitHistory = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
             this.tabHistory = new Modern.Lab.WinForms.Controls.Layout.ModernTabControl();
+            this.btnExcel = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.pageItemHistory = new Modern.Lab.WinForms.Controls.Layout.ModernTabPage();
             this.pageUnitHistory = new Modern.Lab.WinForms.Controls.Layout.ModernTabPage();
             this.spDetail = new System.Windows.Forms.Panel();
@@ -122,12 +123,13 @@ namespace Modern.Lab.Samples
             // badgeEnv
             // 
             this.badgeEnv.Color = "#DBEAFE";
+            this.badgeEnv.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeEnv.Dock = System.Windows.Forms.DockStyle.Right;
             this.badgeEnv.Location = new System.Drawing.Point(1456, 0);
             this.badgeEnv.Name = "badgeEnv";
             this.badgeEnv.Size = new System.Drawing.Size(60, 28);
             this.badgeEnv.TabIndex = 1;
-            this.badgeEnv.Text = "MES";
+            this.badgeEnv.Text = "AOS";
             this.badgeEnv.Child = null;
             // 
             // spTitle
@@ -265,6 +267,7 @@ namespace Modern.Lab.Samples
             //
             // tabHistory
             //
+            this.tabHistory.Controls.Add(this.btnExcel);
             this.tabHistory.Controls.Add(this.pageItemHistory);
             this.tabHistory.Controls.Add(this.pageUnitHistory);
             this.tabHistory.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -272,6 +275,21 @@ namespace Modern.Lab.Samples
             this.tabHistory.Name = "tabHistory";
             this.tabHistory.Size = new System.Drawing.Size(1164, 430);
             this.tabHistory.TabIndex = 5;
+            //
+            // btnExcel
+            //
+            // 탭 헤더 스트립(높이 40, 런타임 내부 자식) 우측에 겹쳐 배치한다 —
+            // 폼 생성자에서 BringToFront로 헤더보다 앞에 올린다(클릭 히트용).
+            // 활성 탭의 이력(Item/Unit)을 내보낸다.
+            this.btnExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExcel.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Excel;
+            this.btnExcel.Location = new System.Drawing.Point(1082, 3);
+            this.btnExcel.Name = "btnExcel";
+            this.btnExcel.Size = new System.Drawing.Size(80, 32);
+            this.btnExcel.TabIndex = 6;
+            this.btnExcel.Text = "Excel";
+            this.btnExcel.Click += new System.EventHandler(this.OnExportClick);
+            this.btnExcel.Child = null;
             //
             // pageItemHistory
             //
@@ -284,6 +302,7 @@ namespace Modern.Lab.Samples
             //
             // gridHistory
             //
+            this.gridHistory.AllowColumnFilters = true;
             this.gridHistory.AutoFitColumns = true;
             this.gridHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridHistory.EmptyText = "Search by Item ID";
@@ -306,6 +325,7 @@ namespace Modern.Lab.Samples
             //
             // gridUnitHistory
             //
+            this.gridUnitHistory.AllowColumnFilters = true;
             this.gridUnitHistory.AutoFitColumns = true;
             this.gridUnitHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridUnitHistory.EmptyText = "Select a unit";
@@ -678,6 +698,7 @@ namespace Modern.Lab.Samples
             //
             // gridUnits
             //
+            this.gridUnits.AllowColumnFilters = true;
             this.gridUnits.AutoFitColumns = true;
             this.gridUnits.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridUnits.EmptyText = "No units";
@@ -764,6 +785,7 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridHistory;
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridUnitHistory;
         private Modern.Lab.WinForms.Controls.Layout.ModernTabControl tabHistory;
+        private Modern.Lab.WinForms.Controls.Input.ModernButton btnExcel;
         private Modern.Lab.WinForms.Controls.Layout.ModernTabPage pageItemHistory;
         private Modern.Lab.WinForms.Controls.Layout.ModernTabPage pageUnitHistory;
         private System.Windows.Forms.Panel spDetail;

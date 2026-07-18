@@ -117,6 +117,7 @@ namespace Modern.Lab.Samples
             // 각 샘플 화면을 여기서 AddSample 호출 하나로 등록한다.
             this.AddSample("Item History", () => new ItemHistoryForm());
             this.AddSample("Pending Requests", () => new PendingRequestForm());
+            this.AddSample("Equipment / Lots", () => new EquipmentLotForm());
             this.AddSample("직원관리", () => new EmployeeManagementForm());
             this.AddSample("Step Indicator", () => new StepFlowDemoForm());
         }
@@ -182,6 +183,9 @@ namespace Modern.Lab.Samples
             // 각 폼 생성자에서 InitializeComponent() 직후 이 한 줄이면 된다.
             Modern.Lab.Theming.ModernThemeWinForms.Apply(sample);
 
+            // 오픈 시 깜빡임(ElementHost 생성·그리드 AutoFit 중간 레이아웃)은
+            // 각 폼이 생성자에서 ModernLoadCover.Attach(this) 한 줄로 스스로
+            // 가린다 — 여는 쪽(이 셸이든 회사 메인 프레임이든)은 손대지 않는다.
             this.contentPanel.Controls.Add(sample);
             this.currentSample = sample;
             sample.Show();

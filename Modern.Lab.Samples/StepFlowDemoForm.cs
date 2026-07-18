@@ -21,6 +21,9 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
+            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
+            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+
             // 컨테이너 폭 = min(슬라이더 값, 카드 가용 폭) — 슬라이더로도 줄일 수
             // 있고, 창을 줄여도 패널이 카드 밖으로 잘리지 않고 함께 줄어든다.
             this.trackWidth.ValueChanged += this.OnHostWidthChanged;
