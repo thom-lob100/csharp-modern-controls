@@ -35,6 +35,16 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernButtonControl),
                 new PropertyMetadata(string.Empty));
 
+        /// <summary>캡션/아이콘 글자 크기 재정의(px). 0 이하이면 토큰 기본값
+        /// (Font.Size.Body)을 쓴다. 화살표·기호 같은 아이콘형 캡션을 크게
+        /// 보이게 할 때 쓴다.</summary>
+        public static readonly DependencyProperty FontSizeOverrideProperty =
+            DependencyProperty.Register(
+                "FontSizeOverride",
+                typeof(double),
+                typeof(ModernButtonControl),
+                new PropertyMetadata(0d, OnFontSizeOverrideChanged));
+
         /// <summary>
         /// 버튼이 클릭될 때 발생한다. 내부 버튼의 Click을 전달한다.
         /// </summary>
@@ -43,6 +53,25 @@ namespace Modern.Lab.Controls.Wpf.Input
         public ModernButtonControl()
         {
             this.InitializeComponent();
+            this.Loaded += delegate { this.ApplyFontSize(); };
+        }
+
+        private static void OnFontSizeOverrideChanged(
+            DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernButtonControl)d).ApplyFontSize();
+        }
+
+        // 캡션/아이콘 글자 크기를 재정의 값(>0)으로, 아니면 토큰 기본값
+        // (Font.Size.Body)으로 맞춘다. 아이콘 글리프도 함께 커진다.
+        private void ApplyFontSize()
+        {
+            double size = this.FontSizeOverride > 0d
+                ? this.FontSizeOverride
+                : (double)this.FindResource("Font.Size.Body");
+
+            this.CaptionText.FontSize = size;
+            this.IconText.FontSize = size;
         }
 
         /// <summary>버튼에 표시되는 캡션.</summary>
@@ -64,6 +93,13 @@ namespace Modern.Lab.Controls.Wpf.Input
         {
             get { return (string)this.GetValue(IconGlyphProperty); }
             set { this.SetValue(IconGlyphProperty, value); }
+        }
+
+        /// <summary>캡션/아이콘 글자 크기 재정의(px). 0 이하 = 토큰 기본값.</summary>
+        public double FontSizeOverride
+        {
+            get { return (double)this.GetValue(FontSizeOverrideProperty); }
+            set { this.SetValue(FontSizeOverrideProperty, value); }
         }
 
         // 내부 버튼의 Click을 이 컨트롤의 Click으로 다시 발생시킨다.

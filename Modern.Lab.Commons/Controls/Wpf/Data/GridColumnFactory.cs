@@ -190,8 +190,9 @@ namespace Modern.Lab.Controls.Wpf.Data
             return column;
         }
 
-        // 배지 컬럼: 값 텍스트를 BadgeColorMember 색의 알약(Border)으로 감싼다.
-        // 글자색은 배경색에서 자동 유도(ChipColorHelper.DeriveForeground)한다.
+        // 배지 컬럼: 값 텍스트를 BadgeColorMember 색의 레티클(둥근 사각,
+        // Radius.Sm) 배지로 감싼다. 글자색은 배경색에서 자동 유도
+        // (ChipColorHelper.DeriveForeground)한다.
         private static DataGridColumn CreateBadgeColumn(
             ModernDataGridColumn definition,
             double widthRatio,
@@ -201,11 +202,11 @@ namespace Modern.Lab.Controls.Wpf.Data
             column.Header = definition.HeaderText;
             column.SortMemberPath = definition.DataPropertyName;
 
-            // 알약 여백은 SummaryList 칩과 동일한 10,2 — 세로 2px 여백으로 알약이
-            // 정확히 20px(= Radius.Pill 10의 지름)가 되어 완전한 캡슐로 그려지고,
-            // 32px 행의 세로 중앙에 위아래 균등하게 앉는다. 글자도 답답하지 않다.
+            // 여백 10,2 — 셀 버튼보다 한 단계 낮은 컴팩트 배지(약 20px)로
+            // 32px 행의 세로 중앙에 앉는다. 배지/버튼 컬럼이 나란히 있어도
+            // 배지가 버튼을 넘지 않는다. 모양은 레티클(둥근 사각) — 배지 관례와 통일.
             FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
-            border.SetValue(Border.CornerRadiusProperty, resourceSource.FindResource("Radius.Pill"));
+            border.SetValue(Border.CornerRadiusProperty, resourceSource.FindResource("Radius.Sm"));
             border.SetValue(Border.PaddingProperty, new Thickness(10d, 2d, 10d, 2d));
             border.SetValue(FrameworkElement.HorizontalAlignmentProperty, ToHorizontalAlignment(definition.TextAlignment));
             border.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
@@ -227,7 +228,7 @@ namespace Modern.Lab.Controls.Wpf.Data
             FrameworkElementFactory text = new FrameworkElementFactory(typeof(TextBlock));
             text.SetBinding(TextBlock.TextProperty, textBinding);
             text.SetValue(TextBlock.FontSizeProperty, resourceSource.FindResource("Font.Size.Label"));
-            text.SetValue(TextBlock.FontWeightProperty, FontWeights.SemiBold);
+            text.SetValue(TextBlock.FontWeightProperty, FontWeights.Normal);
             text.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
 
             // 장평: 배지 텍스트에도 같은 가로 스케일을 적용한다 (알약은 텍스트 폭을 따라간다).

@@ -14,8 +14,9 @@ namespace Modern.Lab.Controls.Wpf.Data
         CheckBox,
 
         /// <summary>
-        /// 배지(알약) 셀 — 값 텍스트를 BadgeColorMember 컬럼의 배경색으로
-        /// 감싸 표시한다. 글자색은 배경색에서 자동 유도된다(칩/배지 공통 규칙).
+        /// 배지(레티클, 둥근 사각) 셀 — 값 텍스트를 BadgeColorMember 컬럼의
+        /// 배경색으로 감싸 표시한다. 글자색은 배경색에서 자동 유도된다
+        /// (칩/배지 공통 규칙).
         /// </summary>
         Badge,
 

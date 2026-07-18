@@ -141,6 +141,7 @@ namespace Modern.Lab.Samples
             this.badgeResult.Color = "#FEE2E2";
             this.badgeResult.Location = new System.Drawing.Point(16, 308);
             this.badgeResult.Name = "badgeResult";
+            this.badgeResult.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeResult.Size = new System.Drawing.Size(408, 26);
             this.badgeResult.TabIndex = 3;
             this.badgeResult.Text = "-";

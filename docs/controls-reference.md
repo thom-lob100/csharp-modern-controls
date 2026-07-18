@@ -793,6 +793,29 @@ this.badgeCount.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
 
 ---
 
+## ModernSlotMap
+
+캐리어(운반체)의 수납 구조를 **실물 단면처럼** 그리는 슬롯 맵 (신규 개념 컨트롤).
+구획(`SlotMapSection`)별 셀 격자 — `Columns = 1`이면 세로 사다리(FOUP 슬롯 스택),
+5면 5×5 격자(TRAY LCC). 셀은 단일 수납(라벨+유닛 ID 바) 또는 복합 수납
+(`SubCells` — 핑거 A~E 도트 + 삽입 위치 Top/Left/Right 틱)이고, 상세는 호버 툴팁.
+
+| 멤버 | 설명 |
+|---|---|
+| `SetSections(SlotMapSection[])` | 구획/셀 모델을 통째로 다시 그린다 (재조회 반영 경로; 선택·미리보기 초기화) |
+| `AllowSelection` | 채워진 셀 클릭 선택 허용 (기본 true) — 대상(보기 전용) 맵은 false |
+| `EnableDragOut` / `AcceptDrops` | 드래그앤드롭 — 원본 맵에서 끌기 허용 / 대상 맵에서 드롭 수용 (둘 다 기본 false) |
+| `SelectedKeys` / `ClearSelection()` | 선택된 셀 키(`SlotMapCell.Key`) 배열 / 전체 해제 |
+| `SetPreview(string[][])` | 구획 인덱스별 "들어올 유닛 ID 목록" 미리보기 — 빈 자리를 위에서부터 순차로(front-first) "→ ID" 표기 + 번호 칩 하이라이트, 부족하면 구획 집계가 빨간 "need n more" (null = 해제). 서버가 빈 자리를 위부터 채우는 순서와 일치한다 |
+| `SetSelectedKeys(string[])` / `SetClickKey(string)` | 스테이징 강조(강한 액센트) / 클릭 강조(약한 색) 지정 — 둘이 겹친 셀은 결합 표시(셀 바깥 클릭 링). 이벤트 없음 |
+| `SelectionChanged` | 선택 변경 시 |
+| `UnitsDropped` | 드롭 수신 시 — 끌려온 셀 키들 + 놓은 자리(앵커) 셀 키. 검증/이동은 폼이 서버 호출로 |
+
+상세와 모델(`SlotMapSection`/`SlotMapCell`/`SlotMapSubCell`) 설명·사용 예는
+`docs/migration/ModernSlotMap.md` 참고. 참조 구현: 샘플 Carrier Editor.
+
+---
+
 ## ModernBusyOverlay
 
 조회/처리 중 대상 영역을 덮는 로딩 패널 (스피너 + 메시지). 기본 숨김.
@@ -968,7 +991,7 @@ new ModernDataGridColumn("EVENT_TM", "Event\nTime")   // 2줄 헤더
 | Kind | 설명 | 함께 쓰는 속성 |
 |---|---|---|
 | `CheckBox` | bool 컬럼 양방향 체크박스 — 벌크 작업 대상 지정용. 읽기 전용 그리드에서도 클릭 한 번으로 토글되고 원본 행 값이 즉시 갱신된다. 비주얼은 ModernCheckBox와 동일한 모던 체크(둥근 사각 + 액센트 채움 + 흰 체크 글리프) | `HeaderCheckBox` — true면 헤더에 **전체 선택/해제 체크박스** 표시 (기본 false). 클릭 시 현재 표시 중인 모든 행 일괄 설정, 상태는 전체(체크)/일부(대시)/없음(해제)을 되비춘다 |
-| `Badge` | 값을 색 알약(배지)으로 표시. 글자색은 배경색에서 자동 유도 | `BadgeColorMember` — 배경색(`"#FEE2E2"` 등) 컬럼 이름. 색이 비면 일반 텍스트 |
+| `Badge` | 값을 색 레티클(둥근 사각) 배지로 표시. 글자색은 배경색에서 자동 유도 | `BadgeColorMember` — 배경색(`"#FEE2E2"` 등) 컬럼 이름. 색이 비면 일반 텍스트 |
 | `Button` | 행 단위 액션 버튼 — ModernButton Secondary와 같은 문법(평상시 흰 배경 + 회색 테두리 + 진한 글자, hover 시 옅은 파랑 틴트 + 액센트 테두리/글자, pressed 시 한 단계 진한 틴트). 클릭 시 그리드의 `CellButtonClick` 발생 | `ButtonText` — 캡션. `ButtonEnabledMember` — 행별 활성 여부 컬럼(bool 또는 `"Y"`/`"true"`/`"1"`; 비우면 항상 활성) |
 
 주의: 페이지 슬라이스처럼 **복사본 DataTable**을 바인딩하는 화면은 체크 변경을

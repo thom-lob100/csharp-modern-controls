@@ -217,7 +217,8 @@
             Style="{StaticResource ModernButtonStyle}"
             Click="InnerButton_Click">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock FontFamily="{StaticResource Font.Family.Icon}"
+            <TextBlock x:Name="IconText"
+                       FontFamily="{StaticResource Font.Family.Icon}"
                        FontSize="{StaticResource Font.Size.Body}"
                        VerticalAlignment="Center"
                        Margin="0,0,8,0"
@@ -232,7 +233,8 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <TextBlock Text="{Binding Text, ElementName=RootControl}" VerticalAlignment="Center"
+            <TextBlock x:Name="CaptionText"
+                       Text="{Binding Text, ElementName=RootControl}" VerticalAlignment="Center"
                        LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
         </StackPanel>
     </Button>

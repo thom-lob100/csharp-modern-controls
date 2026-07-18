@@ -94,6 +94,12 @@
     <Compile Include="EndJobDialogForm.Designer.cs">
       <DependentUpon>EndJobDialogForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CarrierEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CarrierEditForm.Designer.cs">
+      <DependentUpon>CarrierEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ItemHistoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,6 +114,8 @@
     </Compile>
     <Compile Include="Services\EquipmentLotSimulator.cs" />
     <Compile Include="Services\EquipmentTablePresenter.cs" />
+    <Compile Include="Services\CarrierEditSimulator.cs" />
+    <Compile Include="Services\CarrierTablePresenter.cs" />
     <Compile Include="Services\GridCaptionDictionary.cs" />
     <Compile Include="Services\HistoryTablePresenter.cs" />
     <Compile Include="Services\JsonTableConverter.cs" />

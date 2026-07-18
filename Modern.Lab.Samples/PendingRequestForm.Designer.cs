@@ -412,6 +412,7 @@ namespace Modern.Lab.Samples
             this.badgeTransit.Color = "#E5E7EB";
             this.badgeTransit.Location = new System.Drawing.Point(12, 16);
             this.badgeTransit.Name = "badgeTransit";
+            this.badgeTransit.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeTransit.Size = new System.Drawing.Size(100, 24);
             this.badgeTransit.TabIndex = 0;
             this.badgeTransit.Text = "-";
@@ -422,6 +423,7 @@ namespace Modern.Lab.Samples
             this.badgeArrived.Color = "#DBEAFE";
             this.badgeArrived.Location = new System.Drawing.Point(120, 16);
             this.badgeArrived.Name = "badgeArrived";
+            this.badgeArrived.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeArrived.Size = new System.Drawing.Size(100, 24);
             this.badgeArrived.TabIndex = 1;
             this.badgeArrived.Text = "-";
@@ -432,6 +434,7 @@ namespace Modern.Lab.Samples
             this.badgeNoReq.Color = "#FEF3C7";
             this.badgeNoReq.Location = new System.Drawing.Point(228, 16);
             this.badgeNoReq.Name = "badgeNoReq";
+            this.badgeNoReq.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeNoReq.Size = new System.Drawing.Size(120, 24);
             this.badgeNoReq.TabIndex = 2;
             this.badgeNoReq.Text = "-";
@@ -442,6 +445,7 @@ namespace Modern.Lab.Samples
             this.badgeLinked.Color = "#E0E7FF";
             this.badgeLinked.Location = new System.Drawing.Point(356, 16);
             this.badgeLinked.Name = "badgeLinked";
+            this.badgeLinked.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeLinked.Size = new System.Drawing.Size(100, 24);
             this.badgeLinked.TabIndex = 3;
             this.badgeLinked.Text = "-";
@@ -452,6 +456,7 @@ namespace Modern.Lab.Samples
             this.badgeDone.Color = "#DCFCE7";
             this.badgeDone.Location = new System.Drawing.Point(464, 16);
             this.badgeDone.Name = "badgeDone";
+            this.badgeDone.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeDone.Size = new System.Drawing.Size(120, 24);
             this.badgeDone.TabIndex = 4;
             this.badgeDone.Text = "-";
@@ -462,6 +467,7 @@ namespace Modern.Lab.Samples
             this.badgeUnmatched.Color = "#FEE2E2";
             this.badgeUnmatched.Location = new System.Drawing.Point(592, 16);
             this.badgeUnmatched.Name = "badgeUnmatched";
+            this.badgeUnmatched.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeUnmatched.Size = new System.Drawing.Size(120, 24);
             this.badgeUnmatched.TabIndex = 5;
             this.badgeUnmatched.Text = "-";
@@ -471,6 +477,7 @@ namespace Modern.Lab.Samples
             //
             this.badgeAvg.Location = new System.Drawing.Point(720, 16);
             this.badgeAvg.Name = "badgeAvg";
+            this.badgeAvg.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeAvg.Size = new System.Drawing.Size(100, 24);
             this.badgeAvg.TabIndex = 6;
             this.badgeAvg.Text = "-";
@@ -480,6 +487,7 @@ namespace Modern.Lab.Samples
             //
             this.badgeOldest.Location = new System.Drawing.Point(828, 16);
             this.badgeOldest.Name = "badgeOldest";
+            this.badgeOldest.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeOldest.Size = new System.Drawing.Size(110, 24);
             this.badgeOldest.TabIndex = 7;
             this.badgeOldest.Text = "-";

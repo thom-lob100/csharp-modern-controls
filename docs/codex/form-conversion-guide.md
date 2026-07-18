@@ -70,7 +70,8 @@
 ### 2-2. 신규 개념 컨트롤 — 변환 작업에서는 도입하지 않는다
 
 `ModernBusyOverlay`(로딩), `ModernPagination`(페이지 바), `ModernKpiCard`,
-`ModernSummaryList`, `ModernCheckComboBox`, `ModernStepIndicator` 등은 기존 폼에
+`ModernSummaryList`, `ModernCheckComboBox`, `ModernStepIndicator`,
+`ModernSlotMap`(캐리어 수납 구조 슬롯 맵) 등은 기존 폼에
 대응물이 없는 **신규 컨트롤**이다. 변환 작업의 목표는 "동작 동일 + 외형 현대화"이므로,
 사람이 명시적으로 요청한 경우에만 추가한다.
 

@@ -24,6 +24,7 @@ namespace Modern.Lab.WinForms.Controls.Input
         private string fallbackText;
         private Modern.Lab.Controls.Wpf.Input.ButtonKind fallbackKind;
         private string fallbackIconGlyph;
+        private double fallbackFontSize;
 
         /// <summary>적절한 기본 크기로 컨트롤을 생성한다.</summary>
         public ModernButton()
@@ -32,6 +33,7 @@ namespace Modern.Lab.WinForms.Controls.Input
             this.fallbackText = "버튼";
             this.fallbackKind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Primary;
             this.fallbackIconGlyph = string.Empty;
+            this.fallbackFontSize = 0d;
 
             if (this.Wpf != null)
             {
@@ -121,6 +123,36 @@ namespace Modern.Lab.WinForms.Controls.Input
                 if (this.Wpf != null)
                 {
                     this.Wpf.IconGlyph = value;
+                }
+
+                this.InvalidateDesignTimePreview();
+            }
+        }
+
+        /// <summary>캡션/아이콘 글자 크기 재정의(px). 0 이하이면 토큰 기본값
+        /// (Font.Size.Body)을 쓴다 — 화살표·기호 같은 아이콘형 캡션을 크게
+        /// 보이게 할 때 쓴다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("캡션/아이콘 글자 크기 재정의(px) — 0 = 토큰 기본값")]
+        [DefaultValue(0d)]
+        public double GlyphSize
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.FontSizeOverride;
+                }
+
+                return this.fallbackFontSize;
+            }
+            set
+            {
+                this.fallbackFontSize = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.FontSizeOverride = value;
                 }
 
                 this.InvalidateDesignTimePreview();

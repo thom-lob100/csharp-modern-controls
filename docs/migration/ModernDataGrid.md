@@ -30,7 +30,7 @@
 | `ExportXlsx(path, sheetName, data)` | 화면 컬럼 정의 그대로(순서·캡션·`Format`) 데이터 전체를 진짜 .xlsx로 저장 — 외부 라이브러리 없음, 내보내기용 컬럼/헤더 목록을 폼이 따로 관리하지 않는다. CheckBox/Button 컬럼 자동 제외. `data`는 그리드 `DataSource`가 아니라 인자 — 페이지 화면에서도 전체 결과 저장 |
 | `ColumnDefinitions` | `ConfigureColumns`로 선언한 정의의 복사본 — 화면과 동일한 컬럼 구성(순서·캡션·형식)으로 커스텀 파생 출력을 만들 때 단일 원천 (엑셀 저장은 `ExportXlsx`가 이미 해준다) |
 | `EmptyText` | 데이터 0건일 때 데이터 영역 가운데 표시할 안내 문구 (기본 `"No data"`, 빈 문자열 = 끔) |
-| `ModernDataGridColumn.Kind` | 셀 표시 종류 — `Text`(기본) / `CheckBox`(bool 양방향 체크박스, 벌크 대상 지정; OS 기본 룩이 아닌 모던 비주얼 — 둥근 사각 + 액센트 채움 + 흰 체크 글리프, ModernCheckBox와 동일) / `Badge`(`BadgeColorMember` 색 알약) / `Button`(`ButtonText` 캡션, `ButtonEnabledMember`로 행별 활성 제어; ModernButton Secondary와 같은 문법 — 평상시 흰 배경 + 회색 테두리, hover 시 옅은 파랑 틴트 + 액센트 테두리/글자) |
+| `ModernDataGridColumn.Kind` | 셀 표시 종류 — `Text`(기본) / `CheckBox`(bool 양방향 체크박스, 벌크 대상 지정; OS 기본 룩이 아닌 모던 비주얼 — 둥근 사각 + 액센트 채움 + 흰 체크 글리프, ModernCheckBox와 동일) / `Badge`(`BadgeColorMember` 색 레티클 배지) / `Button`(`ButtonText` 캡션, `ButtonEnabledMember`로 행별 활성 제어; ModernButton Secondary와 같은 문법 — 평상시 흰 배경 + 회색 테두리, hover 시 옅은 파랑 틴트 + 액센트 테두리/글자) |
 | `ModernDataGridColumn.HeaderCheckBox` | CheckBox 컬럼 전용 (기본 false). true면 헤더 캡션 대신 **전체 선택/해제 체크박스**가 올라간다 — 클릭 시 현재 그리드에 표시 중인 모든 행(페이지 화면이면 현재 페이지)의 값을 일괄 설정하고, 행 값 상태에 따라 체크(전체)/해제(없음)/중간(일부)으로 자동 갱신. `DataGridView` 헤더 체크박스 커스텀 그리기 코드 대체 |
 | `CellButtonClick` | 버튼 컬럼 셀 클릭 이벤트 — `e.Item`(클릭 행 `DataRowView`) + `e.DataPropertyName`(버튼 컬럼 이름). `DataGridView`의 `CellContentClick` + 버튼 컬럼 대체 |
 | 행 우클릭 + `ContextMenuStrip` | 행 위에서 우클릭하면 **그 행이 먼저 현재 행으로 선택**된 뒤 컨트롤에 지정한 `ContextMenuStrip`이 커서 위치에 뜬다 — 메뉴 핸들러는 `SelectedItem`을 대상으로 처리하면 된다. 행 밖(헤더/빈 영역) 우클릭에는 뜨지 않는다 |

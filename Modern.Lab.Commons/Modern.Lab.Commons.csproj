@@ -149,6 +149,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\Wpf\Display\ModernSlotMapControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\Wpf\Display\ModernToastControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -231,6 +235,14 @@
     <Compile Include="Controls\Wpf\Display\ModernBusyOverlayControl.xaml.cs">
       <DependentUpon>ModernBusyOverlayControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Wpf\Display\SlotMapSection.cs" />
+    <Compile Include="Controls\Wpf\Display\SlotMapCell.cs" />
+    <Compile Include="Controls\Wpf\Display\SlotMapSubCell.cs" />
+    <Compile Include="Controls\Wpf\Display\SlotMapDropEventArgs.cs" />
+    <Compile Include="Controls\Wpf\Display\SlotMapCellEventArgs.cs" />
+    <Compile Include="Controls\Wpf\Display\ModernSlotMapControl.xaml.cs">
+      <DependentUpon>ModernSlotMapControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Wpf\Display\ToastKind.cs" />
     <Compile Include="Controls\Wpf\Display\ModernToastControl.xaml.cs">
       <DependentUpon>ModernToastControl.xaml</DependentUpon>
@@ -297,6 +309,7 @@
     <Compile Include="WinForms\Display\ModernBusyOverlay.cs" />
     <Compile Include="WinForms\Display\BadgeShape.cs" />
     <Compile Include="WinForms\Display\ModernStatusBadge.cs" />
+    <Compile Include="WinForms\Display\ModernSlotMap.cs" />
     <Compile Include="WinForms\Display\ModernToast.cs" />
     <Compile Include="WinForms\Data\ModernDataGrid.cs" />
     <Compile Include="WinForms\Data\ModernPagination.cs" />

@@ -118,6 +118,7 @@ namespace Modern.Lab.Samples
             this.AddSample("Item History", () => new ItemHistoryForm());
             this.AddSample("Pending Requests", () => new PendingRequestForm());
             this.AddSample("Equipment / Lots", () => new EquipmentLotForm());
+            this.AddSample("Carrier Editor", () => new CarrierEditForm());
             this.AddSample("직원관리", () => new EmployeeManagementForm());
             this.AddSample("Step Indicator", () => new StepFlowDemoForm());
         }

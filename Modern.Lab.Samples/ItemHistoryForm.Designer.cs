@@ -406,6 +406,7 @@ namespace Modern.Lab.Samples
             //
             this.badgeType.Location = new System.Drawing.Point(12, 40);
             this.badgeType.Name = "badgeType";
+            this.badgeType.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeType.Size = new System.Drawing.Size(90, 24);
             this.badgeType.TabIndex = 1;
             this.badgeType.Text = "-";
@@ -415,6 +416,7 @@ namespace Modern.Lab.Samples
             //
             this.badgeStat.Location = new System.Drawing.Point(110, 40);
             this.badgeStat.Name = "badgeStat";
+            this.badgeStat.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
             this.badgeStat.Size = new System.Drawing.Size(90, 24);
             this.badgeStat.TabIndex = 2;
             this.badgeStat.Text = "-";
