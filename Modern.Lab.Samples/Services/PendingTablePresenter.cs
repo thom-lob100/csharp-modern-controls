@@ -8,204 +8,245 @@ namespace Modern.Lab.Samples.Services
     /// Pending Requests 화면의 파생 컬럼·필터·집계 모음 — 화면(폼)과 분리된
     /// 순수 DataTable 로직이다 (HistoryTablePresenter와 같은 역할 분담).
     ///
-    /// 서버는 원본 행(도착 정보)과 서버만 알 수 있는 집계(UNIT_CNT)만 내려주고,
-    /// 표시용 파생은 전부 여기서 계산한다:
-    /// - ELAPSED_DAYS: 오늘 − 도착일(EVENT_TM). 쿼리의 SYSDATE 계산을 대체한다.
-    /// - PRIORITY / DAYS_COLOR: 경과일 구간(0-2/3-6/7-13/14+) 강조 —
-    ///   **물류처리 완료 건만** 대상, 미처리 행은 무색 배지 + "-".
-    /// - CHK / LOGIS_CAN: 벌크 체크박스, 행 단위 물류처리 버튼 활성(미처리만).
-    /// - Filter: 경과일 최소값 + 물류처리 상태 필터 (둘 다 클라이언트에서 일관 처리).
-    /// - Aggregate: KPI(건수/Unit 합/평균/최대)와 경과일 구간 분포.
+    /// 데이터 개념 (2026-07-17 FAC_SEND_MAS 기반 재정의):
+    /// 인터페이스 흐름은 원래 전부 자동이다 — 발송 통보(FAC_SEND_MAS) → 물류
+    /// 도착 → Receive 처리(전산 ITEM Created/Released 생성) → 의뢰서 연결 →
+    /// Create 처리. 이 화면은 자동이 일부/전부 실패한 건을 사람이 이어서
+    /// 처리하고(수동 Receive/Create), 도착했지만 의뢰서가 없는 목록과 전체
+    /// 현황을 현업에게 보여주기 위한 것이다.
+    ///
+    /// 행 상태(STATUS)는 "아직 안 된 첫 단계"로 정한다 — 자동이 어느 조합까지
+    /// 되고 멈췄든 다음에 할 일이 하나로 정해진다:
+    ///   Sent             : 발송 통보(FAC_SEND_MAS)만 있고 도착 전    (액션 없음)
+    ///   Arrived          : 도착했지만 Receive 미처리(RECV_YN='N')    (→ Receive)
+    ///   Request Unlinked : Receive 완료, 의뢰서 미연결(REQ_NO 없음)  (대기 — 경과일 강조)
+    ///   Request Linked   : 의뢰서 연결됨, Create 미처리(PROC_YN='N') (→ Create)
+    ///   Completed        : Create 처리 완료(PROC_YN='Y')
+    ///
+    /// 발송 통보 여부(SEND_YN)는 상태와 **직교**한다 — 미확인 물류(SEND_YN='N')도
+    /// 의뢰 인터페이스는 타므로 동일 파이프라인으로 진행하고, FAC_SEND_MAS에
+    /// 있냐 없냐만 SEND_YN 배지(Y 초록 / N 빨강 틴트)로 구분해 보여준다.
+    ///
+    /// 경과일(ELAPSED_DAYS)은 두 구간에 표기한다 — 도착 전(운송 중)은 발송
+    /// 통보 시각 기준(운송 지연 감지), 도착 후에는 "의뢰서와 연결이 안 된"
+    /// 행만 도착 시각 기준(방치 기간). 연결된 행은 의뢰번호가 상태를 말해
+    /// 주므로 비운다. 배지색: 0-2일 파랑 · 3-6일 호박 · 7-13일 주황 ·
+    /// 14일+ 빨강 틴트. KPI의 Avg/Oldest는 도착 후 미연결 행만 집계한다.
     /// </summary>
     internal static class PendingTablePresenter
     {
-        /// <summary>경과일 구간 라벨 (분포 배지 표기와 PRIORITY 계산이 같은 경계를 쓴다).</summary>
-        internal static readonly string[] AgingLabels = { "0-2 d", "3-6 d", "7-13 d", "14+ d" };
+        // ===== 상태 정의 =====
 
-        // 경과일 구간별 배지 배경색 (구간이 심해질수록 파랑 → 호박 → 주황 → 빨강 틴트).
-        // 하단 분포 배지(.Designer.cs의 Color)와 그리드 Days 배지가 같은 색을 쓴다.
+        /// <summary>상태 인덱스: 발송 통보(FAC_SEND_MAS)만 있고 도착 전(Sent).</summary>
+        internal const int StatusTransit = 0;
+
+        /// <summary>상태 인덱스: 도착했지만 Receive 미처리 — 수동 Receive 대상.</summary>
+        internal const int StatusArrived = 1;
+
+        /// <summary>상태 인덱스: Receive 완료, 의뢰서 미연결 — 경과일 강조 대상.</summary>
+        internal const int StatusNoRequest = 2;
+
+        /// <summary>상태 인덱스: 의뢰서 연결됨, Create 미처리 — 수동 Create 대상.</summary>
+        internal const int StatusLinked = 3;
+
+        /// <summary>상태 인덱스: Create 처리 완료.</summary>
+        internal const int StatusCompleted = 4;
+
+        /// <summary>상태 표시명 — 필터 콤보 값·STATUS 컬럼 값·KPI 집계가 같은 문자열을 쓴다.</summary>
+        internal static readonly string[] StatusNames =
+        {
+            "Sent", "Arrived", "Request Unlinked", "Request Linked", "Completed"
+        };
+
+        // 상태 배지 배경색 (StatusNames와 같은 순서) —
+        // 회색(운송 중)·파랑(도착)·호박(의뢰 대기)·남색 틴트(연결)·초록(완료).
+        private static readonly string[] statusColors =
+        {
+            "#E5E7EB", "#DBEAFE", "#FEF3C7", "#E0E7FF", "#DCFCE7"
+        };
+
+        // 경과일 구간별 배지 배경색 (0-2 / 3-6 / 7-13 / 14+ 일 — 구간이
+        // 심해질수록 파랑 → 호박 → 주황 → 빨강 틴트).
         private static readonly string[] agingBadgeColors = { "#DBEAFE", "#FEF3C7", "#FFE0CC", "#FEE2E2" };
 
-        /// <summary>집계 결과 — 폼은 이 값을 KPI/분포 배지에 그대로 표기만 한다.</summary>
+        // 발송 통보 여부(SEND_YN) 배지색 — Y(FAC_SEND_MAS 있음) 초록 / N(미확인) 빨강 틴트.
+        private const string sendNotifiedColor = "#DCFCE7";
+        private const string sendUnmatchedColor = "#FEE2E2";
+
+        /// <summary>집계 결과 — 폼은 이 값을 KPI 배지에 그대로 표기만 한다.</summary>
         internal sealed class PendingSummary
         {
-            /// <summary>조회 결과 행 수.</summary>
-            internal int ItemCount;
+            /// <summary>상태별 건수 — StatusNames와 같은 순서.</summary>
+            internal readonly int[] StatusCounts = new int[5];
 
-            /// <summary>UNIT_CNT 합계.</summary>
-            internal int UnitTotal;
+            /// <summary>발송 통보 없이 도착한 미확인 물류 건수(SEND_YN='N').</summary>
+            internal int UnmatchedCount;
 
-            /// <summary>경과일 집계 대상(물류처리 완료) 건수. 0이면 Avg/Oldest는 무의미.</summary>
-            internal int AgedCount;
+            /// <summary>도착 &amp; 의뢰서 미연결 건수(Arrived + Unlinked) — 경과 통계의 대상.</summary>
+            internal int NoLinkCount;
 
-            /// <summary>경과일 평균 (AgedCount가 0이면 0).</summary>
+            /// <summary>미연결 건 경과일 평균 (NoLinkCount가 0이면 0).</summary>
             internal double DaysAverage;
 
-            /// <summary>경과일 최대 (AgedCount가 0이면 0).</summary>
+            /// <summary>미연결 건 경과일 최대 (NoLinkCount가 0이면 0).</summary>
             internal int DaysMax;
-
-            /// <summary>경과일 구간(0-2/3-6/7-13/14+)별 건수 — AgingLabels와 같은 순서.</summary>
-            internal readonly int[] AgingCounts = new int[4];
         }
 
+        // ===== 파생 컬럼 =====
+
         /// <summary>
-        /// 경과일 파생 컬럼(ELAPSED_DAYS = 오늘 − EVENT_TM 날짜)을 채운다.
-        /// EVENT_TM이 없거나 해석 불가한 행은 0일로 둔다. 일 단위 경과라
-        /// 클라이언트 시계 기준으로 충분하다 (ItemHistory의 DURATION과 동일 철학).
+        /// 현황판에 워크리스트 파생 컬럼을 보장하고 전 행에 채운다:
+        /// STATUS/STATUS_COLOR(파이프라인 상태 배지), SEND_YN/SEND_COLOR
+        /// (발송 통보 여부 배지), ELAPSED_DAYS/DAYS_COLOR(미연결 행의 경과 강조),
+        /// CHK(벌크 체크박스), RECV_CAN/CRT_CAN(행 단위 Receive/Create 버튼 활성).
         /// </summary>
-        internal static void AddElapsedDays(DataTable pending)
+        internal static void ApplyWorkflowColumns(DataTable board)
         {
-            if (pending == null)
+            if (board == null)
             {
                 return;
             }
 
-            if (!pending.Columns.Contains("ELAPSED_DAYS"))
+            EnsureColumn(board, "STATUS", typeof(string));
+            EnsureColumn(board, "STATUS_COLOR", typeof(string));
+            EnsureColumn(board, "SEND_YN", typeof(string));
+            EnsureColumn(board, "SEND_COLOR", typeof(string));
+            EnsureColumn(board, "ELAPSED_DAYS", typeof(int));
+            EnsureColumn(board, "DAYS_COLOR", typeof(string));
+            EnsureColumn(board, "CHK", typeof(bool));
+            EnsureColumn(board, "RECV_CAN", typeof(bool));
+            EnsureColumn(board, "CRT_CAN", typeof(bool));
+
+            foreach (DataRow row in board.Rows)
             {
-                pending.Columns.Add("ELAPSED_DAYS", typeof(int));
-            }
+                ApplyStatus(row);
 
-            DateTime today = DateTime.Today;
-
-            foreach (DataRow row in pending.Rows)
-            {
-                DateTime arrived;
-
-                if (DateTime.TryParse(CellText(row, "EVENT_TM"), out arrived))
-                {
-                    int days = (int)(today - arrived.Date).TotalDays;
-                    row["ELAPSED_DAYS"] = days > 0 ? days : 0;
-                }
-                else
-                {
-                    row["ELAPSED_DAYS"] = 0;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 워크리스트 파생 컬럼을 채운다: PRIORITY/DAYS_COLOR(경과일 강조 —
-        /// 물류처리 완료 건만), CHK(벌크 체크박스), LOGIS_CAN(행 버튼 활성 = 미처리).
-        /// LOGIS_YN은 호출 전에 채워져 있어야 한다 (서버 값 또는 폼의 데모 시뮬레이션).
-        /// </summary>
-        internal static void ApplyWorkflowColumns(DataTable pending)
-        {
-            if (pending == null)
-            {
-                return;
-            }
-
-            if (!pending.Columns.Contains("PRIORITY"))
-            {
-                pending.Columns.Add("PRIORITY", typeof(string));
-            }
-
-            if (!pending.Columns.Contains("DAYS_COLOR"))
-            {
-                pending.Columns.Add("DAYS_COLOR", typeof(string));
-            }
-
-            if (!pending.Columns.Contains("CHK"))
-            {
-                pending.Columns.Add("CHK", typeof(bool));
-            }
-
-            if (!pending.Columns.Contains("LOGIS_CAN"))
-            {
-                pending.Columns.Add("LOGIS_CAN", typeof(bool));
-            }
-
-            foreach (DataRow row in pending.Rows)
-            {
-                ApplyAging(row);
-
-                // 기존 컬럼에 행이 이미 있던 경우 DBNull로 남으므로 명시적으로 채운다.
                 if (row.IsNull("CHK"))
                 {
                     row["CHK"] = false;
                 }
-
-                row["LOGIS_CAN"] = !IsLogisticsDone(row);
             }
         }
 
         /// <summary>
-        /// 경과일 강조(PRIORITY + Days 배지색)를 한 행에 적용한다.
-        /// 경과일 체크는 **물류처리가 완료된 건만** 대상 — 미처리 행은
-        /// 무색 배지 + Priority "-" 로 표시한다.
+        /// 한 행의 파이프라인 상태와 강조(상태 배지·경과일·버튼 활성)를 계산한다.
         /// </summary>
-        internal static void ApplyAging(DataRow row)
+        internal static void ApplyStatus(DataRow row)
         {
-            if (!IsLogisticsDone(row))
+            bool arrived = CellText(row, "ARRIVE_TM").Trim().Length > 0;
+            bool received = CellText(row, "RECV_YN").Trim() == "Y";
+            bool linked = CellText(row, "REQ_NO").Trim().Length > 0;
+            bool created = CellText(row, "PROC_YN").Trim() == "Y";
+
+            int status;
+
+            if (!arrived)
             {
-                row["PRIORITY"] = "-";
+                status = StatusTransit;
+            }
+            else if (!received)
+            {
+                status = StatusArrived;
+            }
+            else if (!linked)
+            {
+                status = StatusNoRequest;
+            }
+            else if (!created)
+            {
+                status = StatusLinked;
+            }
+            else
+            {
+                status = StatusCompleted;
+            }
+
+            row["STATUS"] = StatusNames[status];
+            row["STATUS_COLOR"] = statusColors[status];
+            row["RECV_CAN"] = status == StatusArrived;
+            row["CRT_CAN"] = status == StatusLinked;
+
+            // 발송 통보 여부 — 'Y'가 아니면 미확인('N')으로 정규화한다
+            // (회사 조인 쿼리에서 FAC_SEND_MAS 쪽이 NULL인 행 포함).
+            bool notified = CellText(row, "SEND_YN").Trim() == "Y";
+            row["SEND_YN"] = notified ? "Y" : "N";
+            row["SEND_COLOR"] = notified ? sendNotifiedColor : sendUnmatchedColor;
+
+            // 경과일: 도착 전(운송 중)은 발송 통보 시각 기준 — 운송 지연을
+            // 그대로 보여준다. 도착 후에는 "의뢰서 미연결" 행만 — Receive
+            // 여부와 무관하게 도착시각 기준으로 방치 기간을 보여준다.
+            string agingBasis = string.Empty;
+
+            if (!arrived)
+            {
+                agingBasis = CellText(row, "SEND_TM").Trim();
+            }
+            else if (!linked)
+            {
+                agingBasis = CellText(row, "ARRIVE_TM").Trim();
+            }
+
+            if (agingBasis.Length > 0)
+            {
+                int days = ElapsedDays(agingBasis);
+                row["ELAPSED_DAYS"] = days;
+                row["DAYS_COLOR"] = agingBadgeColors[AgingBand(days)];
+            }
+            else
+            {
+                row["ELAPSED_DAYS"] = DBNull.Value;
                 row["DAYS_COLOR"] = string.Empty;
-                return;
             }
-
-            int days = ParseDays(CellText(row, "ELAPSED_DAYS"));
-            int band = AgingBand(days);
-
-            switch (band)
-            {
-                case 3:
-                    row["PRIORITY"] = "Critical";
-                    break;
-                case 2:
-                    row["PRIORITY"] = "Warning";
-                    break;
-                case 1:
-                    row["PRIORITY"] = "Watch";
-                    break;
-                default:
-                    row["PRIORITY"] = "Normal";
-                    break;
-            }
-
-            row["DAYS_COLOR"] = agingBadgeColors[band];
         }
 
-        /// <summary>물류처리 완료 여부 — LOGIS_YN이 "Y"면 완료로 본다.</summary>
-        internal static bool IsLogisticsDone(DataRow row)
+        /// <summary>bool 파생 컬럼(RECV_CAN/CRT_CAN/CHK)을 관용적으로 읽는다.</summary>
+        internal static bool FlagSet(DataRow row, string columnName)
         {
-            return "Y".Equals(CellText(row, "LOGIS_YN").Trim(), StringComparison.OrdinalIgnoreCase);
+            if (!row.Table.Columns.Contains(columnName))
+            {
+                return false;
+            }
+
+            object value = row[columnName];
+            return value is bool && (bool)value;
         }
+
+        // ===== 필터 + 집계 =====
 
         /// <summary>
-        /// 물류처리 완료 상태로 표시한다 (LOGIS_YN=Y, 행 버튼 비활성).
-        /// 완료되는 순간부터 경과일 체크 대상이므로 Days 배지/Priority도 함께 채운다.
+        /// 상태 필터(StatusNames 값, "" = 전체) · 발송 통보 필터(""/Y/N) ·
+        /// 경과일 최소값(0 = 전체)으로 현황판을 잘라낸다. 전부 클라이언트에서
+        /// 처리한다 — 서버 조회는 조건 없이 원본만 준다. 경과일은 미연결 행만
+        /// 값이 있으므로, 경과일 필터를 걸면 연결/미도착 행은 자연히 제외된다.
         /// </summary>
-        internal static void MarkLogisticsDone(DataRow row)
+        internal static DataTable Filter(DataTable board, string statusFilter, string sendFilter, int minDays)
         {
-            row["LOGIS_YN"] = "Y";
-            row["LOGIS_CAN"] = false;
-            ApplyAging(row);
-        }
-
-        /// <summary>
-        /// 경과일 최소값(0 = 전체)과 물류처리 상태(""/N/Y)로 결과를 잘라낸다.
-        /// 두 필터 모두 클라이언트에서 처리한다 — 서버 쿼리는 조건 없이 원본만 준다.
-        /// </summary>
-        internal static DataTable Filter(DataTable pending, int minDays, string logisticsFilter)
-        {
-            if (minDays <= 0 && logisticsFilter.Length == 0)
+            if (statusFilter.Length == 0 && sendFilter.Length == 0 && minDays <= 0)
             {
-                return pending;
+                return board;
             }
 
-            bool wantDone = logisticsFilter == "Y";
-            DataTable filtered = pending.Clone();
+            DataTable filtered = board.Clone();
 
-            foreach (DataRow row in pending.Rows)
+            foreach (DataRow row in board.Rows)
             {
-                if (minDays > 0 && ParseDays(CellText(row, "ELAPSED_DAYS")) < minDays)
+                if (statusFilter.Length > 0 && CellText(row, "STATUS") != statusFilter)
                 {
                     continue;
                 }
 
-                if (logisticsFilter.Length > 0 && IsLogisticsDone(row) != wantDone)
+                if (sendFilter.Length > 0 && CellText(row, "SEND_YN") != sendFilter)
                 {
                     continue;
+                }
+
+                if (minDays > 0)
+                {
+                    if (row.IsNull("ELAPSED_DAYS")
+                            || ParseDays(CellText(row, "ELAPSED_DAYS")) < minDays)
+                    {
+                        continue;
+                    }
                 }
 
                 filtered.ImportRow(row);
@@ -215,8 +256,8 @@ namespace Modern.Lab.Samples.Services
         }
 
         /// <summary>
-        /// KPI와 경과일 분포를 집계한다. 경과일 통계(Avg/Oldest/분포)는
-        /// 물류처리 완료 건만 대상 — UNIT_CNT 합계는 전체 행 대상.
+        /// KPI를 집계한다 — 상태별 건수(전체 현황), 미확인 물류 건수(SEND_YN='N'),
+        /// 미연결 건의 경과 통계(Avg/Oldest).
         /// </summary>
         internal static PendingSummary Aggregate(DataTable result)
         {
@@ -227,38 +268,48 @@ namespace Modern.Lab.Samples.Services
                 return summary;
             }
 
-            summary.ItemCount = result.Rows.Count;
             int daysSum = 0;
 
             foreach (DataRow row in result.Rows)
             {
-                summary.UnitTotal += ParseDays(CellText(row, "UNIT_CNT"));
+                int status = Array.IndexOf(StatusNames, CellText(row, "STATUS"));
 
-                if (!IsLogisticsDone(row))
+                if (status >= 0)
                 {
-                    continue;
+                    summary.StatusCounts[status] += 1;
                 }
 
-                summary.AgedCount = summary.AgedCount + 1;
-
-                int days = ParseDays(CellText(row, "ELAPSED_DAYS"));
-                daysSum += days;
-
-                if (days > summary.DaysMax)
+                if (CellText(row, "SEND_YN") == "N")
                 {
-                    summary.DaysMax = days;
+                    summary.UnmatchedCount += 1;
                 }
 
-                summary.AgingCounts[AgingBand(days)] += 1;
+                // 운송 중 행의 경과일(발송 기준)은 미연결 통계에서 제외한다 —
+                // Avg/Oldest는 "도착했는데 의뢰서가 없는" 건의 방치 기간 지표다.
+                if (status != StatusTransit
+                        && row.Table.Columns.Contains("ELAPSED_DAYS") && !row.IsNull("ELAPSED_DAYS"))
+                {
+                    summary.NoLinkCount += 1;
+
+                    int days = ParseDays(CellText(row, "ELAPSED_DAYS"));
+                    daysSum += days;
+
+                    if (days > summary.DaysMax)
+                    {
+                        summary.DaysMax = days;
+                    }
+                }
             }
 
-            if (summary.AgedCount > 0)
+            if (summary.NoLinkCount > 0)
             {
-                summary.DaysAverage = (double)daysSum / summary.AgedCount;
+                summary.DaysAverage = (double)daysSum / summary.NoLinkCount;
             }
 
             return summary;
         }
+
+        // ===== 공용 헬퍼 =====
 
         /// <summary>서버 숫자 컬럼(JSON number)을 관용적으로 파싱한다 — 빈 값/소수 표기 모두 허용.</summary>
         internal static int ParseDays(string text)
@@ -285,7 +336,30 @@ namespace Modern.Lab.Samples.Services
             return value == DBNull.Value || value == null ? string.Empty : value.ToString();
         }
 
-        // 경과일 → 구간 인덱스 (0-2 / 3-6 / 7-13 / 14+). PRIORITY와 분포가 같은 경계를 쓴다.
+        // 파생 컬럼이 없으면 만든다 — 서버가 이미 내려준 컬럼은 그대로 둔다.
+        private static void EnsureColumn(DataTable table, string columnName, Type columnType)
+        {
+            if (!table.Columns.Contains(columnName))
+            {
+                table.Columns.Add(columnName, columnType);
+            }
+        }
+
+        // 도착시각 → 오늘까지의 경과일 (해석 불가/미래 도착은 0일).
+        private static int ElapsedDays(string arriveText)
+        {
+            DateTime arrived;
+
+            if (!DateTime.TryParse(arriveText, out arrived))
+            {
+                return 0;
+            }
+
+            int days = (int)(DateTime.Today - arrived.Date).TotalDays;
+            return days > 0 ? days : 0;
+        }
+
+        // 경과일 → 구간 인덱스 (0-2 / 3-6 / 7-13 / 14+).
         private static int AgingBand(int days)
         {
             if (days >= 14)

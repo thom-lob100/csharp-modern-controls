@@ -39,7 +39,24 @@ namespace Modern.Lab.Samples.Services
                 { "STAT_TYP", "Status" },
                 { "PRIORITY", "Priority" },
                 { "ELAPSED_DAYS", "Days" },
-                { "LOGIS_YN", "Logistics" },
+
+                // ---- 의뢰서 ----
+                { "REQ_NO", "Request No" },
+                { "REQ_TM", "Requested At" },
+                { "SAMPLE_NM", "Sample" },
+                { "PROC_YN", "Processed" },
+                { "PROC_TM", "Processed At" },
+
+                // ---- 발송/수신 인터페이스 (FAC_SEND_MAS) ----
+                { "STATUS", "Status" },
+                { "SEND_YN", "Sent" },
+                { "SEND_FAC", "Send Fac" },
+                { "SEND_TM", "Sent At" },
+                { "ARRIVE_TM", "Arrived At" },
+                { "RECV_YN", "Received" },
+                { "RECV_TM", "Received At" },
+                { "RECV_DESC", "Receive Note" },
+                { "ITEM_STAT", "Item Status" },
 
                 // ---- 공정/위치 ----
                 { "OPER_ID", "Operation" },

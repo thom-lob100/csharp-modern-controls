@@ -32,37 +32,41 @@ namespace Modern.Lab.Samples
             this.searchCard = new Modern.Lab.WinForms.Controls.Layout.ModernCardPanel();
             this.lblItemId = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.cboItemId = new Modern.Lab.WinForms.Controls.Selection.ModernComboBox();
+            this.lblStatus = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
+            this.cboStatus = new Modern.Lab.WinForms.Controls.Selection.ModernComboBox();
+            this.lblSend = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
+            this.cboSend = new Modern.Lab.WinForms.Controls.Selection.ModernComboBox();
             this.lblElapsed = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
             this.cboElapsed = new Modern.Lab.WinForms.Controls.Selection.ModernComboBox();
-            this.lblLogistics = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
-            this.rdoLogistics = new Modern.Lab.WinForms.Controls.Selection.ModernRadioGroup();
             this.btnSearch = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.btnReset = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.gapSearch = new System.Windows.Forms.Panel();
             this.midPanel = new System.Windows.Forms.Panel();
             this.splitMid = new Modern.Lab.WinForms.Controls.Layout.ModernSplitContainer();
-            this.itemCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
-            this.gridItems = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
+            this.boardCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
+            this.gridBoard = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
             this.pagination = new Modern.Lab.WinForms.Controls.Data.ModernPagination();
             this.unitCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
             this.gridUnits = new Modern.Lab.WinForms.Controls.Data.ModernDataGrid();
+            this.gapPipe = new System.Windows.Forms.Panel();
+            this.pipeCard = new Modern.Lab.WinForms.Controls.Layout.ModernGroupBox();
+            this.stepPipeline = new Modern.Lab.WinForms.Controls.Display.ModernStepIndicator();
             this.gapBottom = new System.Windows.Forms.Panel();
             this.bottomPanel = new System.Windows.Forms.Panel();
             this.kpiStrip = new Modern.Lab.WinForms.Controls.Layout.ModernCardPanel();
-            this.badgePending = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
-            this.badgeUnits = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeTransit = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeArrived = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeNoReq = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeLinked = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeDone = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
+            this.badgeUnmatched = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.badgeAvg = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.badgeOldest = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
-            this.lblAging = new Modern.Lab.WinForms.Controls.Display.ModernLabel();
-            this.badgeAging0 = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
-            this.badgeAging1 = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
-            this.badgeAging2 = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
-            this.badgeAging3 = new Modern.Lab.WinForms.Controls.Display.ModernStatusBadge();
             this.gapAction = new System.Windows.Forms.Panel();
             this.actionCard = new Modern.Lab.WinForms.Controls.Layout.ModernCardPanel();
             this.btnExport = new Modern.Lab.WinForms.Controls.Input.ModernButton();
-            this.btnReturn = new Modern.Lab.WinForms.Controls.Input.ModernButton();
-            this.btnLogistics = new Modern.Lab.WinForms.Controls.Input.ModernButton();
+            this.btnReceive = new Modern.Lab.WinForms.Controls.Input.ModernButton();
+            this.btnCreate = new Modern.Lab.WinForms.Controls.Input.ModernButton();
             this.busyMain = new Modern.Lab.WinForms.Controls.Display.ModernBusyOverlay();
             this.toastMain = new Modern.Lab.WinForms.Controls.Display.ModernToast();
             this.titlePanel.SuspendLayout();
@@ -72,8 +76,9 @@ namespace Modern.Lab.Samples
             this.splitMid.Panel1.SuspendLayout();
             this.splitMid.Panel2.SuspendLayout();
             this.splitMid.SuspendLayout();
-            this.itemCard.SuspendLayout();
+            this.boardCard.SuspendLayout();
             this.unitCard.SuspendLayout();
+            this.pipeCard.SuspendLayout();
             this.bottomPanel.SuspendLayout();
             this.kpiStrip.SuspendLayout();
             this.actionCard.SuspendLayout();
@@ -125,10 +130,12 @@ namespace Modern.Lab.Samples
             this.searchCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.searchCard.Controls.Add(this.lblItemId);
             this.searchCard.Controls.Add(this.cboItemId);
+            this.searchCard.Controls.Add(this.lblStatus);
+            this.searchCard.Controls.Add(this.cboStatus);
+            this.searchCard.Controls.Add(this.lblSend);
+            this.searchCard.Controls.Add(this.cboSend);
             this.searchCard.Controls.Add(this.lblElapsed);
             this.searchCard.Controls.Add(this.cboElapsed);
-            this.searchCard.Controls.Add(this.lblLogistics);
-            this.searchCard.Controls.Add(this.rdoLogistics);
             this.searchCard.Controls.Add(this.btnSearch);
             this.searchCard.Controls.Add(this.btnReset);
             this.searchCard.Dock = System.Windows.Forms.DockStyle.Top;
@@ -157,41 +164,59 @@ namespace Modern.Lab.Samples
             this.cboItemId.TabIndex = 1;
             this.cboItemId.Child = null;
             //
+            // lblStatus
+            //
+            this.lblStatus.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
+            this.lblStatus.Location = new System.Drawing.Point(296, 12);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(48, 32);
+            this.lblStatus.TabIndex = 2;
+            this.lblStatus.Text = "Status";
+            this.lblStatus.Child = null;
+            //
+            // cboStatus
+            //
+            this.cboStatus.Location = new System.Drawing.Point(348, 12);
+            this.cboStatus.Name = "cboStatus";
+            this.cboStatus.Size = new System.Drawing.Size(140, 32);
+            this.cboStatus.TabIndex = 3;
+            this.cboStatus.Child = null;
+            //
+            // lblSend
+            //
+            this.lblSend.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
+            this.lblSend.Location = new System.Drawing.Point(512, 12);
+            this.lblSend.Name = "lblSend";
+            this.lblSend.Size = new System.Drawing.Size(64, 32);
+            this.lblSend.TabIndex = 4;
+            this.lblSend.Text = "Sent";
+            this.lblSend.Child = null;
+            //
+            // cboSend
+            //
+            this.cboSend.Location = new System.Drawing.Point(580, 12);
+            this.cboSend.Name = "cboSend";
+            this.cboSend.Size = new System.Drawing.Size(130, 32);
+            this.cboSend.TabIndex = 5;
+            this.cboSend.Child = null;
+            //
             // lblElapsed
             //
             this.lblElapsed.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
-            this.lblElapsed.Location = new System.Drawing.Point(296, 12);
+            this.lblElapsed.Location = new System.Drawing.Point(734, 12);
             this.lblElapsed.Name = "lblElapsed";
             this.lblElapsed.Size = new System.Drawing.Size(56, 32);
-            this.lblElapsed.TabIndex = 2;
+            this.lblElapsed.TabIndex = 6;
             this.lblElapsed.Text = "Elapsed";
             this.lblElapsed.Child = null;
             //
             // cboElapsed
             //
-            this.cboElapsed.Location = new System.Drawing.Point(356, 12);
+            this.cboElapsed.Location = new System.Drawing.Point(794, 12);
             this.cboElapsed.Name = "cboElapsed";
-            this.cboElapsed.Size = new System.Drawing.Size(140, 32);
-            this.cboElapsed.TabIndex = 3;
+            this.cboElapsed.Size = new System.Drawing.Size(130, 32);
+            this.cboElapsed.TabIndex = 7;
             this.cboElapsed.Child = null;
-            //
-            // lblLogistics
-            //
-            this.lblLogistics.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
-            this.lblLogistics.Location = new System.Drawing.Point(520, 12);
-            this.lblLogistics.Name = "lblLogistics";
-            this.lblLogistics.Size = new System.Drawing.Size(64, 32);
-            this.lblLogistics.TabIndex = 4;
-            this.lblLogistics.Text = "Logistics";
-            this.lblLogistics.Child = null;
-            //
-            // rdoLogistics
-            //
-            this.rdoLogistics.Location = new System.Drawing.Point(588, 12);
-            this.rdoLogistics.Name = "rdoLogistics";
-            this.rdoLogistics.Size = new System.Drawing.Size(280, 32);
-            this.rdoLogistics.TabIndex = 5;
-            this.rdoLogistics.Child = null;
             //
             // btnSearch
             //
@@ -199,7 +224,7 @@ namespace Modern.Lab.Samples
             this.btnSearch.Location = new System.Drawing.Point(1336, 12);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(80, 32);
-            this.btnSearch.TabIndex = 6;
+            this.btnSearch.TabIndex = 8;
             this.btnSearch.Text = "Search";
             this.btnSearch.Click += new System.EventHandler(this.OnSearchClick);
             this.btnSearch.Child = null;
@@ -211,7 +236,7 @@ namespace Modern.Lab.Samples
             this.btnReset.Location = new System.Drawing.Point(1424, 12);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(80, 32);
-            this.btnReset.TabIndex = 7;
+            this.btnReset.TabIndex = 9;
             this.btnReset.Text = "Reset";
             this.btnReset.Click += new System.EventHandler(this.OnResetClick);
             this.btnReset.Child = null;
@@ -240,47 +265,49 @@ namespace Modern.Lab.Samples
             this.splitMid.Location = new System.Drawing.Point(0, 0);
             this.splitMid.Name = "splitMid";
             this.splitMid.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.splitMid.Panel1.Controls.Add(this.itemCard);
+            this.splitMid.Panel1.Controls.Add(this.boardCard);
             this.splitMid.Panel1MinSize = 600;
             this.splitMid.Panel2.Controls.Add(this.unitCard);
+            this.splitMid.Panel2.Controls.Add(this.gapPipe);
+            this.splitMid.Panel2.Controls.Add(this.pipeCard);
             this.splitMid.Panel2.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.splitMid.Panel2MinSize = 260;
             this.splitMid.Size = new System.Drawing.Size(1516, 612);
             this.splitMid.SplitterDistance = 1130;
             this.splitMid.TabIndex = 0;
             //
-            // itemCard
+            // boardCard
             //
-            this.itemCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.itemCard.Controls.Add(this.gridItems);
-            this.itemCard.Controls.Add(this.pagination);
-            this.itemCard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.itemCard.Location = new System.Drawing.Point(0, 0);
-            this.itemCard.Name = "itemCard";
-            this.itemCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
-            this.itemCard.Size = new System.Drawing.Size(1130, 612);
-            this.itemCard.TabIndex = 0;
-            this.itemCard.Text = "Pending Items";
-            this.itemCard.TitleAccent = true;
+            this.boardCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.boardCard.Controls.Add(this.gridBoard);
+            this.boardCard.Controls.Add(this.pagination);
+            this.boardCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.boardCard.Location = new System.Drawing.Point(0, 0);
+            this.boardCard.Name = "boardCard";
+            this.boardCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
+            this.boardCard.Size = new System.Drawing.Size(1130, 612);
+            this.boardCard.TabIndex = 0;
+            this.boardCard.Text = "Send / Receive Status";
+            this.boardCard.TitleAccent = true;
             //
-            // gridItems
+            // gridBoard
             //
-            this.gridItems.AutoFitColumns = true;
-            this.gridItems.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridItems.Location = new System.Drawing.Point(8, 40);
-            this.gridItems.Name = "gridItems";
-            this.gridItems.Size = new System.Drawing.Size(1114, 528);
-            this.gridItems.TabIndex = 0;
-            this.gridItems.SelectionChanged += new System.EventHandler(this.OnItemSelectionChanged);
-            this.gridItems.CellButtonClick += new System.EventHandler<Modern.Lab.Controls.Wpf.Data.GridButtonClickEventArgs>(this.OnGridCellButtonClick);
-            this.gridItems.Child = null;
+            this.gridBoard.AutoFitColumns = true;
+            this.gridBoard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridBoard.Location = new System.Drawing.Point(8, 40);
+            this.gridBoard.Name = "gridBoard";
+            this.gridBoard.Size = new System.Drawing.Size(1114, 528);
+            this.gridBoard.TabIndex = 0;
+            this.gridBoard.SelectionChanged += new System.EventHandler(this.OnBoardSelectionChanged);
+            this.gridBoard.CellButtonClick += new System.EventHandler<Modern.Lab.Controls.Wpf.Data.GridButtonClickEventArgs>(this.OnGridCellButtonClick);
+            this.gridBoard.VisibleRowCapacityChanged += new System.EventHandler(this.OnGridCapacityChanged);
+            this.gridBoard.Child = null;
             //
             // pagination
             //
             this.pagination.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pagination.Location = new System.Drawing.Point(8, 568);
             this.pagination.Name = "pagination";
-            this.pagination.PageSize = 15;
             this.pagination.Size = new System.Drawing.Size(1114, 36);
             this.pagination.TabIndex = 1;
             this.pagination.TotalCountFormat = "{0:N0} items";
@@ -306,10 +333,41 @@ namespace Modern.Lab.Samples
             this.gridUnits.Location = new System.Drawing.Point(8, 40);
             this.gridUnits.Name = "gridUnits";
             this.gridUnits.ShowStatusBar = true;
-            this.gridUnits.Size = new System.Drawing.Size(354, 564);
+            this.gridUnits.Size = new System.Drawing.Size(354, 452);
             this.gridUnits.StatusCountFormat = "{0:N0} units";
             this.gridUnits.TabIndex = 0;
             this.gridUnits.Child = null;
+            //
+            // gapPipe
+            //
+            this.gapPipe.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.gapPipe.Location = new System.Drawing.Point(8, 500);
+            this.gapPipe.Name = "gapPipe";
+            this.gapPipe.Size = new System.Drawing.Size(370, 8);
+            this.gapPipe.TabIndex = 1;
+            //
+            // pipeCard
+            //
+            this.pipeCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.pipeCard.Controls.Add(this.stepPipeline);
+            this.pipeCard.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pipeCard.Location = new System.Drawing.Point(8, 492);
+            this.pipeCard.Name = "pipeCard";
+            this.pipeCard.Padding = new System.Windows.Forms.Padding(8, 40, 8, 8);
+            this.pipeCard.Size = new System.Drawing.Size(370, 120);
+            this.pipeCard.TabIndex = 2;
+            this.pipeCard.Text = "Pipeline";
+            //
+            // stepPipeline
+            //
+            this.stepPipeline.DisplayMember = "LABEL";
+            this.stepPipeline.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stepPipeline.Location = new System.Drawing.Point(8, 40);
+            this.stepPipeline.Name = "stepPipeline";
+            this.stepPipeline.Size = new System.Drawing.Size(354, 72);
+            this.stepPipeline.StateMember = "STATE";
+            this.stepPipeline.TabIndex = 0;
+            this.stepPipeline.Child = null;
             //
             // gapBottom
             //
@@ -333,111 +391,102 @@ namespace Modern.Lab.Samples
             // kpiStrip
             //
             this.kpiStrip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.kpiStrip.Controls.Add(this.badgePending);
-            this.kpiStrip.Controls.Add(this.badgeUnits);
+            this.kpiStrip.Controls.Add(this.badgeTransit);
+            this.kpiStrip.Controls.Add(this.badgeArrived);
+            this.kpiStrip.Controls.Add(this.badgeNoReq);
+            this.kpiStrip.Controls.Add(this.badgeLinked);
+            this.kpiStrip.Controls.Add(this.badgeDone);
+            this.kpiStrip.Controls.Add(this.badgeUnmatched);
             this.kpiStrip.Controls.Add(this.badgeAvg);
             this.kpiStrip.Controls.Add(this.badgeOldest);
-            this.kpiStrip.Controls.Add(this.lblAging);
-            this.kpiStrip.Controls.Add(this.badgeAging0);
-            this.kpiStrip.Controls.Add(this.badgeAging1);
-            this.kpiStrip.Controls.Add(this.badgeAging2);
-            this.kpiStrip.Controls.Add(this.badgeAging3);
             this.kpiStrip.Dock = System.Windows.Forms.DockStyle.Fill;
             this.kpiStrip.Location = new System.Drawing.Point(0, 0);
             this.kpiStrip.Name = "kpiStrip";
-            this.kpiStrip.Size = new System.Drawing.Size(1164, 56);
+            this.kpiStrip.Size = new System.Drawing.Size(1208, 56);
             this.kpiStrip.TabIndex = 0;
             //
-            // badgePending
+            // badgeTransit
             //
-            this.badgePending.Location = new System.Drawing.Point(12, 16);
-            this.badgePending.Name = "badgePending";
-            this.badgePending.Size = new System.Drawing.Size(116, 24);
-            this.badgePending.TabIndex = 0;
-            this.badgePending.Text = "-";
-            this.badgePending.Child = null;
+            this.badgeTransit.Color = "#E5E7EB";
+            this.badgeTransit.Location = new System.Drawing.Point(12, 16);
+            this.badgeTransit.Name = "badgeTransit";
+            this.badgeTransit.Size = new System.Drawing.Size(100, 24);
+            this.badgeTransit.TabIndex = 0;
+            this.badgeTransit.Text = "-";
+            this.badgeTransit.Child = null;
             //
-            // badgeUnits
+            // badgeArrived
             //
-            this.badgeUnits.Location = new System.Drawing.Point(136, 16);
-            this.badgeUnits.Name = "badgeUnits";
-            this.badgeUnits.Size = new System.Drawing.Size(100, 24);
-            this.badgeUnits.TabIndex = 1;
-            this.badgeUnits.Text = "-";
-            this.badgeUnits.Child = null;
+            this.badgeArrived.Color = "#DBEAFE";
+            this.badgeArrived.Location = new System.Drawing.Point(120, 16);
+            this.badgeArrived.Name = "badgeArrived";
+            this.badgeArrived.Size = new System.Drawing.Size(100, 24);
+            this.badgeArrived.TabIndex = 1;
+            this.badgeArrived.Text = "-";
+            this.badgeArrived.Child = null;
+            //
+            // badgeNoReq
+            //
+            this.badgeNoReq.Color = "#FEF3C7";
+            this.badgeNoReq.Location = new System.Drawing.Point(228, 16);
+            this.badgeNoReq.Name = "badgeNoReq";
+            this.badgeNoReq.Size = new System.Drawing.Size(120, 24);
+            this.badgeNoReq.TabIndex = 2;
+            this.badgeNoReq.Text = "-";
+            this.badgeNoReq.Child = null;
+            //
+            // badgeLinked
+            //
+            this.badgeLinked.Color = "#E0E7FF";
+            this.badgeLinked.Location = new System.Drawing.Point(356, 16);
+            this.badgeLinked.Name = "badgeLinked";
+            this.badgeLinked.Size = new System.Drawing.Size(100, 24);
+            this.badgeLinked.TabIndex = 3;
+            this.badgeLinked.Text = "-";
+            this.badgeLinked.Child = null;
+            //
+            // badgeDone
+            //
+            this.badgeDone.Color = "#DCFCE7";
+            this.badgeDone.Location = new System.Drawing.Point(464, 16);
+            this.badgeDone.Name = "badgeDone";
+            this.badgeDone.Size = new System.Drawing.Size(120, 24);
+            this.badgeDone.TabIndex = 4;
+            this.badgeDone.Text = "-";
+            this.badgeDone.Child = null;
+            //
+            // badgeUnmatched
+            //
+            this.badgeUnmatched.Color = "#FEE2E2";
+            this.badgeUnmatched.Location = new System.Drawing.Point(592, 16);
+            this.badgeUnmatched.Name = "badgeUnmatched";
+            this.badgeUnmatched.Size = new System.Drawing.Size(120, 24);
+            this.badgeUnmatched.TabIndex = 5;
+            this.badgeUnmatched.Text = "-";
+            this.badgeUnmatched.Child = null;
             //
             // badgeAvg
             //
-            this.badgeAvg.Location = new System.Drawing.Point(244, 16);
+            this.badgeAvg.Location = new System.Drawing.Point(720, 16);
             this.badgeAvg.Name = "badgeAvg";
-            this.badgeAvg.Size = new System.Drawing.Size(108, 24);
-            this.badgeAvg.TabIndex = 2;
+            this.badgeAvg.Size = new System.Drawing.Size(100, 24);
+            this.badgeAvg.TabIndex = 6;
             this.badgeAvg.Text = "-";
             this.badgeAvg.Child = null;
             //
             // badgeOldest
             //
-            this.badgeOldest.Location = new System.Drawing.Point(360, 16);
+            this.badgeOldest.Location = new System.Drawing.Point(828, 16);
             this.badgeOldest.Name = "badgeOldest";
-            this.badgeOldest.Size = new System.Drawing.Size(116, 24);
-            this.badgeOldest.TabIndex = 3;
+            this.badgeOldest.Size = new System.Drawing.Size(110, 24);
+            this.badgeOldest.TabIndex = 7;
             this.badgeOldest.Text = "-";
             this.badgeOldest.Child = null;
-            //
-            // lblAging
-            //
-            this.lblAging.Kind = Modern.Lab.Controls.Wpf.Display.LabelKind.Label;
-            this.lblAging.Location = new System.Drawing.Point(508, 16);
-            this.lblAging.Name = "lblAging";
-            this.lblAging.Size = new System.Drawing.Size(44, 24);
-            this.lblAging.TabIndex = 4;
-            this.lblAging.Text = "Aging";
-            this.lblAging.Child = null;
-            //
-            // badgeAging0
-            //
-            this.badgeAging0.Color = "#DBEAFE";
-            this.badgeAging0.Location = new System.Drawing.Point(556, 16);
-            this.badgeAging0.Name = "badgeAging0";
-            this.badgeAging0.Size = new System.Drawing.Size(92, 24);
-            this.badgeAging0.TabIndex = 5;
-            this.badgeAging0.Text = "-";
-            this.badgeAging0.Child = null;
-            //
-            // badgeAging1
-            //
-            this.badgeAging1.Color = "#FEF3C7";
-            this.badgeAging1.Location = new System.Drawing.Point(656, 16);
-            this.badgeAging1.Name = "badgeAging1";
-            this.badgeAging1.Size = new System.Drawing.Size(92, 24);
-            this.badgeAging1.TabIndex = 6;
-            this.badgeAging1.Text = "-";
-            this.badgeAging1.Child = null;
-            //
-            // badgeAging2
-            //
-            this.badgeAging2.Color = "#FFE0CC";
-            this.badgeAging2.Location = new System.Drawing.Point(756, 16);
-            this.badgeAging2.Name = "badgeAging2";
-            this.badgeAging2.Size = new System.Drawing.Size(92, 24);
-            this.badgeAging2.TabIndex = 7;
-            this.badgeAging2.Text = "-";
-            this.badgeAging2.Child = null;
-            //
-            // badgeAging3
-            //
-            this.badgeAging3.Color = "#FEE2E2";
-            this.badgeAging3.Location = new System.Drawing.Point(856, 16);
-            this.badgeAging3.Name = "badgeAging3";
-            this.badgeAging3.Size = new System.Drawing.Size(92, 24);
-            this.badgeAging3.TabIndex = 8;
-            this.badgeAging3.Text = "-";
-            this.badgeAging3.Child = null;
             //
             // gapAction
             //
             this.gapAction.Dock = System.Windows.Forms.DockStyle.Right;
-            this.gapAction.Location = new System.Drawing.Point(1164, 0);
+            this.gapAction.Location = new System.Drawing.Point(1208, 0);
             this.gapAction.Name = "gapAction";
             this.gapAction.Size = new System.Drawing.Size(8, 56);
             this.gapAction.TabIndex = 1;
@@ -446,12 +495,12 @@ namespace Modern.Lab.Samples
             //
             this.actionCard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.actionCard.Controls.Add(this.btnExport);
-            this.actionCard.Controls.Add(this.btnReturn);
-            this.actionCard.Controls.Add(this.btnLogistics);
+            this.actionCard.Controls.Add(this.btnReceive);
+            this.actionCard.Controls.Add(this.btnCreate);
             this.actionCard.Dock = System.Windows.Forms.DockStyle.Right;
-            this.actionCard.Location = new System.Drawing.Point(1172, 0);
+            this.actionCard.Location = new System.Drawing.Point(1216, 0);
             this.actionCard.Name = "actionCard";
-            this.actionCard.Size = new System.Drawing.Size(344, 56);
+            this.actionCard.Size = new System.Drawing.Size(300, 56);
             this.actionCard.TabIndex = 2;
             //
             // btnExport
@@ -459,33 +508,32 @@ namespace Modern.Lab.Samples
             this.btnExport.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Subtle;
             this.btnExport.Location = new System.Drawing.Point(12, 12);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(110, 32);
+            this.btnExport.Size = new System.Drawing.Size(80, 32);
             this.btnExport.TabIndex = 0;
-            this.btnExport.Text = "Export Excel";
+            this.btnExport.Text = "Excel";
             this.btnExport.Click += new System.EventHandler(this.OnExportClick);
             this.btnExport.Child = null;
             //
-            // btnReturn
+            // btnReceive
             //
-            this.btnReturn.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Danger;
-            this.btnReturn.Location = new System.Drawing.Point(130, 12);
-            this.btnReturn.Name = "btnReturn";
-            this.btnReturn.Size = new System.Drawing.Size(90, 32);
-            this.btnReturn.TabIndex = 1;
-            this.btnReturn.Text = "Return";
-            this.btnReturn.Click += new System.EventHandler(this.OnReturnClick);
-            this.btnReturn.Child = null;
+            this.btnReceive.Location = new System.Drawing.Point(100, 12);
+            this.btnReceive.Name = "btnReceive";
+            this.btnReceive.Size = new System.Drawing.Size(90, 32);
+            this.btnReceive.TabIndex = 1;
+            this.btnReceive.Text = "Receive";
+            this.btnReceive.Click += new System.EventHandler(this.OnReceiveClick);
+            this.btnReceive.Child = null;
             //
-            // btnLogistics
+            // btnCreate
             //
-            this.btnLogistics.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Execute;
-            this.btnLogistics.Location = new System.Drawing.Point(228, 12);
-            this.btnLogistics.Name = "btnLogistics";
-            this.btnLogistics.Size = new System.Drawing.Size(104, 32);
-            this.btnLogistics.TabIndex = 2;
-            this.btnLogistics.Text = "Logistics";
-            this.btnLogistics.Click += new System.EventHandler(this.OnLogisticsClick);
-            this.btnLogistics.Child = null;
+            this.btnCreate.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Execute;
+            this.btnCreate.Location = new System.Drawing.Point(198, 12);
+            this.btnCreate.Name = "btnCreate";
+            this.btnCreate.Size = new System.Drawing.Size(90, 32);
+            this.btnCreate.TabIndex = 2;
+            this.btnCreate.Text = "Create";
+            this.btnCreate.Click += new System.EventHandler(this.OnCreateClick);
+            this.btnCreate.Child = null;
             //
             // busyMain
             //
@@ -493,7 +541,7 @@ namespace Modern.Lab.Samples
             this.busyMain.Message = "Loading...";
             this.busyMain.Name = "busyMain";
             this.busyMain.Size = new System.Drawing.Size(300, 180);
-            this.busyMain.SubMessage = "Fetching pending items";
+            this.busyMain.SubMessage = "Fetching send status";
             this.busyMain.TabIndex = 7;
             this.busyMain.Visible = false;
             this.busyMain.Child = null;
@@ -536,8 +584,9 @@ namespace Modern.Lab.Samples
             this.splitMid.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitMid)).EndInit();
             this.splitMid.ResumeLayout(false);
-            this.itemCard.ResumeLayout(false);
+            this.boardCard.ResumeLayout(false);
             this.unitCard.ResumeLayout(false);
+            this.pipeCard.ResumeLayout(false);
             this.bottomPanel.ResumeLayout(false);
             this.kpiStrip.ResumeLayout(false);
             this.actionCard.ResumeLayout(false);
@@ -554,37 +603,41 @@ namespace Modern.Lab.Samples
         private Modern.Lab.WinForms.Controls.Layout.ModernCardPanel searchCard;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel lblItemId;
         private Modern.Lab.WinForms.Controls.Selection.ModernComboBox cboItemId;
+        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblStatus;
+        private Modern.Lab.WinForms.Controls.Selection.ModernComboBox cboStatus;
+        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblSend;
+        private Modern.Lab.WinForms.Controls.Selection.ModernComboBox cboSend;
         private Modern.Lab.WinForms.Controls.Display.ModernLabel lblElapsed;
         private Modern.Lab.WinForms.Controls.Selection.ModernComboBox cboElapsed;
-        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblLogistics;
-        private Modern.Lab.WinForms.Controls.Selection.ModernRadioGroup rdoLogistics;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnSearch;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnReset;
         private System.Windows.Forms.Panel gapSearch;
         private System.Windows.Forms.Panel midPanel;
         private Modern.Lab.WinForms.Controls.Layout.ModernSplitContainer splitMid;
-        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox itemCard;
-        private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridItems;
+        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox boardCard;
+        private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridBoard;
         private Modern.Lab.WinForms.Controls.Data.ModernPagination pagination;
         private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox unitCard;
         private Modern.Lab.WinForms.Controls.Data.ModernDataGrid gridUnits;
+        private System.Windows.Forms.Panel gapPipe;
+        private Modern.Lab.WinForms.Controls.Layout.ModernGroupBox pipeCard;
+        private Modern.Lab.WinForms.Controls.Display.ModernStepIndicator stepPipeline;
         private System.Windows.Forms.Panel gapBottom;
         private System.Windows.Forms.Panel bottomPanel;
         private Modern.Lab.WinForms.Controls.Layout.ModernCardPanel kpiStrip;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgePending;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeUnits;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeTransit;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeArrived;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeNoReq;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeLinked;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeDone;
+        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeUnmatched;
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeAvg;
         private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeOldest;
-        private Modern.Lab.WinForms.Controls.Display.ModernLabel lblAging;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeAging0;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeAging1;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeAging2;
-        private Modern.Lab.WinForms.Controls.Display.ModernStatusBadge badgeAging3;
         private System.Windows.Forms.Panel gapAction;
         private Modern.Lab.WinForms.Controls.Layout.ModernCardPanel actionCard;
         private Modern.Lab.WinForms.Controls.Input.ModernButton btnExport;
-        private Modern.Lab.WinForms.Controls.Input.ModernButton btnReturn;
-        private Modern.Lab.WinForms.Controls.Input.ModernButton btnLogistics;
+        private Modern.Lab.WinForms.Controls.Input.ModernButton btnReceive;
+        private Modern.Lab.WinForms.Controls.Input.ModernButton btnCreate;
         private Modern.Lab.WinForms.Controls.Display.ModernBusyOverlay busyMain;
         private Modern.Lab.WinForms.Controls.Display.ModernToast toastMain;
     }
