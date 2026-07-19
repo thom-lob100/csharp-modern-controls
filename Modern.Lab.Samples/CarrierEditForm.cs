@@ -288,6 +288,7 @@ namespace Modern.Lab.Samples
             int targetCap = this.targetData != null ? this.targetData.Rows.Count : 0;
             bool hasTarget = this.TargetId().Length > 0 && targetCap > 0;
             bool sourceHasUnits = CarrierTablePresenter.CountFilled(this.sourceData) > 0;
+            bool hasUnstagedSourceUnits = this.HasUnstagedSourceUnits();
             bool clickedSource = !string.IsNullOrEmpty(this.clickSourceKey);
             bool clickedStaged = clickedSource && this.stagedKeys.Contains(this.clickSourceKey);
             bool anyStaged = this.stagedKeys.Count > 0;
@@ -295,7 +296,7 @@ namespace Modern.Lab.Samples
             int stagedCount = hasStagedUnits ? this.stagedUnits.Rows.Count : 0;
 
             bool selRight = clickedSource && !clickedStaged;
-            bool allRight = sourceHasUnits;
+            bool allRight = sourceHasUnits && hasUnstagedSourceUnits;
             bool selLeft = clickedStaged;
             bool allLeft = anyStaged;
 
@@ -346,6 +347,37 @@ namespace Modern.Lab.Samples
                 this.lblActionStatus.Text = stagedCount.ToString("N0") + " units staged · Target has "
                         + (targetCap - targetFilled).ToString("N0") + " open positions.";
             }
+        }
+
+        // 스테이징되지 않은 원본 유닛이 하나라도 남았는지 확인한다. LCC는 핑거
+        // 여러 개가 하나의 셀 키를 공유하므로 단순 행 수가 아니라 KIND|POS 키로
+        // 판정해야 전체 이동 버튼이 정확히 켜지고 꺼진다.
+        private bool HasUnstagedSourceUnits()
+        {
+            if (this.sourceData == null)
+            {
+                return false;
+            }
+
+            foreach (DataRow row in this.sourceData.Rows)
+            {
+                string unitId = PendingTablePresenter.CellText(row, "UNIT_ID");
+
+                if (unitId.Length == 0)
+                {
+                    continue;
+                }
+
+                string key = PendingTablePresenter.CellText(row, "KIND")
+                        + "|" + PendingTablePresenter.CellText(row, "POS");
+
+                if (!this.stagedKeys.Contains(key))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // 카드 제목 (왼쪽) — "역할 — 캐리어". 채움 집계는 우측 서브타이틀,

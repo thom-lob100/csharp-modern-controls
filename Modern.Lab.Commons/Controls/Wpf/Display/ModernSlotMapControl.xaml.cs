@@ -756,8 +756,8 @@ namespace Modern.Lab.Controls.Wpf.Display
             return dotGrid;
         }
 
-        // 핑거 가장자리의 삽입 위치 틱을 배치한다. 미리보기는 3px로 키워
-        // 실제 수납 전에도 Top/Left/Right 방향이 눈에 들어오게 한다.
+        // 핑거 가장자리의 삽입 위치 틱을 배치한다. 실제 수납과 미리보기 모두
+        // 같은 2px 두께를 써 좌·우 맵의 삽입 위치 표현을 일관되게 유지한다.
         private void ConfigureMarkerTick(
                 System.Windows.Shapes.Rectangle tick, string marker, bool preview)
         {
@@ -774,7 +774,7 @@ namespace Modern.Lab.Controls.Wpf.Display
                 return;
             }
 
-            double thickness = preview ? 3d : 2d;
+            double thickness = 2d;
 
             if (marker == "Top")
             {
