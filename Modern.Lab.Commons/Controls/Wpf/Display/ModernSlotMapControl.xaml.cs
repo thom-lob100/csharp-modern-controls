@@ -1203,11 +1203,14 @@ namespace Modern.Lab.Controls.Wpf.Display
             // 이 셀에 걸린 미리보기 존재 여부(번호 칩 하이라이트 판정용).
             bool previewed = this.CellHasPreview(cell);
 
-            // 계획된 유닛은 옅은 표면 틴트와 점선 외곽선을 함께 쓴다. 색만으로
-            // 구분하지 않아도 실제 수납 데이터와 확정 전 계획을 빠르게 구별한다.
+            // 계획된 유닛은 옅은 표면 틴트를 쓴다. 점선 외곽선은 LCC 같은
+            // 복합 셀에서만 덧씌운다. FOUP/STUB 단일 슬롯은 행 간격이 촘촘해
+            // 점선이 번호 칩·토큰 테두리와 겹치므로 틴트와 "→ ID"만 유지한다.
             visual.Outer.Background = previewed ? info : Brushes.Transparent;
             visual.PreviewOutline.Stroke = accent;
-            visual.PreviewOutline.Visibility = previewed ? Visibility.Visible : Visibility.Collapsed;
+            visual.PreviewOutline.Visibility = previewed && cell.SubCells != null
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
 
             // 결합(staged+clicked)일 때 쓸 유닛 글씨 색 — 스테이징된 셀을
             // 마우스로 클릭하면 셀 바깥 포인트(링) 없이 **글씨 색만** 바꿔
