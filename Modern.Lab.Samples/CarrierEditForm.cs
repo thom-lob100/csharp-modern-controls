@@ -521,7 +521,10 @@ namespace Modern.Lab.Samples
             string[] keys = new string[this.stagedKeys.Count];
             this.stagedKeys.CopyTo(keys);
             this.stagedUnits = this.CollectUnitsByKeys(this.sourceData, keys);
-            this.mapTarget.SetPreview(this.BuildPreview(this.stagedUnits));
+
+            // ★ 서버 배치 계획을 그대로 미리보기에 쓴다 — 실제 이동과 일치.
+            this.mapTarget.SetPreview(CarrierEditSimulator.PlanPreview(
+                    this.GetSelectedType(), this.SourceId(), this.TargetId(), this.stagedUnits));
         }
 
         // 선택 표시 렌더 — 스테이징(강한 색)은 원본에, 클릭(약간 다른 색)은 각
@@ -577,36 +580,6 @@ namespace Modern.Lab.Samples
             string[] keyArray = new string[keys.Count];
             keys.CopyTo(keyArray);
             destMap.SetSelectedKeys(keyArray);
-        }
-
-        // 이동 대상 유닛들을 구획별 유닛 ID 목록으로 만든다 (FOUP: 웨이퍼
-        // 한 구획 / TRAY: STUB 칩, LCC 칩 두 구획) — SetPreview 인자 형식.
-        // 컨트롤이 대상의 빈 자리를 위에서부터 순차로 채우며 "→ ID"로 표기한다.
-        private string[][] BuildPreview(DataTable units)
-        {
-            System.Collections.Generic.List<string> firstIds =
-                    new System.Collections.Generic.List<string>();
-            System.Collections.Generic.List<string> lccIds =
-                    new System.Collections.Generic.List<string>();
-            bool tray = this.GetSelectedType() == "TRAY";
-
-            foreach (DataRow row in units.Rows)
-            {
-                string unitId = PendingTablePresenter.CellText(row, "UNIT_ID");
-
-                if (tray && PendingTablePresenter.CellText(row, "KIND") == "LCC")
-                {
-                    lccIds.Add(unitId);
-                }
-                else
-                {
-                    firstIds.Add(unitId);
-                }
-            }
-
-            return tray
-                    ? new string[][] { firstIds.ToArray(), lccIds.ToArray() }
-                    : new string[][] { firstIds.ToArray() };
         }
 
         // ===== 대상 수집 =====

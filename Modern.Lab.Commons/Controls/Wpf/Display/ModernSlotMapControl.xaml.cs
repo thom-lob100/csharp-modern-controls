@@ -79,10 +79,6 @@ namespace Modern.Lab.Controls.Wpf.Display
             internal List<Border> DotBorders;
             internal List<TextBlock> DotTexts;
             internal List<TextBlock> SubUnitTexts;
-
-            // 미리보기로 배정된 유닛 ID들 — 빈 (하위)자리 앞에서부터(위부터) 이
-            // ID가 들어온다고 표기한다 (null/빈 목록 = 미리보기 없음).
-            internal List<string> PreviewIds;
         }
 
         private SlotMapSection[] sections;
@@ -94,9 +90,10 @@ namespace Modern.Lab.Controls.Wpf.Display
         // 색으로 표시한다. SetClickKey로 설정한다.
         private string clickKey;
 
-        // 미리보기 유닛 ID들 — 구획 인덱스별 "들어올 유닛 ID 목록". 각 구획의
-        // 빈 (하위)자리를 앞에서부터(위부터) 순차로 채우며 "→ ID"로 표기한다.
-        private string[][] previewUnits;
+        // 미리보기 맵 — 자리 키("SLOT|7" / "STUB|3" / "LCC|3|A") → 들어올 유닛
+        // ID. 해당 자리가 비어 있으면 "→ ID"로 표기한다. 화면(폼)이 서버 배치
+        // 계획을 그대로 받아 주므로 미리보기와 실제 이동 결과가 일치한다.
+        private System.Collections.Generic.Dictionary<string, string> previewMap;
 
         // 드래그 시작 판정 — 마우스 다운 셀과 좌표를 기억해 두고, 이동 거리가
         // 시스템 임계값을 넘으면 드래그로, 그대로 떼면 클릭(선택 토글)으로 본다.
@@ -163,7 +160,7 @@ namespace Modern.Lab.Controls.Wpf.Display
             this.sections = newSections;
             this.selectedKeys.Clear();
             this.clickKey = null;
-            this.previewUnits = null;
+            this.previewMap = null;
             this.RebuildVisualTree();
 
             if (hadSelection)
@@ -213,14 +210,13 @@ namespace Modern.Lab.Controls.Wpf.Display
             this.RaiseSelectionChanged();
         }
 
-        /// <summary>대상 맵의 "들어갈 빈 자리" 미리보기 — 구획 인덱스별로
-        /// 들어올 유닛 ID 목록을 준다 (null = 해제). 각 구획의 빈 (하위)자리를
-        /// 앞에서부터(위부터) 순차로 "→ ID"로 표기·하이라이트하고, 자리가
-        /// 부족하면 집계에 빨간 부족분(need n more)을 표기한다.</summary>
-        public void SetPreview(string[][] unitIdsBySection)
+        /// <summary>"들어갈 자리" 미리보기 — 자리 키("SLOT|7"/"STUB|3"/
+        /// "LCC|3|A") → 들어올 유닛 ID 맵을 준다 (null = 해제). 그 자리가 비어
+        /// 있으면 "→ ID"로 표기·하이라이트하고, 계획된 자리가 부족하면 집계에
+        /// 빨간 부족분(need n more)을 표기한다.</summary>
+        public void SetPreview(System.Collections.Generic.Dictionary<string, string> map)
         {
-            this.previewUnits = unitIdsBySection;
-            this.DistributePreview();
+            this.previewMap = map;
             this.RefreshAllVisuals();
         }
 
@@ -243,7 +239,6 @@ namespace Modern.Lab.Controls.Wpf.Display
                 this.SectionHost.Children.Add(this.BuildSection(this.sections[index]));
             }
 
-            this.DistributePreview();
             this.RefreshAllVisuals();
         }
 
@@ -656,35 +651,61 @@ namespace Modern.Lab.Controls.Wpf.Display
 
         // ===== 상태 칠하기 =====
 
-        // 미리보기 유닛 ID들을 구획별로 빈 (하위)자리에 앞에서부터(위부터)
-        // 순차로 배정한다 — 위가 비어 있으면 위부터 채운다.
-        private void DistributePreview()
+        // 단일 셀의 미리보기 키 = 자리 키. 하위(LCC 핑거) 미리보기 키 = "셀키|핑거".
+        private static string SubPreviewKey(string cellKey, string subName)
         {
-            for (int section = 0; section < this.sectionVisuals.Count; section++)
+            return cellKey + "|" + subName;
+        }
+
+        // 이 구획에서 미리보기 맵이 지정한(=이 구획 자리로 계획된) 유닛 수와,
+        // 그중 실제로 빈 자리에 놓일 수(previewed)를 센다. 지정 자리가 이미 차
+        // 있으면 놓을 수 없어 부족분(shortage)이 된다.
+        private void CountSectionPreview(int section, out int requested, out int previewed)
+        {
+            requested = 0;
+            previewed = 0;
+
+            if (this.previewMap == null || this.previewMap.Count == 0)
             {
-                string[] ids = this.previewUnits != null && section < this.previewUnits.Length
-                        ? this.previewUnits[section]
-                        : null;
-                int next = 0;
+                return;
+            }
 
-                foreach (CellVisual visual in this.sectionVisuals[section])
+            foreach (CellVisual visual in this.sectionVisuals[section])
+            {
+                SlotMapCell cell = visual.Cell;
+
+                if (string.IsNullOrEmpty(cell.Key))
                 {
-                    int take = ids != null
-                            ? Math.Min(ids.Length - next, visual.Cell.EmptyUnitCount)
-                            : 0;
+                    continue;
+                }
 
-                    if (take <= 0)
+                if (cell.SubCells == null)
+                {
+                    if (this.previewMap.ContainsKey(cell.Key))
                     {
-                        visual.PreviewIds = null;
+                        requested = requested + 1;
+
+                        if (!cell.Filled)
+                        {
+                            previewed = previewed + 1;
+                        }
+                    }
+
+                    continue;
+                }
+
+                foreach (SlotMapSubCell sub in cell.SubCells)
+                {
+                    if (!this.previewMap.ContainsKey(SubPreviewKey(cell.Key, sub.Name)))
+                    {
                         continue;
                     }
 
-                    visual.PreviewIds = new List<string>();
+                    requested = requested + 1;
 
-                    for (int index = 0; index < take; index++)
+                    if (string.IsNullOrEmpty(sub.UnitId))
                     {
-                        visual.PreviewIds.Add(ids[next]);
-                        next = next + 1;
+                        previewed = previewed + 1;
                     }
                 }
             }
@@ -713,19 +734,16 @@ namespace Modern.Lab.Controls.Wpf.Display
 
             int filled = 0;
             int capacity = 0;
-            int previewed = 0;
 
             foreach (CellVisual visual in this.sectionVisuals[section])
             {
                 filled = filled + visual.Cell.UnitCount;
                 capacity = capacity + visual.Cell.UnitCount + visual.Cell.EmptyUnitCount;
-                previewed = previewed + (visual.PreviewIds != null ? visual.PreviewIds.Count : 0);
             }
 
-            int requested = this.previewUnits != null && section < this.previewUnits.Length
-                    && this.previewUnits[section] != null
-                    ? this.previewUnits[section].Length
-                    : 0;
+            int requested;
+            int previewed;
+            this.CountSectionPreview(section, out requested, out previewed);
             int shortage = requested - previewed;
 
             TextBlock count = this.sectionCountTexts[section];
@@ -798,7 +816,7 @@ namespace Modern.Lab.Controls.Wpf.Display
             Brush textDisabled = (Brush)this.FindResource("Brush.DisabledText");
 
             // 이 셀에 걸린 미리보기 존재 여부(번호 칩 하이라이트 판정용).
-            bool previewed = visual.PreviewIds != null && visual.PreviewIds.Count > 0;
+            bool previewed = this.CellHasPreview(cell);
 
             // 결합(staged+clicked)일 때 쓸 유닛 글씨 색 — 스테이징된 셀을
             // 마우스로 클릭하면 셀 바깥 포인트(링) 없이 **글씨 색만** 바꿔
@@ -831,6 +849,8 @@ namespace Modern.Lab.Controls.Wpf.Display
 
             if (cell.SubCells == null)
             {
+                string incoming = this.SingleCellPreview(cell);
+
                 // 단일 수납 토큰 — 채움(색 바)/빈 틀/미리보기 세 상태.
                 if (cell.Filled)
                 {
@@ -847,13 +867,13 @@ namespace Modern.Lab.Controls.Wpf.Display
                             : this.DeriveTextBrush(cell.Color, textPrimary);
                     visual.UnitText.Text = cell.UnitId;
                 }
-                else if (previewed)
+                else if (!string.IsNullOrEmpty(incoming))
                 {
                     // 들어올 유닛 ID를 그대로 보여준다 — "이 자리에 이게 온다".
                     visual.Token.Background = info;
                     visual.Token.BorderBrush = accent;
                     visual.UnitText.Foreground = accent;
-                    visual.UnitText.Text = "→ " + visual.PreviewIds[0];
+                    visual.UnitText.Text = "→ " + incoming;
                 }
                 else
                 {
@@ -869,14 +889,19 @@ namespace Modern.Lab.Controls.Wpf.Display
             visual.Token.Background = surface;
             visual.Token.BorderBrush = selected ? emphasis : (cell.Filled ? borderBrush : borderSubtle);
 
-            int previewNext = 0;
-
             for (int index = 0; index < cell.SubCells.Count; index++)
             {
                 SlotMapSubCell sub = cell.SubCells[index];
                 Border dot = visual.DotBorders[index];
                 TextBlock letter = visual.DotTexts[index];
                 TextBlock subUnit = visual.SubUnitTexts[index];
+
+                string subIncoming = null;
+
+                if (string.IsNullOrEmpty(sub.UnitId) && this.previewMap != null)
+                {
+                    this.previewMap.TryGetValue(SubPreviewKey(cell.Key, sub.Name), out subIncoming);
+                }
 
                 if (!string.IsNullOrEmpty(sub.UnitId))
                 {
@@ -895,15 +920,14 @@ namespace Modern.Lab.Controls.Wpf.Display
                     subUnit.Foreground = combined ? combinedText : textPrimary;
                     subUnit.Text = sub.UnitId;
                 }
-                else if (previewed && previewNext < visual.PreviewIds.Count)
+                else if (!string.IsNullOrEmpty(subIncoming))
                 {
-                    // 들어올 칩 ID를 앞에서부터(위부터) 순차로 보여준다.
+                    // 들어올 칩 ID를 계획된 핑거 자리에 그대로 보여준다.
                     dot.Background = info;
                     dot.BorderBrush = accent;
                     letter.Foreground = accent;
                     subUnit.Foreground = accent;
-                    subUnit.Text = "→ " + visual.PreviewIds[previewNext];
-                    previewNext = previewNext + 1;
+                    subUnit.Text = "→ " + subIncoming;
                 }
                 else
                 {
@@ -914,6 +938,44 @@ namespace Modern.Lab.Controls.Wpf.Display
                     subUnit.Text = string.Empty;
                 }
             }
+        }
+
+        // 이 셀의 빈 자리에 걸린 미리보기가 하나라도 있는가.
+        private bool CellHasPreview(SlotMapCell cell)
+        {
+            if (this.previewMap == null || this.previewMap.Count == 0 || string.IsNullOrEmpty(cell.Key))
+            {
+                return false;
+            }
+
+            if (cell.SubCells == null)
+            {
+                return !cell.Filled && this.previewMap.ContainsKey(cell.Key);
+            }
+
+            foreach (SlotMapSubCell sub in cell.SubCells)
+            {
+                if (string.IsNullOrEmpty(sub.UnitId)
+                        && this.previewMap.ContainsKey(SubPreviewKey(cell.Key, sub.Name)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // 단일 셀의 미리보기 유입 ID (없으면 null).
+        private string SingleCellPreview(SlotMapCell cell)
+        {
+            if (this.previewMap == null || cell.Filled || string.IsNullOrEmpty(cell.Key))
+            {
+                return null;
+            }
+
+            string incoming;
+            this.previewMap.TryGetValue(cell.Key, out incoming);
+            return incoming;
         }
     }
 }

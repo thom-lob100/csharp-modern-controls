@@ -202,13 +202,13 @@ namespace Modern.Lab.Samples.Services
 
         // ===== 처리 (★ 회사 인터페이스 호출로 교체) =====
 
-        /// <summary>이동(Split/Merge/드롭 공용) — 지정 유닛들을 대상 캐리어의
-        /// 같은 종류 빈 자리에 채워 옮긴다 (LCC 칩은 삽입 위치 유지).
-        /// 채우는 순서는 기본 앞에서부터이고, 앵커(anchorKind/anchorPos —
-        /// 드래그앤드롭으로 놓은 자리)를 주면 **그 자리부터** 채우고 모자라면
-        /// 앞쪽 빈 자리로 이어진다(랩어라운드) — 자리 번호와 유닛은 묶여
-        /// 있지 않으므로 아무 빈 자리나 쓸 수 있다. 전부-아니면-전무: 빈
-        /// 자리가 부족하면 아무것도 옮기지 않는다.
+        /// <summary>이동(Split/Merge 공용) — 지정 유닛들을 대상 캐리어의 같은
+        /// 종류 빈 자리에 배치 계획(PlanMove)대로 옮긴다. FOUP 슬롯/STUB는
+        /// 위에서부터 순차로, LCC는 **원본 LCC 하나를 완전히 빈 대상 LCC 하나에
+        /// 통째로**(같은 핑거 A→A, 삽입 위치 유지) 옮긴다 — 부분적으로 빈
+        /// LCC에는 넣지 않는다. 전부-아니면-전무: 자리가 부족하면 아무것도
+        /// 옮기지 않는다. 미리보기(PlanPreview)와 같은 계획을 쓰므로 미리보기와
+        /// 결과가 항상 일치한다. anchorKind/anchorPos는 더는 쓰지 않는다(호환용).
         /// units는 GetCarrierUnits 스키마의 행들(KIND/POS/FINGER가 키).</summary>
         internal static ActionResult MoveUnits(
                 string type, string fromId, string toId, DataTable units,
@@ -228,10 +228,39 @@ namespace Modern.Lab.Samples.Services
 
             if (type == "FOUP")
             {
-                return MoveFoupUnits(fromId, toId, units, anchorKind == "SLOT" ? anchorPos : 0);
+                return MoveFoupUnits(fromId, toId, units);
             }
 
-            return MoveTrayUnits(fromId, toId, units, anchorKind, anchorPos);
+            return MoveTrayUnits(fromId, toId, units);
+        }
+
+        /// <summary>이동 미리보기 — 유닛들이 대상의 어느 자리로 갈지 계획을 세워
+        /// "자리 키(SLOT|N / STUB|N / LCC|N|핑거) → 유닛 ID" 맵으로 돌려준다.
+        /// 실제 이동(MoveUnits)과 같은 계획을 쓰므로 미리보기와 결과가 일치한다.
+        /// ★ 회사 환경에서는 서버의 배치 시뮬레이션/검증 호출로 교체한다.</summary>
+        internal static System.Collections.Generic.Dictionary<string, string> PlanPreview(
+                string type, string fromId, string toId, DataTable units)
+        {
+            EnsureSeed();
+
+            System.Collections.Generic.Dictionary<string, string> map =
+                    new System.Collections.Generic.Dictionary<string, string>(StringComparer.Ordinal);
+
+            if (units == null || units.Rows.Count == 0 || fromId == toId)
+            {
+                return map;
+            }
+
+            List<PlanEntry> plan = type == "FOUP"
+                    ? PlanFoup(FindFoup(fromId), FindFoup(toId), units)
+                    : PlanTray(FindTray(fromId), FindTray(toId), units);
+
+            foreach (PlanEntry entry in plan)
+            {
+                map[PlanKey(entry)] = entry.UnitId;
+            }
+
+            return map;
         }
 
         /// <summary>폐기 — 지정 유닛들을 캐리어에서 제거한다 (시스템 밖으로).
@@ -299,8 +328,7 @@ namespace Modern.Lab.Samples.Services
 
         // ===== 이동 내부 구현 =====
 
-        private static ActionResult MoveFoupUnits(
-                string fromId, string toId, DataTable units, int anchorPos)
+        private static ActionResult MoveFoupUnits(string fromId, string toId, DataTable units)
         {
             Foup source = FindFoup(fromId);
             Foup target = FindFoup(toId);
@@ -312,8 +340,6 @@ namespace Modern.Lab.Samples.Services
 
             // 원본 검증(전부-아니면-전무). 랏(아이템) 일치는 확인하지 않는다 —
             // 옮겨온 웨이퍼는 대상 FOUP의 랏이 되므로 공간만 있으면 이동한다.
-            List<int> moveSlots = new List<int>();
-
             foreach (DataRow row in units.Rows)
             {
                 int slot = ToInt(row["POS"]);
@@ -323,37 +349,34 @@ namespace Modern.Lab.Samples.Services
                 {
                     return Fail("Slot " + slot + " has no wafer to move.");
                 }
-
-                moveSlots.Add(slot - 1);
             }
 
-            List<int> empties = new List<int>();
+            List<PlanEntry> plan = PlanFoup(source, target, units);
 
-            for (int slot = 0; slot < FoupSlotCount; slot++)
+            if (plan.Count < units.Rows.Count)
             {
-                if (string.IsNullOrEmpty(target.Slots[slot]))
+                int empties = 0;
+
+                for (int slot = 0; slot < FoupSlotCount; slot++)
                 {
-                    empties.Add(slot);
+                    if (string.IsNullOrEmpty(target.Slots[slot]))
+                    {
+                        empties = empties + 1;
+                    }
                 }
-            }
 
-            // 앵커(놓은 슬롯)가 있으면 그 슬롯부터 채운다 (모자라면 앞쪽으로 랩).
-            empties = RotateFrom(empties, delegate(int slot) { return slot >= anchorPos - 1; });
-
-            if (empties.Count < moveSlots.Count)
-            {
-                return Fail("Target " + toId + " has only " + empties.Count
-                        + " empty slots — " + moveSlots.Count + " selected.");
+                return Fail("Target " + toId + " has only " + empties
+                        + " empty slots — " + units.Rows.Count + " selected.");
             }
 
             // 대상이 비어 있었으면 옮겨온 랏이 대상의 랏이 되고, 이미 랏이
             // 있으면 옮겨온 웨이퍼가 그 랏으로 편입된다(대상 랏 유지).
             bool targetWasEmpty = CountFoup(target) == 0;
 
-            for (int index = 0; index < moveSlots.Count; index++)
+            foreach (PlanEntry entry in plan)
             {
-                target.Slots[empties[index]] = source.Slots[moveSlots[index]];
-                source.Slots[moveSlots[index]] = null;
+                target.Slots[entry.TgtPos - 1] = entry.UnitId;
+                source.Slots[entry.SrcPos - 1] = null;
             }
 
             if (targetWasEmpty)
@@ -367,11 +390,10 @@ namespace Modern.Lab.Samples.Services
                 source.Lot = string.Empty;
             }
 
-            return Succeed(moveSlots.Count);
+            return Succeed(plan.Count);
         }
 
-        private static ActionResult MoveTrayUnits(
-                string fromId, string toId, DataTable units, string anchorKind, int anchorPos)
+        private static ActionResult MoveTrayUnits(string fromId, string toId, DataTable units)
         {
             Tray source = FindTray(fromId);
             Tray target = FindTray(toId);
@@ -381,10 +403,9 @@ namespace Modern.Lab.Samples.Services
                 return Fail("Carrier not found.");
             }
 
-            // 종류별로 나눠 검증한다 — STUB은 STUB 빈 자리로, LCC 칩은 LCC
-            // 빈 핑거 자리로만 옮길 수 있다.
-            List<DataRow> stubMoves = new List<DataRow>();
-            List<DataRow> lccMoves = new List<DataRow>();
+            // 원본 검증 + 종류별 개수(STUB / LCC).
+            int stubCount = 0;
+            int lccCount = 0;
 
             foreach (DataRow row in units.Rows)
             {
@@ -395,46 +416,179 @@ namespace Modern.Lab.Samples.Services
 
                 if ((row["KIND"] ?? string.Empty).ToString() == "STUB")
                 {
-                    stubMoves.Add(row);
+                    stubCount = stubCount + 1;
                 }
                 else
                 {
-                    lccMoves.Add(row);
+                    lccCount = lccCount + 1;
                 }
             }
 
-            List<int> stubEmpties = new List<int>();
+            List<PlanEntry> plan = PlanTray(source, target, units);
 
-            for (int stub = 0; stub < TrayStubCount; stub++)
+            // 부족 판정 — 종류별로 계획된 수가 요청보다 적으면 자리 부족.
+            int plannedStub = 0;
+            int plannedLcc = 0;
+
+            foreach (PlanEntry entry in plan)
             {
-                if (string.IsNullOrEmpty(target.Stubs[stub]))
+                if (entry.Kind == "STUB")
                 {
-                    stubEmpties.Add(stub);
+                    plannedStub = plannedStub + 1;
+                }
+                else
+                {
+                    plannedLcc = plannedLcc + 1;
                 }
             }
 
-            // 앵커(놓은 STUB 자리)가 있으면 그 자리부터 채운다.
-            if (anchorKind == "STUB")
+            if (plannedStub < stubCount)
             {
-                stubEmpties = RotateFrom(stubEmpties, delegate(int stub) { return stub >= anchorPos - 1; });
+                int stubEmpties = 0;
+
+                for (int stub = 0; stub < TrayStubCount; stub++)
+                {
+                    if (string.IsNullOrEmpty(target.Stubs[stub]))
+                    {
+                        stubEmpties = stubEmpties + 1;
+                    }
+                }
+
+                return Fail("Target " + toId + " has only " + stubEmpties
+                        + " empty STUB positions — " + stubCount + " selected.");
             }
 
-            if (stubEmpties.Count < stubMoves.Count)
+            if (plannedLcc < lccCount)
             {
-                return Fail("Target " + toId + " has only " + stubEmpties.Count
-                        + " empty STUB positions — " + stubMoves.Count + " selected.");
+                return Fail("Target " + toId
+                        + " has no free (empty) LCC to hold all selected LCC chips as whole units.");
             }
 
-            // LCC는 **LCC 단위**로 옮긴다 — 원본 LCC 하나의 채워진 핑거들을
-            // 대상의 LCC 하나에 **같은 핑거 자리(A→A…)** 로 통째로 넣는다.
-            // 대상 LCC에 다른 칩이 있어도 필요한 핑거 자리만 비어 있으면 그
-            // LCC를 쓰되, 한 대상 LCC에는 원본 LCC 하나만 배정한다(서로 다른
-            // 원본 LCC를 한 대상 LCC에 섞지 않는다).
+            // 검증 통과 — 계획대로 적용(STUB / LCC 삽입 위치 유지).
+            foreach (PlanEntry entry in plan)
+            {
+                if (entry.Kind == "STUB")
+                {
+                    target.Stubs[entry.TgtPos - 1] = source.Stubs[entry.SrcPos - 1];
+                    source.Stubs[entry.SrcPos - 1] = null;
+                }
+                else
+                {
+                    target.LccChips[entry.TgtPos - 1, entry.TgtFinger] =
+                            source.LccChips[entry.SrcPos - 1, entry.SrcFinger];
+                    target.LccInserts[entry.TgtPos - 1, entry.TgtFinger] =
+                            source.LccInserts[entry.SrcPos - 1, entry.SrcFinger];
+                    source.LccChips[entry.SrcPos - 1, entry.SrcFinger] = null;
+                    source.LccInserts[entry.SrcPos - 1, entry.SrcFinger] = null;
+                }
+            }
+
+            return Succeed(plan.Count);
+        }
+
+        // ===== 배치 계획 (이동/미리보기 공용 — 항상 같은 결과) =====
+
+        // 한 유닛의 이동 계획: 원본 자리 → 대상 자리(같은 종류) + 유닛 ID.
+        // Finger는 LCC 전용(0-based), 그 외 -1. Pos는 1-based.
+        private sealed class PlanEntry
+        {
+            internal string Kind;
+            internal int SrcPos;
+            internal int SrcFinger;
+            internal int TgtPos;
+            internal int TgtFinger;
+            internal string UnitId;
+        }
+
+        // 계획 항목의 대상 자리 키 (미리보기 맵 키와 동일).
+        private static string PlanKey(PlanEntry entry)
+        {
+            return entry.Kind == "LCC"
+                    ? "LCC|" + entry.TgtPos + "|" + LccFingers[entry.TgtFinger]
+                    : entry.Kind + "|" + entry.TgtPos;
+        }
+
+        // FOUP 계획 — 원본 웨이퍼를 대상의 빈 슬롯에 **위에서부터 순차로**.
+        private static List<PlanEntry> PlanFoup(Foup source, Foup target, DataTable units)
+        {
+            List<PlanEntry> plan = new List<PlanEntry>();
+
+            if (source == null || target == null)
+            {
+                return plan;
+            }
+
+            List<int> empties = new List<int>();
+
+            for (int slot = 0; slot < FoupSlotCount; slot++)
+            {
+                if (string.IsNullOrEmpty(target.Slots[slot]))
+                {
+                    empties.Add(slot);
+                }
+            }
+
+            int next = 0;
+
+            foreach (DataRow row in units.Rows)
+            {
+                int srcPos = ToInt(row["POS"]);
+
+                if (srcPos < 1 || srcPos > FoupSlotCount
+                        || string.IsNullOrEmpty(source.Slots[srcPos - 1]))
+                {
+                    continue;
+                }
+
+                if (next >= empties.Count)
+                {
+                    break;
+                }
+
+                plan.Add(new PlanEntry
+                {
+                    Kind = "SLOT",
+                    SrcPos = srcPos,
+                    SrcFinger = -1,
+                    TgtPos = empties[next] + 1,
+                    TgtFinger = -1,
+                    UnitId = source.Slots[srcPos - 1]
+                });
+                next = next + 1;
+            }
+
+            return plan;
+        }
+
+        // TRAY 계획 — STUB은 빈 자리에 위에서부터 순차로, LCC는 **원본 LCC
+        // 하나를 완전히 빈 대상 LCC 하나에 통째로**(같은 핑거 A→A). 부분적으로
+        // 빈 LCC(예: 5칸 중 2칸만 빈 LCC)에는 넣지 않고 빈 LCC를 찾아 배정한다.
+        private static List<PlanEntry> PlanTray(Tray source, Tray target, DataTable units)
+        {
+            List<PlanEntry> plan = new List<PlanEntry>();
+
+            if (source == null || target == null)
+            {
+                return plan;
+            }
+
+            List<DataRow> stubMoves = new List<DataRow>();
             List<int> sourceLccPositions = new List<int>();
             Dictionary<int, List<DataRow>> sourceLccGroups = new Dictionary<int, List<DataRow>>();
 
-            foreach (DataRow row in lccMoves)
+            foreach (DataRow row in units.Rows)
             {
+                if (ReadTrayUnit(source, row) == null)
+                {
+                    continue;
+                }
+
+                if ((row["KIND"] ?? string.Empty).ToString() == "STUB")
+                {
+                    stubMoves.Add(row);
+                    continue;
+                }
+
                 int pos = ToInt(row["POS"]);
                 List<DataRow> group;
 
@@ -448,48 +602,42 @@ namespace Modern.Lab.Samples.Services
                 group.Add(row);
             }
 
+            // STUB — 빈 자리에 위에서부터 순차로.
+            List<int> stubEmpties = new List<int>();
+
+            for (int stub = 0; stub < TrayStubCount; stub++)
+            {
+                if (string.IsNullOrEmpty(target.Stubs[stub]))
+                {
+                    stubEmpties.Add(stub);
+                }
+            }
+
+            for (int index = 0; index < stubMoves.Count && index < stubEmpties.Count; index++)
+            {
+                int srcStub = ToInt(stubMoves[index]["POS"]);
+                plan.Add(new PlanEntry
+                {
+                    Kind = "STUB",
+                    SrcPos = srcStub,
+                    SrcFinger = -1,
+                    TgtPos = stubEmpties[index] + 1,
+                    TgtFinger = -1,
+                    UnitId = source.Stubs[srcStub - 1]
+                });
+            }
+
+            // LCC — 각 원본 LCC를 완전히 빈 대상 LCC 하나에 통째로(같은 핑거).
             sourceLccPositions.Sort();
-
-            // 대상 LCC 후보 순서 (앵커부터, 없으면 1번부터).
-            List<int> targetLccOrder = new List<int>();
-
-            for (int pos = 0; pos < TrayLccCount; pos++)
-            {
-                targetLccOrder.Add(pos);
-            }
-
-            if (anchorKind == "LCC")
-            {
-                targetLccOrder = RotateFrom(targetLccOrder, delegate(int pos) { return pos >= anchorPos - 1; });
-            }
-
-            // 각 원본 LCC에 대상 LCC 하나를 배정 (필요 핑거가 모두 빈 LCC).
-            Dictionary<int, int> lccAssign = new Dictionary<int, int>();
             HashSet<int> usedTargetLcc = new HashSet<int>();
 
             foreach (int srcPos in sourceLccPositions)
             {
                 int chosen = -1;
 
-                foreach (int tgtPos in targetLccOrder)
+                for (int tgtPos = 0; tgtPos < TrayLccCount; tgtPos++)
                 {
-                    if (usedTargetLcc.Contains(tgtPos))
-                    {
-                        continue;
-                    }
-
-                    bool fits = true;
-
-                    foreach (DataRow row in sourceLccGroups[srcPos])
-                    {
-                        if (!string.IsNullOrEmpty(target.LccChips[tgtPos, FingerIndex(row)]))
-                        {
-                            fits = false;
-                            break;
-                        }
-                    }
-
-                    if (fits)
+                    if (!usedTargetLcc.Contains(tgtPos) && IsLccEmpty(target, tgtPos))
                     {
                         chosen = tgtPos;
                         break;
@@ -498,72 +646,44 @@ namespace Modern.Lab.Samples.Services
 
                 if (chosen < 0)
                 {
-                    return Fail("Target " + toId + " has no free LCC for source LCC "
-                            + srcPos + " (same finger positions must be empty).");
+                    continue;
                 }
 
-                lccAssign[srcPos] = chosen;
                 usedTargetLcc.Add(chosen);
-            }
-
-            // 검증 통과 — STUB 이동.
-            for (int index = 0; index < stubMoves.Count; index++)
-            {
-                int fromStub = ToInt(stubMoves[index]["POS"]) - 1;
-                target.Stubs[stubEmpties[index]] = source.Stubs[fromStub];
-                source.Stubs[fromStub] = null;
-            }
-
-            // LCC 이동 — 배정된 대상 LCC에 같은 핑거 자리로 (삽입 위치 유지).
-            int movedLcc = 0;
-
-            foreach (int srcPos in sourceLccPositions)
-            {
-                int toPos = lccAssign[srcPos];
-                int fromIndex = srcPos - 1;
 
                 foreach (DataRow row in sourceLccGroups[srcPos])
                 {
                     int finger = FingerIndex(row);
-                    target.LccChips[toPos, finger] = source.LccChips[fromIndex, finger];
-                    target.LccInserts[toPos, finger] = source.LccInserts[fromIndex, finger];
-                    source.LccChips[fromIndex, finger] = null;
-                    source.LccInserts[fromIndex, finger] = null;
-                    movedLcc = movedLcc + 1;
+                    plan.Add(new PlanEntry
+                    {
+                        Kind = "LCC",
+                        SrcPos = srcPos,
+                        SrcFinger = finger,
+                        TgtPos = chosen + 1,
+                        TgtFinger = finger,
+                        UnitId = source.LccChips[srcPos - 1, finger]
+                    });
                 }
             }
 
-            return Succeed(stubMoves.Count + movedLcc);
+            return plan;
+        }
+
+        // 대상 LCC가 완전히 비어 있는가(다섯 핑거 모두 빈 자리).
+        private static bool IsLccEmpty(Tray tray, int lccIndex)
+        {
+            for (int finger = 0; finger < LccFingers.Length; finger++)
+            {
+                if (!string.IsNullOrEmpty(tray.LccChips[lccIndex, finger]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         // ===== 내부 헬퍼 =====
-
-        // 조건을 처음 만족하는 지점부터 시작하도록 목록을 회전한다 — 앵커
-        // 이후 자리를 먼저 쓰고 모자라면 앞쪽 자리로 이어지는(랩어라운드)
-        // 순서를 만든다. 조건을 만족하는 항목이 없으면 원래 순서 그대로다.
-        private static List<T> RotateFrom<T>(List<T> items, Predicate<T> startsHere)
-        {
-            int start = items.FindIndex(startsHere);
-
-            if (start <= 0)
-            {
-                return items;
-            }
-
-            List<T> rotated = new List<T>(items.Count);
-
-            for (int index = start; index < items.Count; index++)
-            {
-                rotated.Add(items[index]);
-            }
-
-            for (int index = 0; index < start; index++)
-            {
-                rotated.Add(items[index]);
-            }
-
-            return rotated;
-        }
 
         // 유닛 행이 가리키는 트레이 자리의 칩 ID (없으면 null).
         private static string ReadTrayUnit(Tray tray, DataRow row)

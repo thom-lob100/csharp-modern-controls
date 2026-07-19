@@ -806,7 +806,7 @@ this.badgeCount.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
 | `AllowSelection` | 채워진 셀 클릭 선택 허용 (기본 true) — 대상(보기 전용) 맵은 false |
 | `EnableDragOut` / `AcceptDrops` | 드래그앤드롭 — 원본 맵에서 끌기 허용 / 대상 맵에서 드롭 수용 (둘 다 기본 false) |
 | `SelectedKeys` / `ClearSelection()` | 선택된 셀 키(`SlotMapCell.Key`) 배열 / 전체 해제 |
-| `SetPreview(string[][])` | 구획 인덱스별 "들어올 유닛 ID 목록" 미리보기 — 빈 자리를 위에서부터 순차로(front-first) "→ ID" 표기 + 번호 칩 하이라이트, 부족하면 구획 집계가 빨간 "need n more" (null = 해제). 서버가 빈 자리를 위부터 채우는 순서와 일치한다 |
+| `SetPreview(Dictionary<string,string>)` | 자리 키(`"SLOT\|7"` / `"STUB\|3"` / `"LCC\|3\|A"`) → 들어올 유닛 ID 미리보기 맵 — 그 자리가 비면 "→ ID" 표기 + 번호 칩 하이라이트, 계획된 자리가 부족하면 "need n more" (null = 해제). 화면이 서버 배치 계획을 그대로 넘겨 주므로 미리보기와 실제 이동 결과가 일치한다 |
 | `SetSelectedKeys(string[])` / `SetClickKey(string)` | 스테이징 강조(강한 액센트) / 클릭 강조(약한 색) 지정 — 둘이 겹친 셀은 결합 표시(셀 바깥 클릭 링). 이벤트 없음 |
 | `SelectionChanged` | 선택 변경 시 |
 | `UnitsDropped` | 드롭 수신 시 — 끌려온 셀 키들 + 놓은 자리(앵커) 셀 키. 검증/이동은 폼이 서버 호출로 |

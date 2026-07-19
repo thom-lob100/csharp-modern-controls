@@ -15,8 +15,9 @@
 - 채워진 셀 클릭 = `CellClicked` 이벤트만 발생(선택 상태는 폼이 관리). 상세는
   호버 툴팁. 선택 표시는 `SetSelectedKeys`(스테이징 강조)·`SetClickKey`(클릭
   강조)로 폼이 직접 준다 — 둘이 겹친 셀은 유닛/번호 글씨 색이 바뀌어 결합을 나타낸다.
-- 미리보기는 `SetPreview`로 대상의 빈 자리를 위에서부터 순차로 "→ ID"로
-  하이라이트한다 — 자리가 부족하면 구획 집계가 빨간 "need n more"가 된다.
+- 미리보기는 `SetPreview`로 "자리 키 → 유닛 ID" 맵을 받아 그 자리에 "→ ID"로
+  하이라이트한다(서버 배치 계획을 그대로 사용 → 미리보기 = 이동 결과). 계획된
+  자리가 부족하면 구획 집계가 빨간 "need n more"가 된다.
 - **드래그앤드롭**: 원본 맵 `EnableDragOut = true`(선택된 셀을 끌면 선택
   전체가 함께 감), 대상 맵 `AcceptDrops = true` → 놓으면 `UnitsDropped`
   (끌려온 키들 + 놓은 자리의 앵커 키)가 발생한다. 검증/이동은 폼이 서버
@@ -34,7 +35,7 @@
 | `SetSelectedKeys(string[])` | 지정 키들만 스테이징 강조(강한 액센트, 이벤트 없음) |
 | `SetClickKey(string)` | 클릭 강조 셀 지정(약한 색, null이면 없음) — 스테이징 셀과 겹치면 결합 표시(셀 바깥 클릭 링) |
 | `ClearSelection()` | 선택 전체 해제 |
-| `SetPreview(string[][])` | 구획 인덱스별 "들어올 유닛 ID 목록" 미리보기 (null = 해제). 빈 (하위)자리를 위에서부터 순차로(front-first) "→ ID"로 표기·하이라이트 — 서버가 빈 자리를 위부터 채우는 순서와 일치한다 |
+| `SetPreview(Dictionary<string,string>)` | "자리 키(`SLOT\|N` / `STUB\|N` / `LCC\|N\|핑거`) → 들어올 유닛 ID" 미리보기 맵 (null = 해제). 그 자리가 비면 "→ ID"로 표기·하이라이트 — 화면이 서버 배치 계획을 그대로 넘겨 미리보기와 실제 이동 결과가 일치한다 |
 | `CellClicked` | 채움 셀 클릭 시 — `e.Key`(클릭된 셀 키). 선택 상태는 바꾸지 않으니 폼이 `SetSelectedKeys`/`SetClickKey`로 표시를 관리한다 |
 | `SelectionChanged` | 선택 변경 시 (재구성/프로그램 해제) |
 | `UnitsDropped` | 드롭 수신 시 — `e.Keys`(끌려온 셀 키들) + `e.AnchorKey`(놓은 자리 셀 키; 셀 밖이면 빈 문자열 = 앞에서부터) |
@@ -64,10 +65,14 @@ this.mapSource.SetSections(new SlotMapSection[] { slots });
 // TRAY: STUB(6열 한 줄) + LCC(5×5, 핑거 도트) 두 구획
 // LCC 셀: SubCells에 핑거 A~E — SlotMapSubCell { Name="A", UnitId="CHIP-…", Marker="Top" }
 
-// 선택 → 대상 맵 미리보기 (구획 인덱스 순서대로 들어올 유닛 ID 목록;
-// 대상의 빈 자리를 위에서부터 순차로 채우며 "→ ID" 표기)
+// 선택 → 대상 맵 미리보기 (자리 키 → 들어올 유닛 ID; 서버 배치 계획을
+// 그대로 넘긴다 → 미리보기와 실제 이동 결과가 일치)
 this.mapTarget.AllowSelection = false;
-this.mapTarget.SetPreview(new string[][] { stubChipIds, lccChipIds });
+System.Collections.Generic.Dictionary<string, string> preview =
+        new System.Collections.Generic.Dictionary<string, string>();
+preview["STUB|3"] = "CHIP-…";     // STUB 3 자리로
+preview["LCC|2|A"] = "CHIP-…";    // LCC 2번 핑거 A 자리로 (LCC는 빈 LCC로 통째)
+this.mapTarget.SetPreview(preview);
 
 // 처리 대상 수집 (클릭 셀은 CellClicked로 폼이 추적)
 string[] keys = this.mapSource.SelectedKeys;   // "STUB|3", "LCC|12" …

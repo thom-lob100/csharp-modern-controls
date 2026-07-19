@@ -155,14 +155,15 @@ namespace Modern.Lab.WinForms.Controls.Display
             }
         }
 
-        /// <summary>구획 인덱스별 "들어올 유닛 ID 목록" 미리보기 (null = 해제) —
-        /// 빈 자리에 앞에서부터(위부터) 순차로 "→ ID"로 표기되고 번호 칩이
-        /// 하이라이트된다. 서버가 빈 자리를 위부터 채우는 순서와 일치한다.</summary>
-        public void SetPreview(string[][] unitIdsBySection)
+        /// <summary>자리 키("SLOT|7"/"STUB|3"/"LCC|3|A") → 들어올 유닛 ID
+        /// 미리보기 맵 (null = 해제) — 그 자리가 비어 있으면 "→ ID"로 표기되고
+        /// 번호 칩이 하이라이트된다. 서버 배치 계획을 그대로 받아 주므로
+        /// 미리보기와 실제 이동 결과가 일치한다.</summary>
+        public void SetPreview(System.Collections.Generic.Dictionary<string, string> map)
         {
             if (this.Wpf != null)
             {
-                this.Wpf.SetPreview(unitIdsBySection);
+                this.Wpf.SetPreview(map);
             }
         }
 
