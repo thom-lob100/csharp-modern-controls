@@ -143,6 +143,8 @@ this.lblPageTitle.Text = "직원관리";
 | `Text` | string | 캡션. `Control.Text` override |
 | `Kind` | `ButtonKind` | 버튼 위계 (아래 표) |
 | `IconGlyph` | string | Segoe MDL2 Assets 글리프 (예: `""` 저장 아이콘). 비우면 아이콘 없음 |
+| `GlyphSize` | double | 캡션/아이콘 글자 크기 재정의(px, 0 = 토큰 기본). 값이 있으면 좁은 아이콘 버튼에서 글리프가 잘리지 않게 좌우 패딩이 줄어든다 |
+| `TopLabel` | string | 글리프/캡션 **위**의 아주 작은 상단 라벨(비우면 숨김) — "All"/"Selected" 같은 부가 설명. 값이 있으면 두 줄에 맞춰 버튼 높이가 늘어난다 |
 | `Click` | 이벤트 | 표준 WinForms 이벤트 — 기존 핸들러 그대로 |
 
 `Kind` 위계 (화면당 `Primary`와 `Execute`는 각각 1개 권장):
@@ -558,7 +560,10 @@ this.treeItem.ShowGuideLines = true;
 
 ## ModernDataGrid
 
-읽기 전용 데이터 그리드. 헤더 클릭 정렬, 컬럼 폭 마우스 조절 지원.
+읽기 전용 데이터 그리드. 헤더 클릭 정렬, 컬럼 폭 마우스 조절 지원. 텍스트 컬럼은
+값이 컬럼 폭보다 길면 `…`로 잘리고, **잘렸을 때만** 호버 시 전체 값 툴팁이 뜬다
+(안 잘리면 툴팁 없음). 툴팁은 공용 모던 스타일(둥근 Surface 카드 + 소프트 그림자,
+테마 토큰 색)을 따른다.
 
 ### 속성·이벤트·메서드
 
@@ -807,12 +812,16 @@ this.badgeCount.Shape = Modern.Lab.WinForms.Controls.Display.BadgeShape.Rounded;
 | `EnableDragOut` / `AcceptDrops` | 드래그앤드롭 — 원본 맵에서 끌기 허용 / 대상 맵에서 드롭 수용 (둘 다 기본 false) |
 | `SelectedKeys` / `ClearSelection()` | 선택된 셀 키(`SlotMapCell.Key`) 배열 / 전체 해제 |
 | `SetPreview(Dictionary<string,string>)` | 자리 키(`"SLOT\|7"` / `"STUB\|3"` / `"LCC\|3\|A"`) → 들어올 유닛 ID 미리보기 맵 — 그 자리가 비면 "→ ID" 표기 + 번호 칩 하이라이트, 계획된 자리가 부족하면 "need n more" (null = 해제). 화면이 서버 배치 계획을 그대로 넘겨 주므로 미리보기와 실제 이동 결과가 일치한다 |
-| `SetSelectedKeys(string[])` / `SetClickKey(string)` | 스테이징 강조(강한 액센트) / 클릭 강조(약한 색) 지정 — 둘이 겹친 셀은 결합 표시(셀 바깥 클릭 링). 이벤트 없음 |
+| `SetSelectedKeys(string[])` / `SetClickKey(string)` | 스테이징 강조(강한 액센트) / 클릭 강조(약한 색) 지정 — 둘이 겹친 셀은 유닛/번호 글씨 색으로 결합 표시. 이벤트 없음 |
 | `SelectionChanged` | 선택 변경 시 |
 | `UnitsDropped` | 드롭 수신 시 — 끌려온 셀 키들 + 놓은 자리(앵커) 셀 키. 검증/이동은 폼이 서버 호출로 |
+| `CellRightClick` | 맵 오른쪽 클릭 시 — 커서 아래 채움 셀 키(셀 밖이면 빈 문자열). 폼이 이동 컨텍스트 메뉴를 띄우는 데 쓴다 |
 
-상세와 모델(`SlotMapSection`/`SlotMapCell`/`SlotMapSubCell`) 설명·사용 예는
-`docs/migration/ModernSlotMap.md` 참고. 참조 구현: 샘플 Carrier Editor.
+LCC(SubCells) 구획 헤더에는 **"Lamella ID" 스위치**가 붙어, 끄면 A~E 배지 한 줄 +
+하단 상세 그리드(`ModernDataGridControl`, `Seq/Type/Pos/Finger/Unit ID/Insert`)로
+전환되고 그리드↔맵 선택이 동기화된다. 상세와 모델(`SlotMapSection`/`SlotMapCell`/
+`SlotMapSubCell`) 설명·사용 예는 `docs/migration/ModernSlotMap.md` 참고. 참조 구현:
+샘플 Carrier Editor.
 
 ---
 

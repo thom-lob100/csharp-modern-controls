@@ -33,12 +33,23 @@
 | `AcceptDrops` | 드롭 수용 (기본 false) — 대상 맵에서 켠다 |
 | `SelectedKeys` | 선택된 셀 키 배열 — 키는 폼이 `SlotMapCell.Key`에 부여한 값 그대로 (예: `"SLOT|7"`) |
 | `SetSelectedKeys(string[])` | 지정 키들만 스테이징 강조(강한 액센트, 이벤트 없음) |
-| `SetClickKey(string)` | 클릭 강조 셀 지정(약한 색, null이면 없음) — 스테이징 셀과 겹치면 결합 표시(셀 바깥 클릭 링) |
+| `SetClickKey(string)` | 클릭 강조 셀 지정(약한 색, null이면 없음) — 스테이징 셀과 겹치면 유닛/번호 글씨 색이 바뀌어 결합을 나타낸다. 하단 상세 그리드가 있으면 해당 행 선택도 동기화된다 |
 | `ClearSelection()` | 선택 전체 해제 |
 | `SetPreview(Dictionary<string,string>)` | "자리 키(`SLOT\|N` / `STUB\|N` / `LCC\|N\|핑거`) → 들어올 유닛 ID" 미리보기 맵 (null = 해제). 그 자리가 비면 "→ ID"로 표기·하이라이트 — 화면이 서버 배치 계획을 그대로 넘겨 미리보기와 실제 이동 결과가 일치한다 |
 | `CellClicked` | 채움 셀 클릭 시 — `e.Key`(클릭된 셀 키). 선택 상태는 바꾸지 않으니 폼이 `SetSelectedKeys`/`SetClickKey`로 표시를 관리한다 |
 | `SelectionChanged` | 선택 변경 시 (재구성/프로그램 해제) |
 | `UnitsDropped` | 드롭 수신 시 — `e.Keys`(끌려온 셀 키들) + `e.AnchorKey`(놓은 자리 셀 키; 셀 밖이면 빈 문자열 = 앞에서부터) |
+| `CellRightClick` | 맵에서 오른쪽 클릭 시 — `e.Key`(커서 아래 채움 셀 키; 셀 밖이면 빈 문자열). 폼이 이동 컨텍스트 메뉴를 띄우는 데 쓴다 |
+
+## LCC(복합 셀) 표시 옵션
+
+- SubCells가 있는 구획(LCC) 헤더에는 **"Lamella ID" 스위치**가 자동으로 붙는다.
+  - **켬(기본)**: 핑거당 미니 행(도트 + 유닛 ID).
+  - **끔**: A~E 배지를 크게 한 줄(가운데 정렬)로만 보이고, 맵 **하단에 상세
+    그리드**(표준 `ModernDataGridControl`, 컬럼 `Seq/Type/Pos/Finger/Unit ID/
+    Insert`)가 나타난다. 그리드 행 선택과 맵 셀 선택은 서로 동기화된다.
+- 복합 셀(LCC) 툴팁은 채워진 핑거를 정렬된 미니 표(Finger/Unit ID/Insert/Item)로
+  보여 준다.
 
 ## 모델 (Modern.Lab.Controls.Wpf.Display)
 
