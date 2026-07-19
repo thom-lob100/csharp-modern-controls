@@ -428,6 +428,10 @@ namespace Modern.Lab.Controls.Wpf.Data
             {
                 // 컬럼 생성은 GridColumnFactory가 담당한다 — 리소스 조회 기준(this),
                 // 클릭 핸들러, 헤더 체크박스 등록 콜백만 넘기고 결과를 받는다.
+                double badgeMinWidth = definition.Kind == GridColumnKind.Badge
+                        ? GridColumnFactory.CalculateBadgeMinWidth(
+                                definition, this.ItemsSource, this, widthRatio)
+                        : 0d;
                 DataGridColumn column = GridColumnFactory.CreateColumn(
                     definition,
                     widthRatio,
@@ -435,7 +439,8 @@ namespace Modern.Lab.Controls.Wpf.Data
                     this.OnHeaderCheckBoxClick,
                     this.OnCellCheckBoxClick,
                     this.OnCellButtonClick,
-                    this.headerCheckBoxes.Add);
+                    this.headerCheckBoxes.Add,
+                    badgeMinWidth);
 
                 // 헤더 캡션도 같은 장평으로 — 문자열 대신 스케일된 TextBlock을 쓴다.
                 // (헤더가 문자열이 아닌 컬럼 — 헤더 체크박스 — 은 건드리지 않는다.)
@@ -573,6 +578,7 @@ namespace Modern.Lab.Controls.Wpf.Data
         private static void OnItemsSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ModernDataGridControl control = (ModernDataGridControl)d;
+            control.RefreshBadgeColumnWidths();
             control.AutoFitColumnWidths();
 
             // 유지 중인 컬럼 필터를 새 소스의 뷰에 다시 적용한다 (재조회 내성).
@@ -654,6 +660,34 @@ namespace Modern.Lab.Controls.Wpf.Data
 
             // 소스 교체/행 변경에 맞춰 헤더 체크박스(전체 선택) 상태를 되비춘다.
             this.RefreshHeaderCheckBoxes();
+        }
+
+        // 데이터가 바뀌면 Badge 컬럼의 최대 표시값도 달라질 수 있다. 템플릿의
+        // 공통 MinWidth를 갱신하려면 컬럼을 다시 만드는 것이 가장 안전하다.
+        private void RefreshBadgeColumnWidths()
+        {
+            if (this.columnDefinitions == null)
+            {
+                return;
+            }
+
+            bool hasBadge = false;
+
+            foreach (ModernDataGridColumn definition in this.columnDefinitions)
+            {
+                if (definition.Kind == GridColumnKind.Badge)
+                {
+                    hasBadge = true;
+                    break;
+                }
+            }
+
+            if (!hasBadge)
+            {
+                return;
+            }
+
+            this.ApplyColumns(new List<ModernDataGridColumn>(this.columnDefinitions));
         }
 
         // 빈 상태 안내: 데이터 0건 + EmptyText 비어있지 않을 때만 표시한다.

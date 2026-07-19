@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,14 +41,15 @@ namespace Modern.Lab.Controls.Wpf.Data
             RoutedEventHandler headerCheckBoxClick,
             RoutedEventHandler cellCheckBoxClick,
             RoutedEventHandler cellButtonClick,
-            Action<CheckBox> registerHeaderCheckBox)
+            Action<CheckBox> registerHeaderCheckBox,
+            double badgeMinWidth)
         {
             switch (definition.Kind)
             {
                 case GridColumnKind.CheckBox:
                     return CreateCheckBoxColumn(definition, resourceSource, headerCheckBoxClick, cellCheckBoxClick, registerHeaderCheckBox);
                 case GridColumnKind.Badge:
-                    return CreateBadgeColumn(definition, widthRatio, resourceSource);
+                    return CreateBadgeColumn(definition, widthRatio, resourceSource, badgeMinWidth);
                 case GridColumnKind.Button:
                     return CreateButtonColumn(definition, widthRatio, resourceSource, cellButtonClick);
                 case GridColumnKind.Combo:
@@ -237,7 +239,8 @@ namespace Modern.Lab.Controls.Wpf.Data
         private static DataGridColumn CreateBadgeColumn(
             ModernDataGridColumn definition,
             double widthRatio,
-            FrameworkElement resourceSource)
+            FrameworkElement resourceSource,
+            double badgeMinWidth)
         {
             DataGridTemplateColumn column = new DataGridTemplateColumn();
             column.Header = definition.HeaderText;
@@ -251,6 +254,11 @@ namespace Modern.Lab.Controls.Wpf.Data
             border.SetValue(Border.PaddingProperty, new Thickness(10d, 2d, 10d, 2d));
             border.SetValue(FrameworkElement.HorizontalAlignmentProperty, ToHorizontalAlignment(definition.TextAlignment));
             border.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            if (badgeMinWidth > 0d)
+            {
+                border.SetValue(FrameworkElement.MinWidthProperty, badgeMinWidth);
+            }
 
             if (!string.IsNullOrEmpty(definition.BadgeColorMember))
             {
@@ -292,7 +300,63 @@ namespace Modern.Lab.Controls.Wpf.Data
             column.CellTemplate = template;
 
             ApplyColumnWidth(column, definition);
+
+            // 셀 기본 좌우 패딩까지 감안해, 정의 폭이 짧아도 가장 긴 배지가
+            // 잘리지 않도록 컬럼의 최소 폭을 보장한다.
+            if (badgeMinWidth > 0d)
+            {
+                Thickness cellPadding = (Thickness)resourceSource.FindResource("Pad.Field");
+                column.MinWidth = badgeMinWidth + cellPadding.Left + cellPadding.Right;
+            }
+
             return column;
+        }
+
+        // 같은 배지 컬럼은 가장 긴 표시 텍스트를 기준으로 같은 폭을 쓴다.
+        // 행마다 배지가 들쭉날쭉하면 표가 산만해지므로, 텍스트 폭과 알약의
+        // 좌우 패딩을 한 번 계산해 각 셀 Border.MinWidth에 공통 적용한다.
+        internal static double CalculateBadgeMinWidth(
+            ModernDataGridColumn definition,
+            IEnumerable itemsSource,
+            FrameworkElement resourceSource,
+            double widthRatio)
+        {
+            if (itemsSource == null)
+            {
+                return 0d;
+            }
+
+            double pixelsPerDip = VisualTreeHelper.GetDpi(resourceSource).PixelsPerDip;
+            FontFamily fontFamily = (FontFamily)resourceSource.FindResource("Font.Family");
+            Typeface typeface = new Typeface(
+                    fontFamily,
+                    FontStyles.Normal,
+                    FontWeights.Normal,
+                    FontStretches.Normal);
+            double fontSize = (double)resourceSource.FindResource("Font.Size.Label");
+            double widest = 0d;
+
+            foreach (object row in itemsSource)
+            {
+                string text = GridAutoFitMeasurer.FormatCellText(
+                        MemberPathReader.Read(row, definition.DataPropertyName), definition.Format);
+
+                if (text.Length == 0)
+                {
+                    continue;
+                }
+
+                double width = GridAutoFitMeasurer.MeasureText(
+                        text, typeface, fontSize, pixelsPerDip) * widthRatio;
+
+                if (width > widest)
+                {
+                    widest = width;
+                }
+            }
+
+            // 배지 좌우 패딩 10+10과 렌더링 오차 여유 2px을 더한다.
+            return widest > 0d ? Math.Ceiling(widest + 22d) : 0d;
         }
 
         // 버튼 컬럼: 행 단위 액션 버튼. 클릭은 CellButtonClick 이벤트로 전달되고,

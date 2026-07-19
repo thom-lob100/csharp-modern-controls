@@ -270,7 +270,7 @@ namespace Modern.Lab.Controls.Wpf.Data
 
         // 셀에 표시될 문자열을 만든다 — 컬럼 Format이 있으면 바인딩 StringFormat과
         // 같은 규칙("{0:형식}")으로 적용하고, 실패하면 기본 문자열 표현을 쓴다.
-        private static string FormatCellText(object value, string format)
+        internal static string FormatCellText(object value, string format)
         {
             if (value == null || value == DBNull.Value)
             {
@@ -293,7 +293,7 @@ namespace Modern.Lab.Controls.Wpf.Data
         }
 
         // FormattedText로 문자열의 실제 렌더링 폭을 잰다 (빈 문자열은 0).
-        private static double MeasureText(string text, Typeface typeface, double fontSize, double pixelsPerDip)
+        internal static double MeasureText(string text, Typeface typeface, double fontSize, double pixelsPerDip)
         {
             if (string.IsNullOrEmpty(text))
             {

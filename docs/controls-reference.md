@@ -184,7 +184,7 @@ this.btnDelete.Text = "삭제";
 | `Text` | 버튼 캡션 (`Control.Text` override, localizable) |
 | `DataSource` / `DisplayMember` / `ValueMember` | 메뉴 항목 — 공통 데이터 계약과 동일 |
 | `EnabledMember` | 항목 실행 가능 여부 컬럼/속성 이름 (bool 또는 `"Y"`/`"true"`/`"1"`). 비우면 전부 활성. 비활성 항목은 회색으로 표시되고 클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와 같은 의미. 활성 판정이 상태에 따라 변하면 값 갱신 후 `DataSource`를 다시 할당한다 |
-| `Kind` | 버튼 시각 종류 — `ButtonKind.Secondary`(기본, 흰 배경) / `Execute`(Success 초록 채움; 실행 버튼 강조) / `Excel`(초록 아웃라인; 엑셀 내보내기 포인트) |
+| `Kind` | 버튼 시각 종류 — `ButtonKind.Secondary`(기본, 흰 배경) / `Execute`(Success 초록 채움; 실행 버튼 강조) / `Excel`(초록 아웃라인; 엑셀 내보내기 포인트). 캡션은 `ModernButton`과 같은 SemiBold |
 | `ItemClicked` | 항목 클릭 시 발생. `e.Value`(코드) / `e.DisplayText`(명칭) 제공 |
 
 ```csharp
@@ -1001,7 +1001,7 @@ new ModernDataGridColumn("EVENT_TM", "Event\nTime")   // 2줄 헤더
 | Kind | 설명 | 함께 쓰는 속성 |
 |---|---|---|
 | `CheckBox` | bool 컬럼 양방향 체크박스 — 벌크 작업 대상 지정용. 읽기 전용 그리드에서도 클릭 한 번으로 토글되고 원본 행 값이 즉시 갱신된다. 비주얼은 ModernCheckBox와 동일한 모던 체크(둥근 사각 + 액센트 채움 + 흰 체크 글리프) | `HeaderCheckBox` — true면 헤더에 **전체 선택/해제 체크박스** 표시 (기본 false). 클릭 시 현재 표시 중인 모든 행 일괄 설정, 상태는 전체(체크)/일부(대시)/없음(해제)을 되비춘다 |
-| `Badge` | 값을 색 레티클(둥근 사각) 배지로 표시. 글자색은 배경색에서 자동 유도 | `BadgeColorMember` — 배경색(`"#FEE2E2"` 등) 컬럼 이름. 색이 비면 일반 텍스트 |
+| `Badge` | 값을 색 레티클(둥근 사각) 배지로 표시. 글자색은 배경색에서 자동 유도. **같은 Badge 컬럼의 배지는 현재 데이터에서 가장 긴 표시값 기준으로 같은 폭**을 사용 | `BadgeColorMember` — 배경색(`"#FEE2E2"` 등) 컬럼 이름. 색이 비면 일반 텍스트 |
 | `Button` | 행 단위 액션 버튼 — ModernButton Secondary와 같은 문법(평상시 흰 배경 + 회색 테두리 + 진한 글자, hover 시 옅은 파랑 틴트 + 액센트 테두리/글자, pressed 시 한 단계 진한 틴트). 클릭 시 그리드의 `CellButtonClick` 발생 | `ButtonText` — 캡션. `ButtonEnabledMember` — 행별 활성 여부 컬럼(bool 또는 `"Y"`/`"true"`/`"1"`; 비우면 항상 활성) |
 
 주의: 페이지 슬라이스처럼 **복사본 DataTable**을 바인딩하는 화면은 체크 변경을

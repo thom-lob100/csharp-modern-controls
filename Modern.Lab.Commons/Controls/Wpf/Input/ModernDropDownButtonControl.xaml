@@ -24,6 +24,7 @@
     <Grid>
         <ToggleButton x:Name="DropToggle"
                       Height="{StaticResource Size.ControlHeight}"
+                      FontWeight="SemiBold"
                       Focusable="False"
                       Cursor="Hand"
                       ClickMode="Release">
