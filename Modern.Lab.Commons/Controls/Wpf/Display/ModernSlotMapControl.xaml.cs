@@ -767,9 +767,10 @@ namespace Modern.Lab.Controls.Wpf.Display
             tick.HorizontalAlignment = HorizontalAlignment.Stretch;
             tick.VerticalAlignment = VerticalAlignment.Stretch;
             // 실제 수납은 액센트 틱을 유지하고, 우측 미리보기는 한 단계 낮은
-            // InfoBorder 톤을 써 빈 자리 위에서 틱만 과하게 튀지 않게 한다.
+            // AccentPressed 톤을 써 빈 자리 위에서 과하게 튀지 않으면서도
+            // Top/Left/Right 방향은 충분히 읽히게 한다.
             tick.Fill = preview
-                    ? (Brush)this.FindResource("Brush.InfoBorder")
+                    ? (Brush)this.FindResource("Brush.AccentPressed")
                     : (Brush)this.FindResource("Brush.Accent");
             tick.Visibility = string.IsNullOrEmpty(marker) ? Visibility.Collapsed : Visibility.Visible;
 
