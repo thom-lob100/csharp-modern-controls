@@ -476,9 +476,9 @@ namespace Modern.Lab.Samples
             // 있을 때의 표준 동선이라 committing 액션으로 강조(Primary).
             this.btnSplit.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Primary;
             this.btnSplit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSplit.Location = new System.Drawing.Point(1024, 12);
+            this.btnSplit.Location = new System.Drawing.Point(1248, 12);
             this.btnSplit.Name = "btnSplit";
-            this.btnSplit.Size = new System.Drawing.Size(116, 32);
+            this.btnSplit.Size = new System.Drawing.Size(80, 32);
             this.btnSplit.TabIndex = 1;
             this.btnSplit.Text = "Split";
             this.btnSplit.Click += new System.EventHandler(this.OnSplitClick);
@@ -490,9 +490,9 @@ namespace Modern.Lab.Samples
             // 때의 표준 동선이라 committing 액션으로 강조(Execute 초록).
             this.btnMerge.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Secondary;
             this.btnMerge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMerge.Location = new System.Drawing.Point(1148, 12);
+            this.btnMerge.Location = new System.Drawing.Point(1336, 12);
             this.btnMerge.Name = "btnMerge";
-            this.btnMerge.Size = new System.Drawing.Size(116, 32);
+            this.btnMerge.Size = new System.Drawing.Size(80, 32);
             this.btnMerge.TabIndex = 2;
             this.btnMerge.Text = "Merge";
             this.btnMerge.Click += new System.EventHandler(this.OnMergeClick);
@@ -502,7 +502,7 @@ namespace Modern.Lab.Samples
             //
             this.btnScrap.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Danger;
             this.btnScrap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnScrap.Location = new System.Drawing.Point(1272, 12);
+            this.btnScrap.Location = new System.Drawing.Point(1424, 12);
             this.btnScrap.Name = "btnScrap";
             this.btnScrap.Size = new System.Drawing.Size(80, 32);
             this.btnScrap.TabIndex = 3;

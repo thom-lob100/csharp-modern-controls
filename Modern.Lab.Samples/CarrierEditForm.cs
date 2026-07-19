@@ -324,12 +324,8 @@ namespace Modern.Lab.Samples
             this.btnMerge.Kind = this.btnMerge.Enabled
                     ? Modern.Lab.Controls.Wpf.Input.ButtonKind.Primary
                     : Modern.Lab.Controls.Wpf.Input.ButtonKind.Secondary;
-            this.btnSplit.Text = stagedCount > 0
-                    ? "Split " + stagedCount.ToString("N0") + " units"
-                    : "Split";
-            this.btnMerge.Text = stagedCount > 0
-                    ? "Merge " + stagedCount.ToString("N0") + " units"
-                    : "Merge";
+            this.btnSplit.Text = "Split";
+            this.btnMerge.Text = "Merge";
 
             if (stagedCount == 0)
             {
