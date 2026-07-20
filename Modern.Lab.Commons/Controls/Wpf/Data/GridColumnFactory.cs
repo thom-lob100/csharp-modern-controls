@@ -516,7 +516,7 @@ namespace Modern.Lab.Controls.Wpf.Data
             style.Setters.Add(new Setter(Control.BackgroundProperty, resourceSource.FindResource("Brush.Surface")));
             style.Setters.Add(new Setter(Control.BorderBrushProperty, resourceSource.FindResource("Brush.Border")));
             style.Setters.Add(new Setter(Control.FontSizeProperty, resourceSource.FindResource("Font.Size.Label")));
-            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.SemiBold));
+            style.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Normal));
             // 좌우 10px — 행마다 반복되는 버튼이라 컬럼 폭을 잡아먹지 않게
             // 일반 버튼(14px)보다 한 단계 좁힌다.
             style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(10d, 4d, 10d, 4d)));
