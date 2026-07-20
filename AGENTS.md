@@ -51,6 +51,14 @@ Wrappers derive from a common `WpfElementHostBase<TWpf>` marked `[Designer(Contr
 - **Migration doc per control**: when a control is done, write `docs/migration/<control>.md` (matching WinForms control, compatible members, unsupported members + alternatives, `.Designer.cs` swap example).
 - **Docs stay in sync with control changes**: whenever a control's public API/behavior changes, update `docs/migration/<control>.md` and `docs/controls-reference.md` in the same commit. When a new control is added, also add a row to the mapping table in `docs/codex/form-conversion-guide.md` §2. The docs ship to the company as the AI-conversion knowledge base — stale docs mislead the conversion agent.
 
+## Pre-commit checklist (applies to EVERY agent — Claude Code AND Codex — in EVERY checkout)
+
+This project is worked on by both Claude Code and Codex, on different machines. The rules below make the outcome identical no matter who commits or where. **Run this check before every commit:**
+
+1. **Bundle code and docs in the SAME commit.** If the commit touches a control under `Modern.Lab.Commons/Controls/` (WPF control or WinForms wrapper) and changes its public API or visible behavior, the same commit MUST also update `docs/migration/<control>.md` and `docs/controls-reference.md`. New control → also add a row to `docs/codex/form-conversion-guide.md` §2. Never split a control change and its doc sync into separate commits.
+2. **Keep the company-facing docs authoritative.** `docs/migration/*`, `docs/controls-reference.md`, and `docs/codex/*` ship to the company as the AI-conversion knowledge base. They must stay accurate and complete — never remove or degrade them. Stale docs silently mislead the conversion agent.
+3. **Code-only commits are allowed only when docs genuinely need no change** (internal refactor, non-behavioral fix). Confirm the public API/behavior truly did not change before committing code alone.
+
 ## Absolute rules
 
 - Never use `var`. Use explicit types everywhere.
