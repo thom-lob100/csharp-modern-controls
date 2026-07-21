@@ -23,7 +23,7 @@
             <Style x:Key="ModernButtonStyle" TargetType="Button">
                 <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
                 <Setter Property="FontSize" Value="{StaticResource Font.Size.Body}" />
-                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="FontWeight" Value="Normal" />
                 <Setter Property="Height" Value="{StaticResource Size.ControlHeight}" />
                 <Setter Property="Padding" Value="{StaticResource Pad.Button}" />
                 <Setter Property="Cursor" Value="Hand" />

@@ -51,3 +51,5 @@ this.btnSearch = new Modern.Lab.WinForms.Controls.Input.ModernButton();
 ```
 
 권장 크기: 120×32 (토큰 ControlHeight=32에 맞춤).
+
+캡션 굵기는 일반(Normal)이다 — 여러 개 배치되는 버튼이 시각적으로 과하게 무겁지 않도록 한다.

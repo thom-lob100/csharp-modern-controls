@@ -24,7 +24,7 @@
     <Grid>
         <ToggleButton x:Name="DropToggle"
                       Height="{StaticResource Size.ControlHeight}"
-                      FontWeight="SemiBold"
+                      FontWeight="Normal"
                       IsChecked="{Binding IsDropDownOpen, ElementName=RootControl, Mode=TwoWay}"
                       Focusable="False"
                       Cursor="Hand"
