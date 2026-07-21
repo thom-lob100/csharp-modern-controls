@@ -112,7 +112,7 @@
     <Compile Include="StepFlowDemoForm.Designer.cs">
       <DependentUpon>StepFlowDemoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Services\EquipmentLotSimulator.cs" />
+    <Compile Include="Services\EquipmentLotApiClient.cs" />
     <Compile Include="Services\EquipmentTablePresenter.cs" />
     <Compile Include="Services\CarrierApiClient.cs" />
     <Compile Include="Services\CarrierTablePresenter.cs" />

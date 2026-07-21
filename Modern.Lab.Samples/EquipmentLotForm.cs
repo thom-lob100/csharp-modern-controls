@@ -63,7 +63,7 @@ namespace Modern.Lab.Samples
     /// 비어 있어야 한다(점유돼 있으면 반출 먼저).
     ///
     /// 처리 흐름은 Pending Requests와 동일 패턴이다: 서버 처리(검증 + 시각
-    /// 적재는 서버 역할인 EquipmentLotSimulator) → 성공 시 **재조회** → 장비
+    /// 적재는 서버 역할인 EquipmentLotApiClient) → 성공 시 **재조회** → 장비
     /// 행 포커스 복원. 실패 사유는 토스트로 보여준다.
     ///
     /// 자동 갱신: 자동 작업(서버측)의 상태 변화를 반영하기 위해 주기 재조회
@@ -73,7 +73,7 @@ namespace Modern.Lab.Samples
     ///
     /// ★ 회사 환경 교체 지점 — 조회 2개(GetEquipments/GetWaitingLots)와 처리
     ///   4개(AssignLot/StartJob/EndJob/Unload)를 회사 장비 인터페이스 호출로
-    ///   바꾸고 EquipmentLotSimulator를 지운다. 상태/포트 배지/버튼 활성/KPI
+    ///   바꾸고 EquipmentLotApiClient를 지운다. 상태/포트 배지/버튼 활성/KPI
     ///   파생은 전부 클라이언트(EquipmentTablePresenter)가 처리한다.
     /// </summary>
     public partial class EquipmentLotForm : Form
@@ -83,6 +83,12 @@ namespace Modern.Lab.Samples
 
         // 마지막 조회의 대기 Lot 큐 (우선순위 순).
         private DataTable lotData;
+
+        // 마지막으로 바인딩한 장비/대기 Lot 원본 데이터의 서명 — 자동 갱신 때
+        // 이전과 동일하면 재바인딩을 건너뛰어 선택 행 하이라이트/스크롤을 보존한다
+        // (주기 갱신마다 그리드가 첫 행으로 초기화되던 문제 방지).
+        private string lastEqpSignature;
+        private string lastLotSignature;
 
         // 선택 장비가 투입 가능(Down 아님 + 빈 인포트)한지 — Lot 메뉴의
         // Assign 활성과 대기 카드 타이틀의 원천 (선택 변경 시 갱신).
@@ -496,7 +502,7 @@ namespace Modern.Lab.Samples
             DataTable groupTable = new DataTable();
             groupTable.Columns.Add("VALUE", typeof(string));
 
-            foreach (string code in EquipmentLotSimulator.GroupCodes)
+            foreach (string code in EquipmentLotApiClient.GroupCodes)
             {
                 groupTable.Rows.Add(code);
             }
@@ -660,7 +666,8 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            this.ExecuteSearch(this.GetFocusedEqpId());
+            // auto=true — 원본 데이터가 이전과 같으면 재바인딩을 건너뛴다.
+            this.ExecuteSearch(this.GetFocusedEqpId(), null, true);
         }
 
         // 자동 갱신을 잠시 멈춰야 하는 상황 — 모달 다이얼로그(작업준비)나
@@ -752,7 +759,7 @@ namespace Modern.Lab.Samples
         // 처리(투입/시작/종료/반출) 성공 후에도 이 재조회 하나로 반영한다 —
         // 처리 시각·포트 이동은 서버가 적재하므로 화면은 결과를 보여줄 뿐이다.
         // focusEqpId: 재조회 후 되돌릴 장비 행 (null/""면 첫 행 선택).
-        private async void ExecuteSearch(string focusEqpId, string focusLotId = null)
+        private async void ExecuteSearch(string focusEqpId, string focusLotId = null, bool auto = false)
         {
             string group = this.GetGroup();
 
@@ -772,8 +779,8 @@ namespace Modern.Lab.Samples
                 // 유지하도록 하나의 백그라운드 작업에서 순서대로 실행한다.
                 DataTable[] results = await Task.Run(() => new DataTable[]
                 {
-                    EquipmentLotSimulator.GetEquipments(group),
-                    EquipmentLotSimulator.GetWaitingLots(group)
+                    EquipmentLotApiClient.GetEquipments(group),
+                    EquipmentLotApiClient.GetWaitingLots(group)
                 });
 
                 if (this.IsDisposed || version != this.searchVersion)
@@ -781,33 +788,49 @@ namespace Modern.Lab.Samples
                     return;
                 }
 
-                this.equipmentData = results[0];
-                this.lotData = results[1];
+                string eqpSignature = Signature(results[0]);
+                string lotSignature = Signature(results[1]);
 
-                EquipmentTablePresenter.ApplyEquipmentColumns(this.equipmentData);
-                EquipmentTablePresenter.ApplyLotColumns(this.lotData);
+                // 자동 갱신인데 원본 데이터가 이전과 동일하면 그리드를 다시
+                // 바인딩하지 않는다 — 선택 행 하이라이트/스크롤을 그대로 두어
+                // 주기 갱신마다 첫 행으로 튀던 문제를 없앤다. 실제 변화가 있을
+                // 때만 재바인딩하고 선택을 복원한다.
+                bool unchanged = eqpSignature == this.lastEqpSignature
+                        && lotSignature == this.lastLotSignature;
 
-                // 장비 바인딩의 첫 행 자동 선택이 SelectionChanged를 태우므로,
-                // 그 시점에 읽는 lotData를 먼저 준비해 두고 바인딩한다.
-                this.gridEqp.DataSource = this.equipmentData;
-                this.gridLots.DataSource = this.lotData;
-                this.gridRun.DataSource = EquipmentTablePresenter.BuildRunningLots(this.equipmentData);
-
-                if (!string.IsNullOrEmpty(focusEqpId))
+                if (!auto || !unchanged)
                 {
-                    this.FocusEquipmentRow(focusEqpId);
+                    this.lastEqpSignature = eqpSignature;
+                    this.lastLotSignature = lotSignature;
+                    this.equipmentData = results[0];
+                    this.lotData = results[1];
+
+                    EquipmentTablePresenter.ApplyEquipmentColumns(this.equipmentData);
+                    EquipmentTablePresenter.ApplyLotColumns(this.lotData);
+
+                    // 장비 바인딩의 첫 행 자동 선택이 SelectionChanged를 태우므로,
+                    // 그 시점에 읽는 lotData를 먼저 준비해 두고 바인딩한다.
+                    this.gridEqp.DataSource = this.equipmentData;
+                    this.gridLots.DataSource = this.lotData;
+                    this.gridRun.DataSource = EquipmentTablePresenter.BuildRunningLots(this.equipmentData);
+
+                    if (!string.IsNullOrEmpty(focusEqpId))
+                    {
+                        this.FocusEquipmentRow(focusEqpId);
+                    }
+
+                    this.UpdatePortPanel();
+                    this.UpdateAssignability();
+                    this.RefreshSummary();
+
+                    if (!string.IsNullOrEmpty(focusLotId))
+                    {
+                        this.FocusLotRow(focusLotId);
+                    }
                 }
 
-                this.UpdatePortPanel();
-                this.UpdateAssignability();
-                this.RefreshSummary();
                 this.UpdateRunningStats();
                 this.UpdateRunIndicator();
-
-                if (!string.IsNullOrEmpty(focusLotId))
-                {
-                    this.FocusLotRow(focusLotId);
-                }
 
                 // 갱신 시각 기록 + 자동 갱신 주기를 지금부터 다시 계산한다 —
                 // 수동 Refresh/처리 직후에 곧바로 자동 갱신이 겹치지 않게 한다.
@@ -870,6 +893,31 @@ namespace Modern.Lab.Samples
                     return;
                 }
             }
+        }
+
+        // 조회 결과(원본 컬럼)의 값 서명 — 자동 갱신 때 이전과 동일한지 비교해
+        // 변화가 없으면 재바인딩을 생략(선택/스크롤 보존)하는 데 쓴다.
+        private static string Signature(DataTable table)
+        {
+            if (table == null)
+            {
+                return string.Empty;
+            }
+
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+
+            foreach (DataRow row in table.Rows)
+            {
+                foreach (DataColumn column in table.Columns)
+                {
+                    builder.Append(Convert.ToString(row[column]));
+                    builder.Append('	');
+                }
+
+                builder.Append('\n');
+            }
+
+            return builder.ToString();
         }
 
         // ===== 선택 → 투입 가능 판정 =====
@@ -1051,7 +1099,7 @@ namespace Modern.Lab.Samples
 
             // 아웃 캐리어는 빈 캐리어 풀에서 골라야 한다 — 없으면 투입 불가.
             // ★ 회사 환경 교체 지점 — 빈 캐리어 조회를 회사 인터페이스로.
-            DataTable carriers = EquipmentLotSimulator.GetEmptyCarriers(group);
+            DataTable carriers = EquipmentLotApiClient.GetEmptyCarriers(group);
 
             if (carriers.Rows.Count == 0)
             {
@@ -1078,11 +1126,11 @@ namespace Modern.Lab.Samples
                     this.dialogOpen = false;
                 }
 
-                EquipmentLotSimulator.ActionResult result = assignLotId == null
-                        ? EquipmentLotSimulator.Prepare(
+                EquipmentLotApiClient.ActionResult result = assignLotId == null
+                        ? EquipmentLotApiClient.Prepare(
                                 group, eqpId, dialog.SelectedInPort, dialog.SelectedOutPort,
                                 dialog.SelectedCarrier)
-                        : EquipmentLotSimulator.AssignLot(
+                        : EquipmentLotApiClient.AssignLot(
                                 group, eqpId, assignLotId, dialog.SelectedInPort,
                                 dialog.SelectedOutPort, dialog.SelectedCarrier);
 
@@ -1119,17 +1167,17 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            EquipmentLotSimulator.ActionResult result;
+            EquipmentLotApiClient.ActionResult result;
             string successMessage;
 
             if (kind == "START")
             {
-                result = EquipmentLotSimulator.StartJob(group, eqpId);
+                result = EquipmentLotApiClient.StartJob(group, eqpId);
                 successMessage = "Job started on " + eqpId + ".";
             }
             else
             {
-                result = EquipmentLotSimulator.Unload(group, eqpId);
+                result = EquipmentLotApiClient.Unload(group, eqpId);
                 successMessage = "All done out-ports unloaded on " + eqpId + ".";
             }
 
@@ -1160,7 +1208,7 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            DataTable slots = EquipmentLotSimulator.GetEndJobSlots(group, eqpId);
+            DataTable slots = EquipmentLotApiClient.GetEndJobSlots(group, eqpId);
 
             if (slots.Rows.Count == 0)
             {
@@ -1198,8 +1246,8 @@ namespace Modern.Lab.Samples
                     this.dialogOpen = false;
                 }
 
-                EquipmentLotSimulator.ActionResult result =
-                        EquipmentLotSimulator.EndJob(group, eqpId, dialog.JudgeResults);
+                EquipmentLotApiClient.ActionResult result =
+                        EquipmentLotApiClient.EndJob(group, eqpId, dialog.JudgeResults);
 
                 if (!result.Success)
                 {
@@ -1228,8 +1276,8 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            EquipmentLotSimulator.ActionResult result =
-                    EquipmentLotSimulator.SetCommMode(group, eqpId, mode);
+            EquipmentLotApiClient.ActionResult result =
+                    EquipmentLotApiClient.SetCommMode(group, eqpId, mode);
 
             if (!result.Success)
             {
@@ -1254,8 +1302,8 @@ namespace Modern.Lab.Samples
                 return;
             }
 
-            EquipmentLotSimulator.ActionResult result =
-                    EquipmentLotSimulator.SetDown(group, eqpId, down);
+            EquipmentLotApiClient.ActionResult result =
+                    EquipmentLotApiClient.SetDown(group, eqpId, down);
 
             if (!result.Success)
             {
@@ -1364,8 +1412,8 @@ namespace Modern.Lab.Samples
                     PendingTablePresenter.CellText(row.Row, "PORT_IDX"));
             string lotId = PendingTablePresenter.CellText(row.Row, "LOT_ID");
 
-            EquipmentLotSimulator.ActionResult result =
-                    EquipmentLotSimulator.UnloadPort(group, eqpId, outPort);
+            EquipmentLotApiClient.ActionResult result =
+                    EquipmentLotApiClient.UnloadPort(group, eqpId, outPort);
 
             if (!result.Success)
             {
@@ -1408,8 +1456,8 @@ namespace Modern.Lab.Samples
                     PendingTablePresenter.CellText(row.Row, "PORT_IDX"));
             string lotId = PendingTablePresenter.CellText(row.Row, "LOT_ID");
 
-            EquipmentLotSimulator.ActionResult result =
-                    EquipmentLotSimulator.CancelPort(group, eqpId, inPort);
+            EquipmentLotApiClient.ActionResult result =
+                    EquipmentLotApiClient.CancelPort(group, eqpId, inPort);
 
             if (!result.Success)
             {
@@ -1456,7 +1504,7 @@ namespace Modern.Lab.Samples
             string group = this.GetGroup();
             string lotId = PendingTablePresenter.CellText(row.Row, "LOT_ID");
 
-            EquipmentLotSimulator.ActionResult result = EquipmentLotSimulator
+            EquipmentLotApiClient.ActionResult result = EquipmentLotApiClient
                     .MoveLotPriority(group, lotId, e.DataPropertyName == "UP_ACTION");
 
             if (!result.Success)
