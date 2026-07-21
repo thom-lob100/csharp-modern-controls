@@ -114,7 +114,7 @@
     </Compile>
     <Compile Include="Services\EquipmentLotSimulator.cs" />
     <Compile Include="Services\EquipmentTablePresenter.cs" />
-    <Compile Include="Services\CarrierEditSimulator.cs" />
+    <Compile Include="Services\CarrierApiClient.cs" />
     <Compile Include="Services\CarrierTablePresenter.cs" />
     <Compile Include="Services\HistoryTablePresenter.cs" />
     <Compile Include="Services\JsonTableConverter.cs" />

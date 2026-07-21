@@ -4,7 +4,7 @@ namespace Modern.Lab.Samples.Services
 {
     /// <summary>
     /// Carrier Editor 화면의 순수 DataTable 헬퍼 — 수납 현황
-    /// (CarrierEditSimulator.GetCarrierUnits)의 집계를 담당한다.
+    /// (CarrierApiClient.GetCarrierUnits)의 집계를 담당한다.
     /// 시각 표현(채움 색/선택/미리보기)은 슬롯 맵 컨트롤(ModernSlotMap)이
     /// 자체 처리하므로 파생 컬럼은 필요 없다.
     /// </summary>

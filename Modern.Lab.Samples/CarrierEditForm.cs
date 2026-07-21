@@ -40,8 +40,9 @@ namespace Modern.Lab.Samples
     /// 있으면 이동한다. 빈 자리가 부족하면 전부-아니면-전무로 거부된다. 처리
     /// 흐름은 다른 화면과 동일: 서버 처리 → 성공 시 **재조회** → 토스트.
     ///
-    /// ★ 회사 환경 교체 지점 — 조회 2개(GetCarriers/GetCarrierUnits)와 처리
-    ///   메서드를 회사 인터페이스로 바꾸고 CarrierEditSimulator를 지운다.
+    /// ★ 회사 환경 교체 지점 — 서버 호출은 전부 CarrierApiClient에 모여 있다.
+    ///   그 클래스의 조회 2개(GetCarriers/GetCarrierUnits)와 처리
+    ///   (PlanPreview/MoveUnits/ScrapUnits) 본문을 회사 인터페이스로 바꾼다.
     ///   특히 **Split/Merge 핸들러(OnSplitClick/OnMergeClick)가 회사 비즈
     ///   전문 호출 지점**이고, 재배치용 이동(MoveBetween)/폐기(ScrapUnits)도
     ///   각 회사 인터페이스로 교체한다. 슬롯 맵 구성(BuildSections)은 조회
@@ -118,6 +119,11 @@ namespace Modern.Lab.Samples
             typeTable.Rows.Add("FOUP");
             typeTable.Rows.Add("TRAY");
 
+            // 원본/대상 드롭다운 항목 글자색을 채움 상태 색(STAT_COLOR)으로 —
+            // cboType 할당(자동 조회) 전에 지정해 목록이 색과 함께 뜨게 한다.
+            this.cboSource.ItemColorPath = "STAT_COLOR";
+            this.cboTarget.ItemColorPath = "STAT_COLOR";
+
             this.cboType.DisplayMember = "VALUE";
             this.cboType.ValueMember = "VALUE";
             this.cboType.DataSource = typeTable;
@@ -183,14 +189,48 @@ namespace Modern.Lab.Samples
             }
 
             // ★ 회사 환경 교체 지점 — 캐리어 목록 조회를 회사 인터페이스로.
-            DataTable carriers = CarrierEditSimulator.GetCarriers(type);
+            DataTable carriers = CarrierApiClient.GetCarriers(type);
             carriers.Columns.Add("LABEL", typeof(string));
+            carriers.Columns.Add("STAT_COLOR", typeof(string));
 
             foreach (DataRow row in carriers.Rows)
             {
-                row["LABEL"] = PendingTablePresenter.CellText(row, "CARR_ID")
-                        + " (" + PendingTablePresenter.CellText(row, "FILL_CNT")
-                        + "/" + PendingTablePresenter.CellText(row, "CAPACITY") + ")";
+                string carrId = PendingTablePresenter.CellText(row, "CARR_ID");
+                int fillCnt = ToCount(PendingTablePresenter.CellText(row, "FILL_CNT"));
+                int capacity = ToCount(PendingTablePresenter.CellText(row, "CAPACITY"));
+
+                // FOUP은 슬롯 합계, TRAY는 STUB/LCC를 나눠 표기한다 (수납 구조가 다름).
+                if (type == "FOUP")
+                {
+                    row["LABEL"] = carrId + " · " + fillCnt.ToString("N0") + "/25";
+                }
+                else
+                {
+                    int stub = ToCount(PendingTablePresenter.CellText(row, "STUB_CNT"));
+                    int lcc = ToCount(PendingTablePresenter.CellText(row, "LCC_CNT"));
+                    row["LABEL"] = carrId + " · STUB " + stub + "/6 · LCC " + lcc + "/125";
+                }
+
+                // 채움 정도별 글자색 — 드롭다운 항목에 색감을 준다
+                // (빈=회색 / 여유=초록 / 거의 참=주황 / 가득=빨강).
+                double ratio = capacity > 0 ? (double)fillCnt / capacity : 0d;
+
+                if (fillCnt == 0)
+                {
+                    row["STAT_COLOR"] = "#64748B";
+                }
+                else if (fillCnt >= capacity)
+                {
+                    row["STAT_COLOR"] = "#DC2626";
+                }
+                else if (ratio >= 0.75d)
+                {
+                    row["STAT_COLOR"] = "#D97706";
+                }
+                else
+                {
+                    row["STAT_COLOR"] = "#16A34A";
+                }
             }
 
             this.loadingLists = true;
@@ -248,7 +288,7 @@ namespace Modern.Lab.Samples
             string carrierId = this.cboSource.SelectedValue as string ?? string.Empty;
 
             // ★ 회사 환경 교체 지점 — 수납 현황 조회를 회사 인터페이스로.
-            this.sourceData = CarrierEditSimulator.GetCarrierUnits(this.GetSelectedType(), carrierId);
+            this.sourceData = CarrierApiClient.GetCarrierUnits(this.GetSelectedType(), carrierId);
             this.mapSource.SetSections(BuildSections(this.sourceData, this.GetSelectedType()));
 
             // 제목 = "Source — 캐리어", 채움 집계는 우측 회색 서브타이틀,
@@ -264,7 +304,7 @@ namespace Modern.Lab.Samples
         {
             string carrierId = this.cboTarget.SelectedValue as string ?? string.Empty;
 
-            this.targetData = CarrierEditSimulator.GetCarrierUnits(this.GetSelectedType(), carrierId);
+            this.targetData = CarrierApiClient.GetCarrierUnits(this.GetSelectedType(), carrierId);
             this.mapTarget.SetSections(BuildSections(this.targetData, this.GetSelectedType()));
 
             this.targetCard.Text = BuildCardTitle("Target", carrierId);
@@ -425,7 +465,8 @@ namespace Modern.Lab.Samples
             return role + " — " + carrierId;
         }
 
-        // 카드 우측 회색 서브타이틀 — "N / M filled" (빈 캐리어/미선택은 빈 문자열).
+        // 카드 우측 회색 서브타이틀 — FOUP은 "N / M", TRAY는 "STUB n/6 · LCC m/125"
+        // (수납 구조가 다르므로 종류별로 나눠 표기). 빈 캐리어/미선택은 빈 문자열.
         private static string BuildFilledText(DataTable units)
         {
             if (units == null || units.Rows.Count == 0)
@@ -433,10 +474,49 @@ namespace Modern.Lab.Samples
                 return string.Empty;
             }
 
-            int filled = CarrierTablePresenter.CountFilled(units);
-            int capacity = units.Rows.Count;
+            int slotFill = 0;
+            int slotTotal = 0;
+            int stubFill = 0;
+            int stubTotal = 0;
+            int lccFill = 0;
+            int lccTotal = 0;
 
-            return filled.ToString("N0") + " / " + capacity.ToString("N0") + " filled";
+            foreach (DataRow row in units.Rows)
+            {
+                string kind = PendingTablePresenter.CellText(row, "KIND");
+                bool filled = PendingTablePresenter.CellText(row, "UNIT_ID").Length > 0;
+
+                if (kind == "STUB")
+                {
+                    stubTotal = stubTotal + 1;
+                    stubFill = filled ? stubFill + 1 : stubFill;
+                }
+                else if (kind == "LCC")
+                {
+                    lccTotal = lccTotal + 1;
+                    lccFill = filled ? lccFill + 1 : lccFill;
+                }
+                else
+                {
+                    slotTotal = slotTotal + 1;
+                    slotFill = filled ? slotFill + 1 : slotFill;
+                }
+            }
+
+            if (stubTotal > 0 || lccTotal > 0)
+            {
+                return "STUB " + stubFill + "/" + stubTotal
+                        + "   ·   LCC " + lccFill + "/" + lccTotal;
+            }
+
+            return slotFill.ToString("N0") + " / " + slotTotal.ToString("N0");
+        }
+
+        // 콤보 라벨용 수치 파싱 (조회 결과의 문자열 컬럼값).
+        private static int ToCount(string value)
+        {
+            int parsed;
+            return int.TryParse((value ?? string.Empty).Trim(), out parsed) ? parsed : 0;
         }
 
         // 랏(아이템) 배지를 카드 제목(캐리어 이름) 바로 오른쪽에 놓는다 — 제목
@@ -674,7 +754,7 @@ namespace Modern.Lab.Samples
 
             // ★ 서버 배치 계획을 그대로 미리보기에 쓴다 — 실제 이동과 일치.
             System.Collections.Generic.Dictionary<string, string> preview =
-                    CarrierEditSimulator.PlanPreview(
+                    CarrierApiClient.PlanPreview(
                             this.GetSelectedType(), this.SourceId(), this.TargetId(), this.stagedUnits);
             this.mapTarget.SetPreview(preview);
             this.mapTarget.SetPreviewMarkers(this.BuildPreviewMarkers(this.stagedUnits, preview));
@@ -976,7 +1056,7 @@ namespace Modern.Lab.Samples
 
             string sourceId = this.SourceId();
 
-            CarrierEditSimulator.ActionResult result = CarrierEditSimulator.ScrapUnits(
+            CarrierApiClient.ActionResult result = CarrierApiClient.ScrapUnits(
                     this.GetSelectedType(), sourceId, units);
 
             if (!result.Success)
@@ -1042,8 +1122,8 @@ namespace Modern.Lab.Samples
                 }
             }
 
-            CarrierEditSimulator.ActionResult result = CarrierEditSimulator.MoveUnits(
-                    this.GetSelectedType(), fromId, toId, units, anchorKind, anchorPos);
+            CarrierApiClient.ActionResult result = CarrierApiClient.MoveUnits(
+                    this.GetSelectedType(), fromId, toId, units);
 
             if (!result.Success)
             {
