@@ -42,6 +42,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
         // 동작하도록 하는 폴백 저장소.
         private string fallbackDisplayMember;
         private string fallbackValueMember;
+        private string fallbackItemColorPath;
         private string fallbackPlaceholder;
         private ComboBoxStyle fallbackDropDownStyle;
         private bool fallbackRequired;
@@ -57,6 +58,7 @@ namespace Modern.Lab.WinForms.Controls.Selection
             this.manualItems = new ObservableCollection<object>();
             this.fallbackDisplayMember = string.Empty;
             this.fallbackValueMember = string.Empty;
+            this.fallbackItemColorPath = string.Empty;
             this.fallbackPlaceholder = string.Empty;
             this.fallbackRequired = false;
 
@@ -262,6 +264,33 @@ namespace Modern.Lab.WinForms.Controls.Selection
                 if (this.Wpf != null)
                 {
                     this.Wpf.DisplayMemberPath = value;
+                }
+            }
+        }
+
+        /// <summary>드롭다운 항목 글자색을 결정하는 컬럼/속성 이름 (색 hex 필드).
+        /// 비우면 기본색. 항목마다 상태를 색으로 구분할 때 쓴다.</summary>
+        [Category("모던 컨트롤")]
+        [Description("드롭다운 항목 글자색을 담은 컬럼/속성 이름 (색 hex)")]
+        [DefaultValue("")]
+        public string ItemColorPath
+        {
+            get
+            {
+                if (this.Wpf != null)
+                {
+                    return this.Wpf.ItemColorPath;
+                }
+
+                return this.fallbackItemColorPath;
+            }
+            set
+            {
+                this.fallbackItemColorPath = value;
+
+                if (this.Wpf != null)
+                {
+                    this.Wpf.ItemColorPath = value;
                 }
             }
         }

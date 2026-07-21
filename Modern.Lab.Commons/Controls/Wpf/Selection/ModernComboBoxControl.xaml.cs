@@ -60,6 +60,15 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 typeof(ModernComboBoxControl),
                 new PropertyMetadata(string.Empty, OnDisplayMemberPathChanged));
 
+        /// <summary>드롭다운 항목의 글자색을 결정하는 멤버 경로 (항목의 색 hex를
+        /// 담은 필드 이름). 비우면 기본 텍스트색. 항목마다 상태를 색으로 구분할 때 쓴다.</summary>
+        public static readonly DependencyProperty ItemColorPathProperty =
+            DependencyProperty.Register(
+                "ItemColorPath",
+                typeof(string),
+                typeof(ModernComboBoxControl),
+                new PropertyMetadata(string.Empty, OnItemColorPathChanged));
+
         /// <summary>SelectedValue에 사용되는 멤버 경로.</summary>
         public static readonly DependencyProperty SelectedValuePathProperty =
             DependencyProperty.Register(
@@ -161,6 +170,13 @@ namespace Modern.Lab.Controls.Wpf.Selection
         {
             get { return (string)this.GetValue(DisplayMemberPathProperty); }
             set { this.SetValue(DisplayMemberPathProperty, value); }
+        }
+
+        /// <summary>드롭다운 항목 글자색을 결정하는 멤버 경로 (색 hex 필드 이름).</summary>
+        public string ItemColorPath
+        {
+            get { return (string)this.GetValue(ItemColorPathProperty); }
+            set { this.SetValue(ItemColorPathProperty, value); }
         }
 
         /// <summary>SelectedValue에 사용되는 멤버 경로.</summary>
@@ -416,6 +432,50 @@ namespace Modern.Lab.Controls.Wpf.Selection
             DataTemplate template = new DataTemplate();
             template.VisualTree = panel;
             return template;
+        }
+
+        private static void OnItemColorPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((ModernComboBoxControl)d).ApplyItemColor();
+        }
+
+        // 항목 글자색 스타일을 적용/해제한다. 경로가 지정되면 기본 항목 스타일에
+        // Foreground 바인딩(색 hex → Brush)을 덧대고, 비우면 기본 스타일로 되돌린다.
+        private void ApplyItemColor()
+        {
+            Style baseStyle = (Style)this.FindResource("ModernComboBoxItemStyle");
+
+            if (string.IsNullOrEmpty(this.ItemColorPath))
+            {
+                this.InnerComboBox.ItemContainerStyle = baseStyle;
+                return;
+            }
+
+            Style style = new Style(typeof(ComboBoxItem), baseStyle);
+            Binding binding = new Binding(this.ItemColorPath);
+            binding.Converter = new HexToBrushConverter();
+            style.Setters.Add(new Setter(Control.ForegroundProperty, binding));
+            this.InnerComboBox.ItemContainerStyle = style;
+        }
+
+        // 색 hex 문자열을 Brush로 변환한다 (빈 값/실패는 기본 텍스트색으로 폴백).
+        private sealed class HexToBrushConverter : IValueConverter
+        {
+            public object Convert(
+                    object value, Type targetType, object parameter,
+                    System.Globalization.CultureInfo culture)
+            {
+                System.Windows.Media.Brush brush =
+                        ChipColorHelper.TryCreateBrush(value == null ? null : value.ToString());
+                return brush != null ? (object)brush : DependencyProperty.UnsetValue;
+            }
+
+            public object ConvertBack(
+                    object value, Type targetType, object parameter,
+                    System.Globalization.CultureInfo culture)
+            {
+                return DependencyProperty.UnsetValue;
+            }
         }
 
         // 헤더 행: 항목 행과 같은 폭 배치, SemiBold 캡션.

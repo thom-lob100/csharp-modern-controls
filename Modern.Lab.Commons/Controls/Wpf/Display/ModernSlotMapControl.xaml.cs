@@ -766,12 +766,11 @@ namespace Modern.Lab.Controls.Wpf.Display
             tick.Margin = new Thickness(0d);
             tick.HorizontalAlignment = HorizontalAlignment.Stretch;
             tick.VerticalAlignment = VerticalAlignment.Stretch;
-            // 실제 수납은 액센트 틱을 유지하고, 우측 미리보기는 한 단계 낮은
-            // AccentPressed 톤을 써 빈 자리 위에서 과하게 튀지 않으면서도
-            // Top/Left/Right 방향은 충분히 읽히게 한다.
-            tick.Fill = preview
-                    ? (Brush)this.FindResource("Brush.AccentPressed")
-                    : (Brush)this.FindResource("Brush.Accent");
+            // 실제 수납은 액센트 틱을 진하게 유지하고, 우측 미리보기는 같은
+            // 액센트를 옅은 투명도로 얹어 빈 자리 위에서 과하게 튀지 않게 한다 —
+            // Top/Left/Right 방향은 여전히 읽히되 존재감만 낮춘다.
+            tick.Fill = (Brush)this.FindResource("Brush.Accent");
+            tick.Opacity = preview ? 0.4d : 1d;
             tick.Visibility = string.IsNullOrEmpty(marker) ? Visibility.Collapsed : Visibility.Visible;
 
             if (string.IsNullOrEmpty(marker))
