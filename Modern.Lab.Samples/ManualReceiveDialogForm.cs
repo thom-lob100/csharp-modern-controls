@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Data;
 using Modern.Lab.Samples.Services;
@@ -30,7 +31,7 @@ namespace Modern.Lab.Samples
     ///   전문)/GetSendFacilities(공장 코드)의 본문을 회사 인터페이스로 바꾸면
     ///   나머지 코드는 그대로 둔다.
     /// </summary>
-    public partial class ManualReceiveDialogForm : Form
+    public partial class ManualReceiveDialogForm : ModernFormBase
     {
         // 결과 배지 색 — 실패(빨강 틴트)/입력 안내(호박 틴트).
         private const string errorColor = "#FEE2E2";
@@ -45,6 +46,9 @@ namespace Modern.Lab.Samples
         public ManualReceiveDialogForm()
         {
             this.InitializeComponent();
+
+            // 공통 폼 초기화 — 메시징(회사: TibcoLive)만, 다이얼로그는 로딩 커버 불필요.
+            this.InitializeModernForm(false);
         }
 
         private void OnFormLoad(object sender, EventArgs e)

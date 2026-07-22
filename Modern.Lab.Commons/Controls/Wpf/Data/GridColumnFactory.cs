@@ -278,6 +278,12 @@ namespace Modern.Lab.Controls.Wpf.Data
             text.SetBinding(TextBlock.TextProperty, textBinding);
             text.SetValue(TextBlock.FontSizeProperty, resourceSource.FindResource("Font.Size.Label"));
             text.SetValue(TextBlock.FontWeightProperty, FontWeights.Normal);
+            // 배지 폭은 컬럼 공통(MinWidth = 가장 긴 표시값)으로 늘어나므로,
+            // 배지 안 텍스트 정렬도 컬럼 TextAlignment를 그대로 따른다 —
+            // 숫자 배지(경과일)는 Center로 중앙에, 단어 배지(상태)는 Left로
+            // 왼쪽 기준선에 맞출 수 있다.
+            text.SetValue(FrameworkElement.HorizontalAlignmentProperty,
+                    ToHorizontalAlignment(definition.TextAlignment));
             text.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
 
             // 장평: 배지 텍스트에도 같은 가로 스케일을 적용한다 (알약은 텍스트 폭을 따라간다).

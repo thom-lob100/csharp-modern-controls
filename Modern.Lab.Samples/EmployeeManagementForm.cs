@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 
 namespace Modern.Lab.Samples
@@ -25,7 +26,7 @@ namespace Modern.Lab.Samples
     /// 메모리 내 직원 마스터 DataTable이 서버를 대신하며, 모든 조회는 실제 폼과
     /// 동일한 DataSource 할당 경로를 거친다.
     /// </summary>
-    public partial class EmployeeManagementForm : Form
+    public partial class EmployeeManagementForm : ModernFormBase
     {
         private DataTable employeeMaster;
         private int nextEmployeeNumber;
@@ -46,8 +47,8 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            this.InitializeModernForm();
         }
 
         private void OnFormLoad(object sender, EventArgs e)

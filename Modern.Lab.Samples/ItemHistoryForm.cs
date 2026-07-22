@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Controls.Wpf.Display;
 using Modern.Lab.Data;
@@ -38,7 +39,7 @@ namespace Modern.Lab.Samples
     /// 빠른 재조회 시 버전 비교로 오래된 응답을 버린다. 파생 컬럼/표시 계산은
     /// ItemHistoryPresenter(순수 DataTable 로직)에 있다.
     /// </summary>
-    public partial class ItemHistoryForm : Form
+    public partial class ItemHistoryForm : ModernFormBase
     {
         // 마지막 트리 조회 결과 — 상세 카드/웨이퍼 목록의 원천.
         private DataTable treeData;
@@ -96,8 +97,8 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            this.InitializeModernForm();
 
             // 탭 전환 시 Lifecycle 스텝을 그 탭의 여정(Item/Unit)으로 바꾼다.
             this.tabHistory.SelectedIndexChanged += this.OnHistoryTabChanged;

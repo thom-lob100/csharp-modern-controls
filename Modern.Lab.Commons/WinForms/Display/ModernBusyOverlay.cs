@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows.Forms;
 using Modern.Lab.WinForms.Controls.Hosting;
 
 namespace Modern.Lab.WinForms.Controls.Display
@@ -24,6 +25,10 @@ namespace Modern.Lab.WinForms.Controls.Display
         private string fallbackSubMessage;
         private bool busy;
 
+        // 카드 모서리 반경 — WPF 카드(Radius.Lg = 8)와 같은 값으로 호스트를
+        // 클리핑해, 둥근 카드만 남고 사각 여백/모서리가 보이지 않게 한다.
+        private const int cardCornerRadius = 8;
+
         /// <summary>기본 크기와 숨김 상태로 컨트롤을 생성한다.</summary>
         public ModernBusyOverlay()
         {
@@ -33,8 +38,7 @@ namespace Modern.Lab.WinForms.Controls.Display
             this.fallbackSubMessage = string.Empty;
             this.busy = false;
 
-            // 카드 바깥 여백/사각 모서리가 주변에 묻히도록 테마 표면색을 기본값으로.
-            // (표시 시점에 부모 BackColor로 다시 맞춘다 — Busy setter 참고.)
+            // 클리핑 전 찰나에 보일 수 있는 호스트 배경도 카드와 같은 색으로.
             base.BackColor = Modern.Lab.Theming.ModernTheme.Surface;
 
             // 오버레이는 필요할 때만 나타난다. 디자인 타임에는 배치를 위해
@@ -42,6 +46,44 @@ namespace Modern.Lab.WinForms.Controls.Display
             if (!this.DesignMode)
             {
                 this.Visible = false;
+            }
+        }
+
+        /// <summary>호스트를 카드와 같은 둥근 모양으로 클리핑한다 —
+        /// ElementHost는 진짜 투명이 불가하므로, 카드 바깥 사각 영역 자체를
+        /// 잘라내 배경이 투명한 것처럼 보이게 한다.</summary>
+        protected override void OnSizeChanged(System.EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            this.ApplyRoundedRegion();
+        }
+
+        private void ApplyRoundedRegion()
+        {
+            if (this.Width <= 0 || this.Height <= 0)
+            {
+                return;
+            }
+
+            int diameter = cardCornerRadius * 2;
+            Rectangle bounds = new Rectangle(0, 0, this.Width, this.Height);
+
+            using (System.Drawing.Drawing2D.GraphicsPath path =
+                    new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180f, 90f);
+                path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270f, 90f);
+                path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0f, 90f);
+                path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90f, 90f);
+                path.CloseFigure();
+
+                Region previous = this.Region;
+                this.Region = new Region(path);
+
+                if (previous != null)
+                {
+                    previous.Dispose();
+                }
             }
         }
 
@@ -71,7 +113,6 @@ namespace Modern.Lab.WinForms.Controls.Display
 
                 if (value)
                 {
-                    this.MatchOuterToParent();
                     this.CenterInParent();
                     this.Visible = true;
                     this.BringToFront();
@@ -80,29 +121,6 @@ namespace Modern.Lab.WinForms.Controls.Display
                 {
                     this.Visible = false;
                 }
-            }
-        }
-
-        /// <summary>
-        /// 표시 직전 카드 바깥 여백(외곽 배경)을 부모 BackColor에 맞춘다.
-        /// 고정 색(흰색/Surface)만 쓰면 라이트 흰 그리드에서는 묻히지만
-        /// 다크 테마의 Background 위에서는 밝은 박스로 드러나기 때문에,
-        /// 실제로 덮고 있는 배경색을 그대로 따라간다 (WPF 루트 + 호스트 양쪽).
-        /// </summary>
-        private void MatchOuterToParent()
-        {
-            if (this.Parent == null)
-            {
-                return;
-            }
-
-            Color parentColor = this.Parent.BackColor;
-            base.BackColor = parentColor;
-
-            if (this.Wpf != null)
-            {
-                this.Wpf.SetOuterBackground(System.Windows.Media.Color.FromArgb(
-                        parentColor.A, parentColor.R, parentColor.G, parentColor.B));
             }
         }
 

@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Controls.Wpf.Display;
 using Modern.Lab.Data;
@@ -68,7 +69,7 @@ namespace Modern.Lab.Samples
     /// 조건·페이지·행 포커스 유지). 처리 시각(RECV_TM/PROC_TM)은 서버가
     /// 적재하는 값이므로 화면이 만들지 않고 재조회 결과를 그대로 보여준다.
     /// </summary>
-    public partial class LogisticsRequestForm : Form
+    public partial class LogisticsRequestForm : ModernFormBase
     {
         // ===== 홈 환경 API (★ 회사 환경 교체 지점) =====
 
@@ -101,32 +102,9 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임(WPF 콘텐츠 생성·컬럼
-            // AutoFit 중간 레이아웃)을 가린다. 메인 프레임(여는 쪽) 수정 불필요.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
-        }
-
-        // 백그라운드 작업의 UI 반영 공통 경로. 폼이 닫히는 중이면 Invoke를
-        // 시도하지 않고, 확인 직후 닫히는 경쟁 상태도 예외 없이 무시한다.
-        private void PostToUi(MethodInvoker action)
-        {
-            if (this.IsDisposed || this.Disposing || !this.IsHandleCreated)
-            {
-                return;
-            }
-
-            try
-            {
-                this.BeginInvoke(action);
-            }
-            catch (ObjectDisposedException)
-            {
-                // Dispose와 동시에 끝난 백그라운드 요청은 버린다.
-            }
-            catch (InvalidOperationException)
-            {
-                // 핸들이 해제된 직후의 반영 요청은 버린다.
-            }
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            // (PostToUi 등 공통 경로도 베이스가 제공한다.)
+            this.InitializeModernForm();
         }
 
         /// <summary>제한 시간을 적용한 WebClient (홈 환경 전용 헬퍼).</summary>
@@ -241,11 +219,13 @@ namespace Modern.Lab.Samples
 
         private void OnFormLoad(object sender, EventArgs e)
         {
-            // 상태 필터: All + 파이프라인 5단계 — 값은 STATUS 컬럼 문자열 그대로.
+            // 조회 조건 3종은 체크콤보(다중 선택) — 아무것도 체크하지 않으면
+            // 전체(placeholder "All")다.
+
+            // 상태 필터: 파이프라인 5단계 — 값은 STATUS 컬럼 문자열 그대로.
             DataTable statusTable = new DataTable();
             statusTable.Columns.Add("VALUE", typeof(string));
             statusTable.Columns.Add("LABEL", typeof(string));
-            statusTable.Rows.Add("", "All");
 
             foreach (string statusName in LogisticsRequestPresenter.StatusNames)
             {
@@ -254,27 +234,26 @@ namespace Modern.Lab.Samples
 
             this.cboStatus.DisplayMember = "LABEL";
             this.cboStatus.ValueMember = "VALUE";
+            this.cboStatus.PlaceholderText = "All";
             this.cboStatus.DataSource = statusTable;
-            this.cboStatus.SelectedValue = "";
 
-            // 발송 통보 필터: All / Notified(FAC_SEND_MAS 있음) / Unmatched(미확인).
+            // 발송 통보 필터: Y(통보 있음) / N(미확인) — 그리드 Sent 배지와 같은 표기.
             DataTable sendTable = new DataTable();
             sendTable.Columns.Add("VALUE", typeof(string));
             sendTable.Columns.Add("LABEL", typeof(string));
-            sendTable.Rows.Add("", "All");
-            sendTable.Rows.Add("Y", "Notified");
-            sendTable.Rows.Add("N", "Unmatched");
+            sendTable.Rows.Add("Y", "Y");
+            sendTable.Rows.Add("N", "N");
 
             this.cboSend.DisplayMember = "LABEL";
             this.cboSend.ValueMember = "VALUE";
+            this.cboSend.PlaceholderText = "All";
             this.cboSend.DataSource = sendTable;
-            this.cboSend.SelectedValue = "";
 
-            // 경과일 필터: All(0) / 1+ / 3+ / 7+ / 14+ 일 — 미연결 건의 방치 기간.
+            // 경과일 필터: 1+ / 3+ / 7+ / 14+ 일 — 여러 개 체크 시 가장 낮은
+            // 기준(가장 넓은 범위)을 쓴다.
             DataTable elapsedTable = new DataTable();
             elapsedTable.Columns.Add("DAYS", typeof(string));
             elapsedTable.Columns.Add("LABEL", typeof(string));
-            elapsedTable.Rows.Add("0", "All");
             elapsedTable.Rows.Add("1", "1+ days");
             elapsedTable.Rows.Add("3", "3+ days");
             elapsedTable.Rows.Add("7", "7+ days");
@@ -282,8 +261,8 @@ namespace Modern.Lab.Samples
 
             this.cboElapsed.DisplayMember = "LABEL";
             this.cboElapsed.ValueMember = "DAYS";
+            this.cboElapsed.PlaceholderText = "All";
             this.cboElapsed.DataSource = elapsedTable;
-            this.cboElapsed.SelectedValue = "0";
 
             // Item ID 자동완성 콤보(검색형): 후보 목록은 전체 조회 결과로 채운다.
             this.cboItemId.DisplayMember = "ITEM_ID";
@@ -311,11 +290,12 @@ namespace Modern.Lab.Samples
                     BadgeColorMember = "SEND_COLOR",
                     TextAlignment = GridTextAlignment.Center
                 },
+                // 상태 배지는 단어라 좌측 정렬 — 배지(폭 통일)와 그 안의 텍스트가
+                // 함께 왼쪽 기준선에 맞는다. 숫자 배지(Days)는 Center 유지.
                 new ModernDataGridColumn("STATUS")
                 {
                     Kind = GridColumnKind.Badge,
-                    BadgeColorMember = "STATUS_COLOR",
-                    TextAlignment = GridTextAlignment.Center
+                    BadgeColorMember = "STATUS_COLOR"
                 },
                 new ModernDataGridColumn("ELAPSED_DAYS")
                 {
@@ -371,38 +351,60 @@ namespace Modern.Lab.Samples
         private void OnResetClick(object sender, EventArgs e)
         {
             this.cboItemId.Text = string.Empty;
-            this.cboStatus.SelectedValue = "";
-            this.cboSend.SelectedValue = "";
-            this.cboElapsed.SelectedValue = "0";
+            this.cboStatus.UncheckAll();
+            this.cboSend.UncheckAll();
+            this.cboElapsed.UncheckAll();
             this.ExecuteSearch();
         }
 
-        // 현재 선택된 상태 필터 값 ("" = 전체, 그 외 = StatusNames 문자열).
-        private string GetStatusFilter()
+        // 체크된 상태 필터 값들 (빈 목록 = 전체).
+        private List<string> GetStatusFilter()
         {
-            string value = this.cboStatus.SelectedValue as string;
-            return value ?? string.Empty;
+            return CheckedStrings(this.cboStatus);
         }
 
-        // 현재 선택된 발송 통보 필터 값 ("" = 전체, "Y" = 통보 있음, "N" = 미확인).
-        private string GetSendFilter()
+        // 체크된 발송 통보 필터 값들 (빈 목록 = 전체, "Y"/"N").
+        private List<string> GetSendFilter()
         {
-            string value = this.cboSend.SelectedValue as string;
-            return value ?? string.Empty;
+            return CheckedStrings(this.cboSend);
         }
 
-        // 현재 선택된 경과일 필터 값 (일 수, 0 = 전체).
+        // 체크된 경과일 필터 — 여러 구간을 체크하면 가장 낮은 기준(가장 넓은
+        // 범위)을 쓴다 (0 = 전체).
         private int GetMinDays()
         {
-            string value = this.cboElapsed.SelectedValue as string;
-            int days;
+            int minDays = 0;
 
-            if (value != null && int.TryParse(value, out days))
+            foreach (string value in CheckedStrings(this.cboElapsed))
             {
-                return days;
+                int days = TableHelper.ParseInt(value);
+
+                if (days > 0 && (minDays == 0 || days < minDays))
+                {
+                    minDays = days;
+                }
             }
 
-            return 0;
+            return minDays;
+        }
+
+        // 체크콤보의 체크된 값들을 문자열 목록으로 (빈 값 제외).
+        private static List<string> CheckedStrings(
+                Modern.Lab.WinForms.Controls.Selection.ModernCheckComboBox combo)
+        {
+            List<string> values = new List<string>();
+
+            foreach (object value in combo.CheckedValues)
+            {
+                string text = value == null ? string.Empty : value.ToString();
+
+                if (text.Length > 0)
+                {
+                    values.Add(text);
+                }
+            }
+
+            return values;
         }
 
         // 백그라운드에서 서버를 호출하고 UI 스레드로 복귀해 반영한다.
@@ -424,8 +426,8 @@ namespace Modern.Lab.Samples
         private void ExecuteSearch(bool keepPage, string focusItemId, int focusIndex, bool silent = false)
         {
             string keyword = this.cboItemId.Text.Trim();
-            string statusFilter = this.GetStatusFilter();
-            string sendFilter = this.GetSendFilter();
+            List<string> statusFilter = this.GetStatusFilter();
+            List<string> sendFilter = this.GetSendFilter();
             int minDays = this.GetMinDays();
             int requestedPage = keepPage ? this.pagination.CurrentPage : 1;
 
@@ -524,8 +526,8 @@ namespace Modern.Lab.Samples
                         // 후보를 갱신한다 — DataSource 할당의 첫 행 자동 선택은
                         // 텍스트를 비워 되돌린다 (조건이 채워진 채 남지 않게).
                         // (빈 결과는 ITEM_ID 컬럼 자체가 없을 수 있어 건너뛴다.)
-                        if (keyword.Length == 0 && statusFilter.Length == 0
-                                && sendFilter.Length == 0 && minDays == 0
+                        if (keyword.Length == 0 && statusFilter.Count == 0
+                                && sendFilter.Count == 0 && minDays == 0
                                 && board.Columns.Contains("ITEM_ID"))
                         {
                             this.cboItemId.DataSource = board.DefaultView.ToTable(false, "ITEM_ID");

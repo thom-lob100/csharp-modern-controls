@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 
 namespace Modern.Lab.Samples
@@ -12,7 +13,7 @@ namespace Modern.Lab.Samples
     /// 일괄 처리하고 재조회한다. Create는 의뢰서가 연결된 건만 처리 가능하므로
     /// 매뉴얼(강제) 입력 모드는 없다.
     /// </summary>
-    public partial class CreateDialogForm : Form
+    public partial class CreateDialogForm : ModernFormBase
     {
         // 체크된 Create 대상 목록 (부모 폼이 현황판에서 추려서 준다).
         private readonly DataTable checkedItems;
@@ -21,6 +22,9 @@ namespace Modern.Lab.Samples
         {
             this.checkedItems = checkedItems;
             this.InitializeComponent();
+
+            // 공통 폼 초기화 — 메시징(회사: TibcoLive)만, 다이얼로그는 로딩 커버 불필요.
+            this.InitializeModernForm(false);
         }
 
         private void OnFormLoad(object sender, EventArgs e)

@@ -13,6 +13,10 @@ namespace Modern.Lab.WinForms.Controls.Hosting
     /// (디스패처 유휴 — 행 생성 등 Background 우선순위 작업보다 늦게 실행)에
     /// 걷어서 완성된 화면만 한 번에 보이게 한다.
     ///
+    /// 커버 가운데에는 로딩 문구를 그린다 — 순수 GDI(Label)라 WPF 초기화와
+    /// 무관하게 즉시 그려지므로, 첫 실행(JIT·WPF 초기화)이 느린 PC에서 커버
+    /// 구간이 길어져도 "빈 화면"이 아니라 "로딩 중"으로 읽힌다.
+    ///
     /// 사용법 — 각 폼 생성자에서 <c>InitializeComponent()</c> 직후:
     /// <code>
     /// Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
@@ -29,6 +33,13 @@ namespace Modern.Lab.WinForms.Controls.Hosting
         /// <summary>폼에 로딩 커버를 덮는다 — 생성자에서 1회 호출.</summary>
         public static void Attach(Form form)
         {
+            Attach(form, "Loading…");
+        }
+
+        /// <summary>폼에 로딩 커버를 덮는다 — 가운데 문구 재정의(빈 문자열 =
+        /// 문구 없이 배경색만).</summary>
+        public static void Attach(Form form, string message)
+        {
             if (form == null)
             {
                 return;
@@ -42,6 +53,24 @@ namespace Modern.Lab.WinForms.Controls.Hosting
             loadCover.Bounds = form.ClientRectangle;
             loadCover.Anchor = AnchorStyles.Top | AnchorStyles.Bottom
                     | AnchorStyles.Left | AnchorStyles.Right;
+
+            // 커버 가운데 로딩 문구 — 공백이 의도된 로딩으로 읽히게 한다.
+            System.Drawing.Font coverFont = null;
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                coverFont = new System.Drawing.Font("Segoe UI", 10f);
+
+                Label loadingText = new Label();
+                loadingText.Dock = DockStyle.Fill;
+                loadingText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+                loadingText.Font = coverFont;
+                loadingText.ForeColor = Modern.Lab.Theming.ModernTheme.TextSecondary;
+                loadingText.BackColor = System.Drawing.Color.Transparent;
+                loadingText.Text = message;
+                loadCover.Controls.Add(loadingText);
+            }
+
             form.Controls.Add(loadCover);
             loadCover.BringToFront();
 
@@ -57,6 +86,11 @@ namespace Modern.Lab.WinForms.Controls.Hosting
                             {
                                 loadCover.Parent.Controls.Remove(loadCover);
                                 loadCover.Dispose();
+                            }
+
+                            if (coverFont != null)
+                            {
+                                coverFont.Dispose();
                             }
                         }));
             };

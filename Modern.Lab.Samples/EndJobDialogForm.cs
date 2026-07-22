@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Data;
 using Modern.Lab.Samples.Services;
@@ -17,7 +18,7 @@ namespace Modern.Lab.Samples
     /// 확정 시 JudgeResults(입력이 반영된 슬롯 테이블)를 부모가 작업종료
     /// 전문에 실어 보낸다 — 서버(시뮬레이터)도 같은 규칙을 재검증한다.
     /// </summary>
-    public partial class EndJobDialogForm : Form
+    public partial class EndJobDialogForm : ModernFormBase
     {
         // 부모가 넘긴 슬롯 현황 — CAN_JUDGE(입력 가능) 파생 후 그리드에 바인딩.
         private readonly DataTable slots;
@@ -35,6 +36,9 @@ namespace Modern.Lab.Samples
         {
             this.slots = slots;
             this.InitializeComponent();
+
+            // 공통 폼 초기화 — 메시징(회사: TibcoLive)만, 다이얼로그는 로딩 커버 불필요.
+            this.InitializeModernForm(false);
             this.lblEqpValue.Text = eqpId;
             this.lblLotValue.Text = lotId;
         }

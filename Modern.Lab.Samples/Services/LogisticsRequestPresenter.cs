@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using Modern.Lab.Data;
@@ -216,14 +217,20 @@ namespace Modern.Lab.Samples.Services
         // ===== 필터 + 집계 =====
 
         /// <summary>
-        /// 상태 필터(StatusNames 값, "" = 전체) · 발송 통보 필터(""/Y/N) ·
-        /// 경과일 최소값(0 = 전체)으로 현황판을 잘라낸다. 전부 클라이언트에서
-        /// 처리한다 — 서버 조회는 조건 없이 원본만 준다. 경과일은 미연결 행만
-        /// 값이 있으므로, 경과일 필터를 걸면 연결/미도착 행은 자연히 제외된다.
+        /// 상태 필터(StatusNames 값들, 빈 목록 = 전체) · 발송 통보 필터(Y/N
+        /// 값들, 빈 목록 = 전체) · 경과일 최소값(0 = 전체)으로 현황판을
+        /// 잘라낸다 — 체크콤보 다중 선택이라 "선택된 값 중 하나" 판정이다.
+        /// 전부 클라이언트에서 처리한다 — 서버 조회는 조건 없이 원본만 준다.
+        /// 경과일은 미연결 행만 값이 있으므로, 경과일 필터를 걸면 연결/미도착
+        /// 행은 자연히 제외된다.
         /// </summary>
-        internal static DataTable Filter(DataTable board, string statusFilter, string sendFilter, int minDays)
+        internal static DataTable Filter(
+                DataTable board, List<string> statusFilter, List<string> sendFilter, int minDays)
         {
-            if (statusFilter.Length == 0 && sendFilter.Length == 0 && minDays <= 0)
+            bool anyStatus = statusFilter != null && statusFilter.Count > 0;
+            bool anySend = sendFilter != null && sendFilter.Count > 0;
+
+            if (!anyStatus && !anySend && minDays <= 0)
             {
                 return board;
             }
@@ -232,12 +239,12 @@ namespace Modern.Lab.Samples.Services
 
             foreach (DataRow row in board.Rows)
             {
-                if (statusFilter.Length > 0 && TableHelper.CellText(row, "STATUS") != statusFilter)
+                if (anyStatus && !statusFilter.Contains(TableHelper.CellText(row, "STATUS")))
                 {
                     continue;
                 }
 
-                if (sendFilter.Length > 0 && TableHelper.CellText(row, "SEND_YN") != sendFilter)
+                if (anySend && !sendFilter.Contains(TableHelper.CellText(row, "SEND_YN")))
                 {
                     continue;
                 }

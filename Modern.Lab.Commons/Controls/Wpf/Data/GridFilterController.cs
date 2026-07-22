@@ -18,9 +18,11 @@ namespace Modern.Lab.Controls.Wpf.Data
     /// 켜지면 텍스트/배지 컬럼에 GridFilterAttach.Filterable을 설정해 헤더
     /// 템플릿의 깔때기 버튼(헤더 셀 맨 오른쪽 고정, 정렬 글리프 바로 다음)이
     /// 나타나고, 클릭 시 그 컬럼의 고유 값 체크리스트 팝업이 열린다. 팝업의
-    /// 검색 입력은 자동완성·초성 매칭으로 체크할 값을 빠르게 찾게 한다. 체크를
-    /// 바꾸는 즉시 반영(엑셀식 값 필터)되며, 필터가 걸린 컬럼은 깔때기가
-    /// 액센트색(IsActive)으로 칠해진다.
+    /// 검색 입력은 초성 매칭으로 체크리스트를 좁힌다(별도 제안 드롭다운 없음).
+    /// 체크는 팝업 안에서만 모이고 **Apply를 눌러야 반영**된다(엑셀식) —
+    /// 즉시 반영하면 페이징 화면의 재바인딩이 팝업을 닫아 여러 값을 이어서
+    /// 체크할 수 없기 때문이다. Apply 없이 닫으면 변경은 버려진다. 필터가
+    /// 걸린 컬럼은 깔때기가 액센트색(IsActive)으로 칠해진다.
     ///
     /// 필터는 데이터 소스를 바꾸지 않고 **뷰에만** 적용한다:
     /// - DataTable/DataView 소스(BindingListCollectionView)는 CustomFilter
@@ -55,7 +57,11 @@ namespace Modern.Lab.Controls.Wpf.Data
         private List<string> popupValues;
         private bool suppressPopupEvents;
 
-        /// <summary>값 필터 상태가 바뀔 때(체크/해제/Clear) 발생한다 — 페이징
+        // 팝업 안에서만 유지되는 편집 중 선택 — Apply를 눌러야 selections에
+        // 확정된다 (null = 전체 선택 = 필터 없음).
+        private HashSet<string> popupPending;
+
+        /// <summary>값 필터 상태가 바뀔 때(Apply 확정) 발생한다 — 페이징
         /// 화면이 전체 결과에 같은 필터를 적용해 페이지를 재계산할 때 쓴다.</summary>
         internal event EventHandler FiltersChanged;
 
@@ -167,22 +173,45 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.popup.IsOpen = true;
         }
 
-        // 팝업 내용: 초성 자동완성 검색 + "(All)" + 고유 값 체크리스트(스크롤)
-        // + Clear Filter. 검색은 체크 상태를 건드리지 않고 목록만 좁힌다.
+        // 팝업 내용: [초성 검색 + ✕닫기] + "(All)" + 고유 값 체크리스트(스크롤)
+        // + Apply/Clear. 검색은 체크 상태를 건드리지 않고 목록만 좁히며(제안
+        // 드롭다운 없음), 체크 변경은 Apply를 눌러야 반영된다. Clear는 필터를
+        // 즉시 해제하고 닫는 단축, ✕는 변경을 버리고 닫는다.
         private UIElement BuildPopupContent(string columnName)
         {
             List<string> values = this.CollectDistinctValues(columnName);
             HashSet<string> selected;
             this.selections.TryGetValue(columnName, out selected);
             this.popupValues = values;
+            this.popupPending = selected == null
+                    ? null
+                    : new HashSet<string>(selected, StringComparer.Ordinal);
 
             this.suppressPopupEvents = true;
 
             this.popupSearch = new ModernTextBoxControl();
             this.popupSearch.Placeholder = "Search values";
-            this.popupSearch.AutoCompleteItemsSource = values;
-            this.popupSearch.Margin = new Thickness(0d, 0d, 0d, 8d);
             this.popupSearch.TextChanged += this.OnPopupSearchTextChanged;
+
+            // ✕ 닫기(취소) — 변경을 버리고 닫는다 (바깥 클릭과 동일). 검색줄
+            // 오른쪽의 컴팩트 아이콘 버튼으로 공간을 아낀다.
+            ModernButtonControl cancel = new ModernButtonControl();
+            cancel.Text = "✕";
+            cancel.Kind = ButtonKind.Subtle;
+            cancel.FontSizeOverride = 12d;
+            cancel.HeightOverride = 26d;
+            cancel.Width = 26d;
+            cancel.Margin = new Thickness(6d, 0d, 0d, 0d);
+            cancel.VerticalAlignment = VerticalAlignment.Center;
+            cancel.Click += this.OnCancelClick;
+
+            Grid searchRow = new Grid();
+            searchRow.Margin = new Thickness(0d, 0d, 0d, 8d);
+            searchRow.ColumnDefinitions.Add(new ColumnDefinition());
+            searchRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(cancel, 1);
+            searchRow.Children.Add(this.popupSearch);
+            searchRow.Children.Add(cancel);
 
             this.popupAll = new CheckBox();
             this.popupAll.Content = "(All)";
@@ -193,7 +222,7 @@ namespace Modern.Lab.Controls.Wpf.Data
             this.popupAll.Unchecked += this.OnAllToggled;
 
             this.popupList = new StackPanel();
-            this.RebuildPopupValueItems(selected);
+            this.RebuildPopupValueItems();
 
             this.suppressPopupEvents = false;
 
@@ -202,19 +231,38 @@ namespace Modern.Lab.Controls.Wpf.Data
             scroll.MaxHeight = 240d;
             scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
 
-            Button clear = new Button();
-            clear.Content = "Clear Filter";
-            clear.Margin = new Thickness(0d, 8d, 0d, 0d);
-            clear.Padding = new Thickness(10d, 3d, 10d, 3d);
-            clear.HorizontalAlignment = HorizontalAlignment.Stretch;
+            // Apply(확정, Primary) + Clear(필터 즉시 해제 후 닫기, Secondary —
+            // 테두리형이라 Surface 팝업 위에서 형태가 살아 Primary와 짝이 맞는다).
+            // 글자는 체크리스트와 같은 12px, 높이 26으로 팝업 밀도에 맞춘다.
+            ModernButtonControl apply = new ModernButtonControl();
+            apply.Text = "Apply";
+            apply.Kind = ButtonKind.Primary;
+            apply.FontSizeOverride = 12d;
+            apply.HeightOverride = 26d;
+            apply.Margin = new Thickness(0d, 8d, 4d, 0d);
+            apply.Click += this.OnApplyClick;
+
+            ModernButtonControl clear = new ModernButtonControl();
+            clear.Text = "Clear";
+            clear.Kind = ButtonKind.Secondary;
+            clear.FontSizeOverride = 12d;
+            clear.HeightOverride = 26d;
+            clear.Margin = new Thickness(4d, 8d, 0d, 0d);
             clear.Click += this.OnClearClick;
 
+            Grid buttons = new Grid();
+            buttons.ColumnDefinitions.Add(new ColumnDefinition());
+            buttons.ColumnDefinitions.Add(new ColumnDefinition());
+            Grid.SetColumn(clear, 1);
+            buttons.Children.Add(apply);
+            buttons.Children.Add(clear);
+
             StackPanel layout = new StackPanel();
-            layout.Children.Add(this.popupSearch);
+            layout.Children.Add(searchRow);
             layout.Children.Add(this.popupAll);
             layout.Children.Add(new Separator());
             layout.Children.Add(scroll);
-            layout.Children.Add(clear);
+            layout.Children.Add(buttons);
 
             Border card = new Border();
             card.Background = (Brush)this.resourceSource.FindResource("Brush.Surface");
@@ -231,17 +279,17 @@ namespace Modern.Lab.Controls.Wpf.Data
             return card;
         }
 
-        // 검색 입력이 바뀌면 체크 상태는 유지한 채 보이는 고유 값만 다시 만든다.
-        // ModernTextBoxControl이 같은 후보 목록을 제안하고, 여기서도 같은 초성
-        // 매처를 써 추천 선택/직접 입력의 결과가 일관되게 보이게 한다.
+        // 검색 입력이 바뀌면 체크 상태(popupPending)는 유지한 채 보이는 고유
+        // 값 목록만 좁힌다 — 초성 매칭. 제안 드롭다운은 쓰지 않는다(목록
+        // 자체가 좁혀지는데 드롭다운이 겹치면 혼란).
         private void OnPopupSearchTextChanged(object sender, EventArgs e)
         {
-            HashSet<string> selected;
-            this.selections.TryGetValue(this.popupColumn, out selected);
-            this.RebuildPopupValueItems(selected);
+            this.suppressPopupEvents = true;
+            this.RebuildPopupValueItems();
+            this.suppressPopupEvents = false;
         }
 
-        private void RebuildPopupValueItems(HashSet<string> selected)
+        private void RebuildPopupValueItems()
         {
             string keyword = this.popupSearch == null ? string.Empty : this.popupSearch.Text;
             int matchCount = 0;
@@ -259,7 +307,7 @@ namespace Modern.Lab.Controls.Wpf.Data
                 item.Content = value.Length == 0 ? "(Blanks)" : value;
                 item.Tag = value;
                 item.Margin = new Thickness(2d);
-                item.IsChecked = selected == null || selected.Contains(value);
+                item.IsChecked = this.popupPending == null || this.popupPending.Contains(value);
                 item.Checked += this.OnValueToggled;
                 item.Unchecked += this.OnValueToggled;
                 this.popupList.Children.Add(item);
@@ -276,7 +324,8 @@ namespace Modern.Lab.Controls.Wpf.Data
             }
         }
 
-        // "(All)": 체크 = 필터 해제(전체), 해제 = 아무 값도 선택 안 함(전체 숨김).
+        // "(All)": 체크 = 전체 선택, 해제 = 아무 값도 선택 안 함 — 편집 중
+        // 상태(popupPending)만 바꾸고 반영은 Apply가 한다.
         private void OnAllToggled(object sender, RoutedEventArgs e)
         {
             if (this.suppressPopupEvents)
@@ -299,22 +348,12 @@ namespace Modern.Lab.Controls.Wpf.Data
 
             this.suppressPopupEvents = false;
 
-            if (all)
-            {
-                this.selections.Remove(this.popupColumn);
-            }
-            else
-            {
-                this.selections[this.popupColumn] = new HashSet<string>(StringComparer.Ordinal);
-            }
-
-            this.ApplyFilters();
-            this.UpdateActiveFlags(this.popupColumn);
-            this.RaiseFiltersChanged();
+            this.popupPending = all ? null : new HashSet<string>(StringComparer.Ordinal);
         }
 
-        // 값 체크 변경: 검색으로 일부 값만 보일 때도 보이지 않는 값의 선택 상태는
-        // 유지한다. 전체 고유 값이 체크되면 필터를 해제한다.
+        // 값 체크 변경: 검색으로 일부 값만 보일 때도 보이지 않는 값의 선택
+        // 상태는 유지한다 — 편집 중 상태(popupPending)만 갱신하고 반영은
+        // Apply가 한다. 전체 고유 값이 체크되면 "필터 없음"(null)으로 접는다.
         private void OnValueToggled(object sender, RoutedEventArgs e)
         {
             if (this.suppressPopupEvents)
@@ -322,18 +361,9 @@ namespace Modern.Lab.Controls.Wpf.Data
                 return;
             }
 
-            HashSet<string> existing;
-            HashSet<string> selected;
-            this.selections.TryGetValue(this.popupColumn, out existing);
-
-            if (existing == null)
-            {
-                selected = new HashSet<string>(this.popupValues, StringComparer.Ordinal);
-            }
-            else
-            {
-                selected = new HashSet<string>(existing, StringComparer.Ordinal);
-            }
+            HashSet<string> selected = this.popupPending == null
+                    ? new HashSet<string>(this.popupValues, StringComparer.Ordinal)
+                    : new HashSet<string>(this.popupPending, StringComparer.Ordinal);
 
             foreach (object child in this.popupList.Children)
             {
@@ -355,31 +385,46 @@ namespace Modern.Lab.Controls.Wpf.Data
             }
 
             bool allChecked = selected.Count == this.popupValues.Count;
+            this.popupPending = allChecked ? null : selected;
 
-            if (allChecked)
+            this.suppressPopupEvents = true;
+            this.popupAll.IsChecked = allChecked;
+            this.suppressPopupEvents = false;
+        }
+
+        // Apply — 팝업에서 모은 선택을 확정하고 한 번에 반영한다.
+        private void OnApplyClick(object sender, RoutedEventArgs e)
+        {
+            if (this.popupPending == null)
             {
                 this.selections.Remove(this.popupColumn);
             }
             else
             {
-                this.selections[this.popupColumn] = selected;
+                this.selections[this.popupColumn] =
+                        new HashSet<string>(this.popupPending, StringComparer.Ordinal);
             }
-
-            this.suppressPopupEvents = true;
-            this.popupAll.IsChecked = allChecked;
-            this.suppressPopupEvents = false;
 
             this.ApplyFilters();
             this.UpdateActiveFlags(this.popupColumn);
             this.RaiseFiltersChanged();
+            this.popup.IsOpen = false;
         }
 
+        // Clear — 이 컬럼의 필터를 **즉시 해제**하고 닫는다 ("(All) 체크 +
+        // Apply"와 같은 결과의 단축 버튼).
         private void OnClearClick(object sender, RoutedEventArgs e)
         {
             this.selections.Remove(this.popupColumn);
             this.ApplyFilters();
             this.UpdateActiveFlags(this.popupColumn);
             this.RaiseFiltersChanged();
+            this.popup.IsOpen = false;
+        }
+
+        // ✕(Cancel) — 편집 중 변경을 버리고 닫는다 (바깥 클릭으로 닫는 것과 동일).
+        private void OnCancelClick(object sender, RoutedEventArgs e)
+        {
             this.popup.IsOpen = false;
         }
 

@@ -55,6 +55,16 @@ namespace Modern.Lab.Controls.Wpf.Input
                 typeof(ModernButtonControl),
                 new PropertyMetadata(string.Empty, OnTopLabelChanged));
 
+        /// <summary>버튼 높이 재정의(px). 0 이하이면 토큰 기본값
+        /// (Size.ControlHeight = 32)을 쓴다 — 필터 팝업처럼 좁은 곳에 컴팩트
+        /// 버튼을 놓을 때 FontSizeOverride와 함께 쓴다.</summary>
+        public static readonly DependencyProperty HeightOverrideProperty =
+            DependencyProperty.Register(
+                "HeightOverride",
+                typeof(double),
+                typeof(ModernButtonControl),
+                new PropertyMetadata(0d, OnHeightOverrideChanged));
+
         /// <summary>
         /// 버튼이 클릭될 때 발생한다. 내부 버튼의 Click을 전달한다.
         /// </summary>
@@ -63,7 +73,7 @@ namespace Modern.Lab.Controls.Wpf.Input
         public ModernButtonControl()
         {
             this.InitializeComponent();
-            this.Loaded += delegate { this.ApplyFontSize(); this.ApplyTopLabel(); };
+            this.Loaded += delegate { this.ApplyFontSize(); this.ApplyHeight(); };
         }
 
         private static void OnFontSizeOverrideChanged(
@@ -75,16 +85,28 @@ namespace Modern.Lab.Controls.Wpf.Input
         private static void OnTopLabelChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((ModernButtonControl)d).ApplyTopLabel();
+            ((ModernButtonControl)d).ApplyHeight();
         }
 
-        // 상단 라벨이 있으면 고정 높이(Size.ControlHeight)를 풀어 두 줄(라벨+
-        // 글리프)이 잘리지 않게 내용 높이로 늘린다. 없으면 스타일 기본 높이.
-        private void ApplyTopLabel()
+        private static void OnHeightOverrideChanged(
+            DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            bool hasTop = !string.IsNullOrEmpty(this.TopLabel);
-            this.InnerButton.Height = hasTop
-                ? double.NaN
+            ((ModernButtonControl)d).ApplyHeight();
+        }
+
+        // 내부 버튼 높이의 단일 결정 지점 — 상단 라벨이 있으면 내용 높이로
+        // 늘리고(두 줄), HeightOverride(>0)가 있으면 그 값, 아니면 토큰 기본
+        // (Size.ControlHeight). 재정의 높이에서도 내용은 세로 중앙에 앉는다.
+        private void ApplyHeight()
+        {
+            if (!string.IsNullOrEmpty(this.TopLabel))
+            {
+                this.InnerButton.Height = double.NaN;
+                return;
+            }
+
+            this.InnerButton.Height = this.HeightOverride > 0d
+                ? this.HeightOverride
                 : (double)this.FindResource("Size.ControlHeight");
         }
 
@@ -140,6 +162,13 @@ namespace Modern.Lab.Controls.Wpf.Input
         {
             get { return (string)this.GetValue(TopLabelProperty); }
             set { this.SetValue(TopLabelProperty, value); }
+        }
+
+        /// <summary>버튼 높이 재정의(px). 0 이하 = 토큰 기본값(32).</summary>
+        public double HeightOverride
+        {
+            get { return (double)this.GetValue(HeightOverrideProperty); }
+            set { this.SetValue(HeightOverrideProperty, value); }
         }
 
         // 내부 버튼의 Click을 이 컨트롤의 Click으로 다시 발생시킨다.

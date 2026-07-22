@@ -510,30 +510,34 @@ namespace Modern.Lab.Controls.Wpf.Selection
                 }
             }
 
-            string joined = string.Join(", ", texts.ToArray());
+            bool allChecked = this.checkItems.Count > 0 && texts.Count == this.checkItems.Count;
+
+            // 전체 선택은 "조건 없음"과 동일하므로 값을 나열하지 않고
+            // placeholder(예: "All")로 접는다 — 전체 해제와 같은 표시가 되지만
+            // 조회 조건에서 둘의 의미는 동일하다(빈 선택 = 전체가 관례).
+            string joined = allChecked ? string.Empty : string.Join(", ", texts.ToArray());
 
             this.DisplayText.Text = joined;
             this.PlaceholderOverlay.Visibility = joined.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-            // 전체 선택 헤더: 전부 = 체크, 없음 = 해제, 일부 = 부분 선택(대시).
-            // 라벨도 다음 동작을 안내하도록 바뀐다 — 전부 체크 상태에서는
-            // "Deselect all", 그 외에는 "Select all". (UI 표시 문자열은 영문)
+            // "(All)" 헤더: 데이터 항목이 아니라 전체 선택/해제 헬퍼다 —
+            // 전부 = 체크, 없음 = 해제, 일부 = 부분 선택(대시). 그리드 필터
+            // 팝업의 "(All)"과 같은 형식.
             if (this.SelectAllCheck != null)
             {
+                this.SelectAllCheck.Content = "(All)";
+
                 if (this.checkItems.Count == 0 || texts.Count == 0)
                 {
                     this.SelectAllCheck.IsChecked = false;
-                    this.SelectAllCheck.Content = "Select all";
                 }
-                else if (texts.Count == this.checkItems.Count)
+                else if (allChecked)
                 {
                     this.SelectAllCheck.IsChecked = true;
-                    this.SelectAllCheck.Content = "Deselect all";
                 }
                 else
                 {
                     this.SelectAllCheck.IsChecked = null;
-                    this.SelectAllCheck.Content = "Select all";
                 }
             }
         }

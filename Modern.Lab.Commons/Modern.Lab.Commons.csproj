@@ -272,6 +272,10 @@
     <!-- WinForms wrapper hosting base (ElementHost) and wrappers -->
     <Compile Include="WinForms\Hosting\WpfElementHostBase.cs" />
     <Compile Include="WinForms\Hosting\ModernLoadCover.cs" />
+    <Compile Include="WinForms\Hosting\ModernWpfWarmup.cs" />
+    <Compile Include="WinForms\Hosting\ModernFormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinForms\Rendering\ScaledTextRenderer.cs" />
     <Compile Include="Controls\Wpf\Common\FontWidthScaling.cs" />
     <Compile Include="Controls\Wpf\Data\GridWidths.cs" />

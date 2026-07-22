@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 
 namespace Modern.Lab.Samples
 {
@@ -15,14 +16,14 @@ namespace Modern.Lab.Samples
     ///   실시간으로 본다 — 어느 폭에서도 첫/현재/마지막 단계는 잘리지 않는다.
     ///   숨은 레이블은 노드에 마우스를 올리면 툴팁으로 확인된다.
     /// </summary>
-    public partial class StepFlowDemoForm : Form
+    public partial class StepFlowDemoForm : ModernFormBase
     {
         public StepFlowDemoForm()
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            this.InitializeModernForm();
 
             // 컨테이너 폭 = min(슬라이더 값, 카드 가용 폭) — 슬라이더로도 줄일 수
             // 있고, 창을 줄여도 패널이 카드 밖으로 잘리지 않고 함께 줄어든다.

@@ -465,10 +465,10 @@ namespace Modern.Lab.Samples
             // 포트 처리 진입점 — 장비 Actions 좌측에 같은 스타일로 나란히
             // 배치한다 (포트 카드 안에 두면 카드 높이를 잡아먹는다).
             this.ddbPortActions.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Execute;
-            this.ddbPortActions.Location = new System.Drawing.Point(12, 12);
+            this.ddbPortActions.Location = new System.Drawing.Point(188, 12);
             this.ddbPortActions.Name = "ddbPortActions";
             this.ddbPortActions.Size = new System.Drawing.Size(160, 32);
-            this.ddbPortActions.TabIndex = 0;
+            this.ddbPortActions.TabIndex = 1;
             this.ddbPortActions.Text = "Port Actions";
             this.ddbPortActions.ItemClicked += new System.EventHandler<Modern.Lab.Controls.Wpf.Input.DropDownItemClickedEventArgs>(this.OnPortActionMenuClicked);
             this.ddbPortActions.Child = null;
@@ -476,10 +476,10 @@ namespace Modern.Lab.Samples
             // ddbActions
             //
             this.ddbActions.Kind = Modern.Lab.Controls.Wpf.Input.ButtonKind.Execute;
-            this.ddbActions.Location = new System.Drawing.Point(180, 12);
+            this.ddbActions.Location = new System.Drawing.Point(12, 12);
             this.ddbActions.Name = "ddbActions";
             this.ddbActions.Size = new System.Drawing.Size(168, 32);
-            this.ddbActions.TabIndex = 1;
+            this.ddbActions.TabIndex = 0;
             this.ddbActions.Text = "Actions";
             this.ddbActions.ItemClicked += new System.EventHandler<Modern.Lab.Controls.Wpf.Input.DropDownItemClickedEventArgs>(this.OnActionMenuClicked);
             this.ddbActions.Child = null;

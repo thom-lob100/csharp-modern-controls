@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Display;
 using Modern.Lab.Data;
 using Modern.Lab.Samples.Services;
@@ -60,7 +61,7 @@ namespace Modern.Lab.Samples
     ///   컬럼 계약(KIND/POS/FINGER/INS_POS/UNIT_ID/ITEM_ID) 그대로라 손대지
     ///   않는다.
     /// </summary>
-    public partial class CarrierEditForm : Form
+    public partial class CarrierEditForm : ModernFormBase
     {
         // 좌(원본)/우(대상) 수납 현황 — 맵 구성 + 처리 대상 수집의 원천.
         private DataTable sourceData;
@@ -117,8 +118,8 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            this.InitializeModernForm();
         }
 
         private void OnFormLoad(object sender, EventArgs e)

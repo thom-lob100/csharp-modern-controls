@@ -66,6 +66,11 @@ namespace Modern.Lab.Samples
                 }
             }
 
+            // WPF 워밍업 한 줄 — 첫 화면을 열기 전에 WPF 어셈블리 로드·JIT·
+            // 토큰 파싱을 미리 치러, 첫 화면 오픈 지연(느린 PC에서 몇 초)을
+            // 줄인다. 반드시 테마(Mode) 설정 이후에 호출한다.
+            Modern.Lab.WinForms.Controls.Hosting.ModernWpfWarmup.Run();
+
             // 셸이 모든 샘플 화면을 호스팅한다; 새 화면은
             // SampleShellForm.RegisterSamples에서 AddSample 호출 하나로 추가한다.
             Application.Run(new SampleShellForm());

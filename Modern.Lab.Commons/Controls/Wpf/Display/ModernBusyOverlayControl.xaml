@@ -20,52 +20,37 @@
     </UserControl.Resources>
 
     <!-- 조회/처리 중 표시하는 컴팩트 로딩 팝업.
-         대상 영역을 통째로 가리지 않고, 가운데 작은 카드만 띄운다(래퍼가 부모
-         중앙에 배치). ElementHost는 불투명이므로 카드 바깥 여백(OuterGrid 배경)이
-         그대로 보인다 — 기본은 Surface지만, 래퍼가 표시 시점에 부모 BackColor로
-         덮어써서(SetOuterBackground) 어떤 배경 위에서도 사각 여백이 묻히게 한다.
-         (고정 Surface만 쓰면 다크 테마의 Background 위에서 밝은 박스로 드러난다.) -->
+         카드가 컨트롤 전체를 채우고, 래퍼(WinForms)가 호스트를 카드 모서리와
+         같은 둥근 Region으로 클리핑한다 — ElementHost는 진짜 투명이 불가하므로
+         "카드 바깥 여백" 자체를 없애 배경이 투명한 것처럼 보이게 한다.
+         (그래서 배경색 정합(SetOuterBackground)도 더는 필요 없다.) -->
     <Grid x:Name="OuterGrid" Background="{StaticResource Brush.Surface}">
-        <Border HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="14"
-                MinWidth="200"
-                Background="{StaticResource Brush.Surface}"
+        <Border Background="{StaticResource Brush.Surface}"
                 BorderBrush="{StaticResource Brush.Border}"
                 BorderThickness="1"
                 CornerRadius="{StaticResource Radius.Lg}"
-                Padding="32,24"
-                Effect="{StaticResource Shadow.Overlay}">
+                Padding="28,22">
 
-            <StackPanel HorizontalAlignment="Center">
-                <!-- 아크 스피너: 옅은 트랙 링 위에서 액센트 그라디언트 3/4 아크가 회전.
-                     회전축은 RenderTransformOrigin(0.5,0.5) "하나만" 쓴다 — CenterX/Y와
-                     함께 쓰면 축이 더해져 스피너가 궤도를 벗어나 흔들린다. -->
-                <Grid Width="46" Height="46" HorizontalAlignment="Center">
-                    <Ellipse Width="38" Height="38"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center"
-                             Stroke="{StaticResource Brush.BorderSubtle}"
-                             StrokeThickness="4.5" />
-                    <Path StrokeThickness="4.5"
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- Fluent 2식 스피너: 트랙 링 없이 얇은(3px) 단색 액센트 아크
+                     (약 100°)만 회전한다 — 굵은 트랙+그라디언트보다 가볍고
+                     현대적이다. 회전축은 RenderTransformOrigin(0.5,0.5) "하나만"
+                     쓴다 — CenterX/Y와 함께 쓰면 축이 더해져 궤도를 벗어난다. -->
+                <Grid Width="36" Height="36" HorizontalAlignment="Center">
+                    <Path Stroke="{StaticResource Brush.Accent}"
+                          StrokeThickness="3"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
+                          Width="36" Height="36"
                           RenderTransformOrigin="0.5,0.5">
-                        <Path.Stroke>
-                            <!-- 액센트 그라디언트 — 테마의 Color.Accent/AccentSoft를 따라간다. -->
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{StaticResource Color.Accent}" Offset="0" />
-                                <GradientStop Color="{StaticResource Color.AccentSoft}" Offset="1" />
-                            </LinearGradientBrush>
-                        </Path.Stroke>
                         <Path.Data>
                             <PathGeometry>
-                                <PathFigure StartPoint="23,4">
-                                    <ArcSegment Point="4,23"
-                                                Size="19,19"
-                                                IsLargeArc="True"
+                                <PathFigure StartPoint="18,3">
+                                    <ArcSegment Point="32.8,20.6"
+                                                Size="15,15"
+                                                IsLargeArc="False"
                                                 SweepDirection="Clockwise" />
                                 </PathFigure>
                             </PathGeometry>
@@ -86,7 +71,7 @@
                                             <BeginStoryboard Name="SpinStoryboard">
                                                 <Storyboard RepeatBehavior="Forever">
                                                     <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                                     From="0" To="360" Duration="0:0:0.9" />
+                                                                     From="0" To="360" Duration="0:0:0.8" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>

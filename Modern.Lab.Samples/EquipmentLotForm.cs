@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Controls.Wpf.Data;
 using Modern.Lab.Controls.Wpf.Display;
 using Modern.Lab.Data;
@@ -82,7 +83,7 @@ namespace Modern.Lab.Samples
     ///   둔다. 상태/포트 배지/버튼 활성/KPI 파생은 전부 클라이언트
     ///   (EquipmentLotPresenter)가 처리한다.
     /// </summary>
-    public partial class EquipmentLotForm : Form
+    public partial class EquipmentLotForm : ModernFormBase
     {
         // 마지막 조회의 장비 현황 (그리드 바인딩 + KPI 원천).
         private DataTable equipmentData;
@@ -280,6 +281,12 @@ namespace Modern.Lab.Samples
 
             foreach (EquipmentAction action in this.portActions)
             {
+                // 컨텍스트 메뉴와 같은 자리의 구분선 — 라벨 "-"가 구분선 관례.
+                if (action.SeparatorBefore)
+                {
+                    actionTable.Rows.Add(string.Empty, "-", false);
+                }
+
                 actionTable.Rows.Add(
                         action.Key, action.Label, row != null && action.CanExecute(row));
             }
@@ -350,6 +357,12 @@ namespace Modern.Lab.Samples
 
             foreach (EquipmentAction action in this.equipmentActions)
             {
+                // 컨텍스트 메뉴와 같은 자리의 구분선 — 라벨 "-"가 구분선 관례.
+                if (action.SeparatorBefore)
+                {
+                    actionTable.Rows.Add(string.Empty, "-", false);
+                }
+
                 actionTable.Rows.Add(
                         action.Key, action.Label, row != null && action.CanExecute(row));
             }
@@ -379,8 +392,8 @@ namespace Modern.Lab.Samples
         {
             this.InitializeComponent();
 
-            // 로딩 커버 한 줄 — 폼 스스로 오픈 시 깜빡임을 가린다.
-            Modern.Lab.WinForms.Controls.Hosting.ModernLoadCover.Attach(this);
+            // 공통 폼 초기화 한 줄 — 로딩 커버 + 메시징(회사: TibcoLive) (ModernFormBase).
+            this.InitializeModernForm();
         }
 
         private void OnFormLoad(object sender, EventArgs e)
@@ -396,11 +409,12 @@ namespace Modern.Lab.Samples
                     BadgeColorMember = "STATE_COLOR",
                     TextAlignment = GridTextAlignment.Center
                 },
+                // 통신 모드는 단어(OnLineRemote 등)라 좌측 정렬 — 배지(폭 통일)와
+                // 그 안의 텍스트가 함께 왼쪽 기준선에 맞는다.
                 new ModernDataGridColumn("COMM_MODE", "Comm", 116d)
                 {
                     Kind = GridColumnKind.Badge,
-                    BadgeColorMember = "COMM_COLOR",
-                    TextAlignment = GridTextAlignment.Center
+                    BadgeColorMember = "COMM_COLOR"
                 },
                 new ModernDataGridColumn("IN_USE", "In Ports")
                 {

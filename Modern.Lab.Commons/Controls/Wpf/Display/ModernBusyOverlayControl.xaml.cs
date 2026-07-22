@@ -44,8 +44,9 @@ namespace Modern.Lab.Controls.Wpf.Display
 
         /// <summary>
         /// 카드 바깥 여백(루트 그리드) 배경을 지정한다. 래퍼가 표시 직전에 부모
-        /// BackColor를 넘겨, 팝업 카드 주변 사각 영역이 어떤 배경(라이트 흰 그리드 /
-        /// 다크 폼 배경) 위에서도 박스로 드러나지 않고 묻히게 한다.
+        /// BackColor를 넘겨 카드 바깥 여백을 묻히게 하던 메서드 — 지금은
+        /// 래퍼가 호스트를 카드 모양(둥근 Region)으로 클리핑해 바깥 여백
+        /// 자체가 없으므로 쓰지 않는다. 기존 호출부 호환을 위해 남겨 둔다.
         /// </summary>
         public void SetOuterBackground(System.Windows.Media.Color color)
         {

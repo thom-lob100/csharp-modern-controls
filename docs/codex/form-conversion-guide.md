@@ -238,10 +238,13 @@ public LogisticsRequestForm()
 
 라이브러리의 `ModernLoadCover` 헬퍼가 이를 한 줄로 가린다 — 폼 배경색 커버
 패널을 덮어 두었다가 폼 표시 후 WPF 초기 레이아웃이 끝나는 시점(디스패처
-유휴)에 걷어서, 완성된 화면만 한 번에 보이게 한다. **폼 스스로 커버를 덮는
-방식이라 메인 프레임(폼을 여는 쪽)을 고칠 수 없어도 적용된다** — 별도
-창(`Show`/`ShowDialog`)이든 패널 임베드(`TopLevel=false`)든 여는 방식과
-무관하다.
+유휴)에 걷어서, 완성된 화면만 한 번에 보이게 한다. 커버 가운데에는 로딩
+문구("Loading…", `Attach(form, "문구")`로 재정의 — 빈 문자열 = 문구 없음)가
+순수 GDI로 즉시 그려지므로, 첫 실행(JIT·WPF 초기화)이 느린 PC에서 커버
+구간이 몇 초가 되어도 빈 화면이 아니라 로딩 중으로 보인다. **폼 스스로
+커버를 덮는 방식이라 메인 프레임(폼을 여는 쪽)을 고칠 수 없어도 적용된다**
+— 별도 창(`Show`/`ShowDialog`)이든 패널 임베드(`TopLevel=false`)든 여는
+방식과 무관하다.
 
 폼 생성자에서 `InitializeComponent()` 직후 한 줄:
 
@@ -258,3 +261,74 @@ public LogisticsRequestForm()
 별도 창으로 여는 폼은 창 표시 전에 Load와 바인딩이 끝나 깜빡임이 거의 없다 —
 그 경우 커버는 무해하게 곧바로 걷히므로, 여는 방식을 모르면 그냥 넣어 둔다.
 참조 구현: 데모 갤러리의 모든 샘플 폼 생성자.
+
+### 5-3. WPF 워밍업 한 줄 (선택 — 첫 화면 오픈이 느리면)
+
+모던 컨트롤이 있는 **첫 화면**을 열 때 WPF 어셈블리 로드·JIT·토큰 사전 파싱
+비용이 한꺼번에 들어 느린 PC에서 몇 초씩 걸린다(두 번째 화면부터 빠른 이유).
+메인 프레임 시작 시(로그인 직후 등, **테마 `ModernTheme.Mode` 설정 이후**)
+UI 스레드에서 한 줄 호출하면 그 비용을 미리 치른다:
+
+```csharp
+Modern.Lab.WinForms.Controls.Hosting.ModernWpfWarmup.Run();
+```
+
+재호출은 무시되고, 실패해도 무해하다(첫 화면이 원래 속도로 열릴 뿐).
+참조 구현: 데모 갤러리 `Program.Main`.
+
+### 5-4. 공통 폼 베이스 (권장 — 화면 공통 초기화·메시징을 한 곳에)
+
+화면 폼/다이얼로그가 공통으로 갖는 것(로딩 커버, 백그라운드 UI 반영 경로,
+메시징 초기화/정리)을 **베이스 폼 하나**로 모은다. 라이브러리가 제공한다:
+`Modern.Lab.WinForms.Controls.Hosting.ModernFormBase`
+(`Modern.Lab.Commons/WinForms/Hosting/ModernFormBase.cs`) — 모든 샘플 폼이
+이를 상속한다.
+
+```csharp
+using Modern.Lab.WinForms.Controls.Hosting;
+
+public partial class MyScreenForm : ModernFormBase   // Form 대신 베이스 상속
+{
+    public MyScreenForm()
+    {
+        this.InitializeComponent();
+        this.InitializeModernForm();      // 화면 폼 (다이얼로그는 false 인자)
+    }
+}
+```
+
+베이스가 제공하는 것:
+
+- `InitializeModernForm(useLoadCover)` — 로딩 커버(§5-2) + 메시징 초기화를
+  `InitializeComponent()` 직후 한 줄로.
+- `PostToUi(action)` — 백그라운드 작업의 UI 반영 공통 경로(닫히는 중이면
+  버리고, Dispose 경쟁 예외 무시).
+- `Dispose(bool)` 연동 — 파생 Designer의 표준 `base.Dispose` 경로에서
+  `DisposeMessaging()`이 자동 호출된다.
+
+**회사 메시징(TibcoLive) 적용 — 베이스 파일 한 곳의 주석만 해제하면 전
+화면이 물려받는다.** `ModernFormBase.cs` 안에 실제 코드가 주석 처리되어
+들어 있다 (필드 선언 / `InitializeMessaging` / `DisposeMessaging` 세 지점 —
+`★ 회사 환경` 표시를 찾아 해제):
+
+```csharp
+// 1) 필드 선언
+protected TibcoLive Tibrv;
+
+// 2) InitializeMessaging 본문 — InitializeComponent() 직후 실행된다
+this.Tibrv = new TibcoLive();
+this.Tibrv.SetItem("MODERN");
+
+// 3) DisposeMessaging 본문 — 폼 Dispose 때 자동 실행된다
+//    (정리 메서드 이름은 회사 라이브러리 규약을 따른다)
+if (this.Tibrv != null)
+{
+    this.Tibrv.Dispose();
+    this.Tibrv = null;
+}
+```
+
+화면 코드는 `this.Tibrv.SendRequest(...)`로 전문을 보낸다 — 생성/설정/해제를
+폼마다 반복하지 않는다. 이 파일은 라이브러리에서 유일하게 통신 초기화가
+들어가는 예외 지점이다(컨트롤들은 데이터 무관 원칙 유지). 특정 화면만 다른
+메시징 설정이 필요하면 그 폼에서 `InitializeMessaging()`을 override한다.

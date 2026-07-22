@@ -182,7 +182,7 @@ this.btnDelete.Text = "삭제";
 | 멤버 | 설명 |
 |---|---|
 | `Text` | 버튼 캡션 (`Control.Text` override, localizable) |
-| `DataSource` / `DisplayMember` / `ValueMember` | 메뉴 항목 — 공통 데이터 계약과 동일 |
+| `DataSource` / `DisplayMember` / `ValueMember` | 메뉴 항목 — 공통 데이터 계약과 동일. 표시 텍스트가 **`"-"`인 행은 구분선**으로 그려진다(클릭 불가) — `ToolStripSeparator` 관례로, 컨텍스트 메뉴와 같은 자리에 분리선을 둘 때 쓴다 |
 | `EnabledMember` | 항목 실행 가능 여부 컬럼/속성 이름 (bool 또는 `"Y"`/`"true"`/`"1"`). 비우면 전부 활성. 비활성 항목은 회색으로 표시되고 클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와 같은 의미. 활성 판정이 상태에 따라 변하면 값 갱신 후 `DataSource`를 다시 할당한다 |
 | `Kind` | 버튼 시각 종류 — `ButtonKind.Secondary`(기본, 흰 배경) / `Execute`(Success 초록 채움; 실행 버튼 강조) / `Excel`(초록 아웃라인; 엑셀 내보내기 포인트). 캡션은 `ModernButton`과 같은 일반(Normal) 굵기 |
 | `IsDropDownOpen` | 읽기 전용 bool. 메뉴 팝업이 열려 있으면 true — 자동 갱신 화면은 열려 있는 동안 재바인딩을 보류하는 데 사용 |
@@ -448,7 +448,7 @@ this.cboDept.DataSource = deptTable;        // 구성 후에 DataSource 할당
 | `PlaceholderText` | string | 미체크 시 힌트 (예: "직급 전체") |
 | `Text` | string | 체크 항목을 ", "로 연결한 표시 텍스트 (읽기 전용) |
 | `CheckedChanged` | 이벤트 | 체크 상태 변경 시 (일괄 변경은 1회) |
-| `CheckAll()` / `UncheckAll()` | 메서드 | 전체 체크/해제 — 드롭다운 헤더와 동일 동작. 헤더 라벨은 상태에 따라 "Select all" ↔ "Deselect all"(전부 체크 시)로 바뀜 |
+| `CheckAll()` / `UncheckAll()` | 메서드 | 전체 체크/해제 — 드롭다운 상단 **"(All)" 헤더**(3상태 헬퍼: 전부=체크/없음=해제/일부=대시, 그리드 필터 팝업과 동일 형식)와 같은 동작. **전체 선택 시 필드는 값을 나열하지 않고 placeholder로 접힌다** — 조회 조건에서 전체 선택 = 빈 선택 = "조건 없음"으로 같은 의미다 |
 | `ConfigureDropDownColumns(...)` | 메서드 | **체크 그리드 콤보** — 드롭다운을 멀티컬럼(코드+명칭 등) 행으로 구성. 그리드와 같은 `ModernDataGridColumn` 정의 재사용, 팝업 상단에 헤더 행 표시. 필드 텍스트는 계속 `DisplayMember`. `DataSource` 할당 전에 호출 |
 
 ### 예제 — 체크 그리드 콤보 (멀티컬럼 드롭다운)
@@ -589,7 +589,7 @@ this.treeItem.ShowGuideLines = true;
 | `CellButtonClick` | 이벤트 | 버튼 컬럼(`Kind = Button`) 셀 클릭 시. `e.Item`이 클릭 행(`DataRowView`), `e.DataPropertyName`이 버튼 컬럼 이름 |
 | 콤보 컬럼 | 컬럼 정의 | `Kind = GridColumnKind.Combo` — 셀 콤보로 `ComboItems`(고정 선택지 `string[]`) 중 하나를 고르면 원본 행 컬럼 값이 즉시 갱신된다(양방향, 판정/등급 입력용). `ComboEnabledMember` 컬럼 값(bool/`"Y"`)으로 행별 입력 가능 제어 — 비활성 행은 회색 잠금. `ComboItemColors`(선택지와 같은 순서의 색 배열)를 주면 선택 값/드롭다운 항목이 레티클(둥근 사각) 배지로 표시되고 필드 표면도 선택 값의 배지 색으로 칠해진다. 입력분만 전송하려면 바인딩 직전 `AcceptChanges()` 후 `GetChanges()` 사용 |
 | `ContextMenuStrip` | 속성(표준) | 지정하면 **행 우클릭 시 그 행을 먼저 현재 행으로 선택**한 뒤 메뉴가 커서 위치에 뜬다 — 메뉴 핸들러는 `SelectedItem` 기준으로 처리. 행 밖(헤더/빈 영역) 우클릭에는 뜨지 않는다. 행 단위 부가 처리가 많아 버튼 컬럼으로 다 담기 어려울 때 사용 |
-| `AllowColumnFilters` | bool | 기본 true. 켜져 있으면 텍스트/배지 컬럼 헤더에 **깔때기 버튼**이 붙고, 클릭 시 그 컬럼의 고유 값 체크리스트 팝업으로 행을 거른다(엑셀식 값 필터 — 체크 즉시 반영, `(All)`/`Clear Filter` 포함). 팝업 검색창은 자동완성 후보와 한글 초성 매칭(`ㄱㅁㅅ` → `김민수`)을 제공하며, 검색은 체크 상태를 유지한 채 목록만 좁힌다. 필터는 화면 뷰에만 적용되고 원본 데이터는 그대로이며, 필터가 걸린 컬럼은 깔때기가 액센트색으로 표시된다. 선택 상태는 `DataSource` 재할당(재조회) 후에도 유지된다. 상태바 행 수/EmptyText는 필터 결과를 따라간다 |
+| `AllowColumnFilters` | bool | 기본 true. 켜져 있으면 텍스트/배지 컬럼 헤더에 **깔때기 버튼**이 붙고, 클릭 시 그 컬럼의 고유 값 체크리스트 팝업으로 행을 거른다(엑셀식 값 필터 — 여러 값을 체크한 뒤 **Apply로 확정**, `Clear` = 필터 즉시 해제, ✕/바깥 클릭 = 변경 취소). 팝업 검색창은 한글 초성 매칭(`ㄱㅁㅅ` → `김민수`)으로 체크 상태를 유지한 채 **체크리스트 자체를 좁힌다**(별도 제안 드롭다운 없음). 필터는 화면 뷰에만 적용되고 원본 데이터는 그대로이며, 필터가 걸린 컬럼은 깔때기가 액센트색으로 표시된다. 선택 상태는 `DataSource` 재할당(재조회) 후에도 유지된다. 상태바 행 수/EmptyText는 필터 결과를 따라간다 |
 
 ### 예제 — 컬럼 정의와 선택 행 사용
 
@@ -850,7 +850,9 @@ this.busyOverlay.Busy = true;                  // 조회 시작
 this.busyOverlay.Busy = false;                 // 완료
 ```
 
-반투명은 ElementHost 제약으로 불가 — 불투명 패널로 덮는다.
+반투명은 ElementHost 제약으로 불가 — 대신 호스트가 **카드 모양(둥근 Region)으로
+클리핑**되어 카드 바깥 사각 영역 자체가 없다. 어떤 테마/배경 위에서도 둥근
+카드(얇은 액센트 아크 스피너 + 메시지)만 떠 보인다.
 
 ---
 

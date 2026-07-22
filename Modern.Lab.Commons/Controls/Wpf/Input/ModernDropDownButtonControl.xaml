@@ -140,35 +140,51 @@
                         <DataTemplate>
                             <!-- 비활성 항목(IsEnabled=false)은 회색으로 구분되고
                                  클릭되지 않는다 — 컨텍스트 메뉴의 비활성 표시와
-                                 같은 의미다. -->
-                            <Button Click="MenuItem_Click"
-                                    Focusable="False"
-                                    Cursor="Hand"
-                                    IsEnabled="{Binding IsEnabled}">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="ItemBorder"
-                                                Background="Transparent"
-                                                Padding="{StaticResource Pad.Item}">
-                                            <TextBlock x:Name="ItemText"
-                                                       Text="{Binding DisplayText}"
-                                                       FontSize="{StaticResource Font.Size.Body}"
-                                                       Foreground="{StaticResource Brush.TextPrimary}"
-                                                       VerticalAlignment="Center"
-                                                       LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.HoverBackground}" />
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="False">
-                                                <Setter TargetName="ItemBorder" Property="Background" Value="Transparent" />
-                                                <Setter TargetName="ItemText" Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
+                                 같은 의미다. 표시 텍스트 "-"는 구분선으로 그린다
+                                 (ToolStripSeparator 관례). -->
+                            <Grid>
+                                <Button x:Name="ItemButton"
+                                        Click="MenuItem_Click"
+                                        Focusable="False"
+                                        Cursor="Hand"
+                                        IsEnabled="{Binding IsEnabled}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="ItemBorder"
+                                                    Background="Transparent"
+                                                    Padding="{StaticResource Pad.Item}">
+                                                <TextBlock x:Name="ItemText"
+                                                           Text="{Binding DisplayText}"
+                                                           FontSize="{StaticResource Font.Size.Body}"
+                                                           Foreground="{StaticResource Brush.TextPrimary}"
+                                                           VerticalAlignment="Center"
+                                                           LayoutTransform="{Binding Path=(common:FontWidthScaling.TextWidthTransform), RelativeSource={RelativeSource Self}}" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource Brush.HoverBackground}" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="Transparent" />
+                                                    <Setter TargetName="ItemText" Property="Foreground" Value="{StaticResource Brush.DisabledText}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <Border x:Name="SeparatorLine"
+                                        Height="1"
+                                        Margin="8,4,8,4"
+                                        Background="{StaticResource Brush.BorderSubtle}"
+                                        IsHitTestVisible="False"
+                                        Visibility="Collapsed" />
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSeparator}" Value="True">
+                                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                                    <Setter TargetName="SeparatorLine" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using Modern.Lab.WinForms.Controls.Hosting;
 using Modern.Lab.Data;
 using Modern.Lab.Samples.Services;
 
@@ -17,7 +18,7 @@ namespace Modern.Lab.Samples
     /// 장비/Lot은 부모 폼이 정해서 넘긴다 (Prepare = 최우선 Lot, Assign =
     /// 지정 Lot).
     /// </summary>
-    public partial class PrepareDialogForm : Form
+    public partial class PrepareDialogForm : ModernFormBase
     {
         // 부모가 넘긴 포트 상세 (EquipmentLotPresenter.BuildPortRows 결과).
         private readonly DataTable ports;
@@ -46,6 +47,9 @@ namespace Modern.Lab.Samples
             this.carriers = carriers;
             this.preferredInPort = preferredInPort;
             this.InitializeComponent();
+
+            // 공통 폼 초기화 — 메시징(회사: TibcoLive)만, 다이얼로그는 로딩 커버 불필요.
+            this.InitializeModernForm(false);
             this.lblEqpValue.Text = eqpId;
             this.lblLotValue.Text = lotId;
         }
